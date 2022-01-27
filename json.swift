@@ -388,7 +388,106 @@ extension JSON
             try input.parse(as: ([Whitespace], Character.BraceRight, [Whitespace]).self)
         }
     }
+    
+    fileprivate 
+    struct _Decimal 
+    {
+        let units:Int64, 
+            places:Int64
+        
+        // do not edit me! i was copied-and-pasted from `decimal.swift`!
+        var normalized:Self 
+        {
+            var places:Int64   = self.places, 
+                units:Int64    = self.units 
+            // steve canon, feel free to submit a PR
+            while places > 0 
+            {
+                let (quotient, remainder):(Int64, Int64) = units.quotientAndRemainder(dividingBy: 10)
+                guard remainder == 0 
+                else 
+                {
+                    break 
+                }
+                
+                units   = quotient
+                places -= 1
+            }
+            return Self.init(units: units, places: places)
+        }
+        
+        // do not edit me! i was copied-and-pasted from `decimal.swift`!
+        func description(separator:String = ".", 
+            prefix:(positive:String, negative:String) = (positive: "", negative: "-")) 
+            -> String 
+        {
+            guard self.places > 0 
+            else 
+            {
+                return "\(self.units)"
+            }
+            
+            let places:Int      = .init(self.places)
+            let string:String   = .init(padding: Swift.abs(self.units), left: 1 + places)
+            return "\(self.units < 0 ? prefix.negative : prefix.positive)\(string.dropLast(places))\(separator)\(string.suffix(places))"
+        }
+    }
+    fileprivate 
+    enum _Base10
+    {
+        // do not edit me! i was copied-and-pasted from `bases.swift`!
+        enum Exp
+        {
+            static 
+            subscript<T, U>(inverse x:T, as _:U.Type) -> U 
+                where T:FixedWidthInteger, U:BinaryFloatingPoint
+            {
+                let inverses:[U] = 
+                [
+                    1, 
+                    1e-1, 
+                    1e-2, 
+                    
+                    1e-3,
+                    1e-4, 
+                    1e-5, 
+                    
+                    1e-6, 
+                    1e-7,
+                    1e-8,
+                    
+                    1e-9, 
+                    1e-10,
+                    1e-11,
+                    
+                    1e-12, 
+                    1e-13,
+                    1e-14,
+                    
+                    1e-15, 
+                    1e-16,
+                    1e-17,
+                    
+                    1e-18, 
+                    1e-19,
+                ]
+                return inverses[Int.init(x)]
+            }
+        }
+    }
 }
+fileprivate 
+extension BinaryFloatingPoint 
+{
+    // do not edit me! i was copied-and-pasted from `decimal.swift`!
+    init(_ decimal:JSON._Decimal) 
+    {
+        let normalized:JSON._Decimal = decimal.normalized
+        self = Self.init(normalized.units) * JSON._Base10.Exp[inverse: normalized.places, as: Self.self]
+    }
+}
+
+
 extension JSON.StringLiteral 
 {
     // includes quotes!
@@ -428,7 +527,7 @@ extension JSON.Value:CustomStringConvertible
         case .bool(false):
             return "false"
         case .number(let value):
-            guard let decimal:Decimal<Int64> = value.decimal 
+            guard let decimal:JSON._Decimal = value._decimal 
             else 
             {
                 fatalError("integer overflow")
@@ -446,7 +545,8 @@ extension JSON.Value:CustomStringConvertible
 
 extension JSON.Number 
 {
-    var decimal:Decimal<Int64>? 
+    fileprivate 
+    var _decimal:JSON._Decimal? 
     {
         let units:Int64 
         switch self.sign 
@@ -609,8 +709,8 @@ extension JSON.Value
     func decode<T>(_:T.Type) throws -> T 
         where T:BinaryFloatingPoint
     {
-        guard   case .number(let value)     = self, 
-                let decimal:Decimal<Int64>  = value.decimal 
+        guard   case .number(let value) = self, 
+                let decimal:JSON._Decimal    = value._decimal 
         else 
         {
             throw JSON.DecodingError.cannotConvert
