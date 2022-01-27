@@ -114,7 +114,7 @@ extension JSON
                 if  self.units != 0 
                 {
                     // cannot do this if units == 0, since this may cause integer overflow
-                    guard       let unit:UInt64     = Base10.Exp[exactly: self.places, as: UInt64.self], 
+                    guard       let unit:UInt64     = JSON._Base10.Exp[exactly: self.places, as: UInt64.self], 
                         case   (let shifted, false) = self.units.multipliedReportingOverflow(by: unit)
                     else 
                     {
@@ -148,7 +148,7 @@ extension JSON
                     {
                         if self.units  != 0 
                         {
-                            guard       let factor:UInt64   = Base10.Exp[exactly: exponent - self.places, as: UInt64.self], 
+                            guard       let factor:UInt64   = JSON._Base10.Exp[exactly: exponent - self.places, as: UInt64.self], 
                                 case   (let shifted, false) = self.units.multipliedReportingOverflow(by: factor)
                             else 
                             {
@@ -438,6 +438,43 @@ extension JSON
         // do not edit me! i was copied-and-pasted from `bases.swift`!
         enum Exp
         {
+            static
+            let powers:[UInt64] = 
+            [
+                1, 
+                10, 
+                100, 
+                
+                1_000,
+                10_000, 
+                100_000, 
+                
+                1_000_000, 
+                10_000_000,
+                100_000_000,
+                
+                1_000_000_000, 
+                10_000_000_000,
+                100_000_000_000,
+                
+                1_000_000_000_000, 
+                10_000_000_000_000,
+                100_000_000_000_000,
+                
+                1_000_000_000_000_000, 
+                10_000_000_000_000_000,
+                100_000_000_000_000_000,
+                
+                1_000_000_000_000_000_000, 
+                10_000_000_000_000_000_000,
+            ]
+            //  UInt64.max: 
+            //  18_446_744_073_709_551_615
+            static 
+            subscript<T, U>(exactly x:T, as _:U.Type) -> U? where T:BinaryInteger, U:FixedWidthInteger 
+            {
+                U.init(exactly: Self.powers[Int.init(x)])
+            }
             static 
             subscript<T, U>(inverse x:T, as _:U.Type) -> U 
                 where T:FixedWidthInteger, U:BinaryFloatingPoint
