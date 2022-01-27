@@ -428,7 +428,8 @@ extension JSON
             }
             
             let places:Int      = .init(self.places)
-            let string:String   = .init(padding: Swift.abs(self.units), left: 1 + places)
+            let unpadded:String = .init(Swift.abs(self.units))
+            let string:String   = "\(String.init(repeating: "0", count: Swift.max(0, 1 + places - unpadded.count)))\(unpadded)"
             return "\(self.units < 0 ? prefix.negative : prefix.positive)\(string.dropLast(places))\(separator)\(string.suffix(places))"
         }
     }
