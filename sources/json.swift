@@ -5,81 +5,12 @@ enum JSON
         let value:UInt16  
     }
     
-    enum Value:Grammar.Parsable
+    struct Number 
     {
-        typealias Terminal = Character
-        
-        case null 
-        case bool(Bool)
-        case number(Number)
-        case string(String)
-        case array([Self])
-        case object([String: Self])
-        
-        init<C>(parsing input:inout Grammar.Input<C>) throws where C:Collection, C.Element == Terminal
+        enum Sign
         {
-            if      let _:Void          = try? input.parse(terminals: "null")
-            {
-                self = .null 
-            }
-            else if let _:Void          = try? input.parse(terminals: "true")
-            {
-                self = .bool(true)
-            }
-            else if let _:Void          = try? input.parse(terminals: "false")
-            {
-                self = .bool(false)
-            }
-            else if let number:Number   = try? input.parse(as: Number.self)
-            {
-                self = .number(number)
-            }
-            else if let string:String   = try? input.parse(as: StringLiteral.self)
-            {
-                self = .string(string)
-            }
-            else if let elements:[Self] = try? input.parse(as: Array.self)
-            {
-                self = .array(elements)
-            }
-            else 
-            {
-                self = .object(           try  input.parse(as: Object.self))
-            }
-        }
-    }
-}
-extension JSON 
-{
-    struct Number:Grammar.Parsable 
-    {
-        typealias Terminal = Character
-        
-        enum Sign:Grammar.TerminalClass 
-        {
-            typealias Terminal = Character
-            
             case plus 
             case minus 
-            
-            init?(terminal character:Character)
-            {
-                switch character 
-                {
-                case "+":   self = .plus 
-                case "-":   self = .minus
-                default:    return nil
-                }
-            }
-            
-            var terminal:Character 
-            {
-                switch self 
-                {
-                case .plus:     return "+"
-                case .minus:    return "-"
-                }
-            }
         }
         
         var sign:Sign, 
@@ -92,300 +23,387 @@ extension JSON
             self.units  = units 
             self.places = places 
         }
-        
-        init<C>(parsing input:inout Grammar.Input<C>) throws where C:Collection, C.Element == Terminal
+    }
+    
+    case null 
+    case bool(Bool)
+    case number(Number)
+    case string(String)
+    case array([Self])
+    case object([String: Self])
+    
+    private
+    enum Keyword<Location> 
+    {
+        enum Null:Grammar.TerminalSequence 
         {
-            if let _:Void = try? input.parse(terminal: "-")
+            typealias Terminal = Character 
+            static 
+            var literal:String { "null" }
+        }
+        enum True:Grammar.TerminalSequence 
+        {
+            typealias Terminal = Character 
+            static 
+            var literal:String { "true" }
+        }
+        enum False:Grammar.TerminalSequence 
+        {
+            typealias Terminal = Character 
+            static 
+            var literal:String { "false" }
+        }
+    }
+    
+    enum Root<Location>:ParsingRule
+    {
+        typealias Terminal = Character
+        static 
+        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> Decoder
+            where Source:Collection, Source.Index == Location, Source.Element == Terminal
+        {
+            if let items:[String: JSON] = input.parse(as: Object<Location>?.self)
             {
-                self.sign = .minus 
+                return .init(.object(items), path: [])
             }
             else 
             {
-                self.sign = .plus 
+                return .init(.array(try input.parse(as: Array<Location>.self)), path: [])
+            }
+        }
+    }
+    private
+    enum Value<Location>:ParsingRule
+    {
+        typealias Terminal = Character
+        static 
+        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> JSON
+            where Source:Collection, Source.Index == Location, Source.Element == Terminal
+        {
+            if      let _:Void          = input.parse(as: Keyword.Null?.self)
+            {
+                return .null 
+            }
+            else if let _:Void          = input.parse(as: Keyword.True?.self)
+            {
+                return .bool(true)
+            }
+            else if let _:Void          = input.parse(as: Keyword.False?.self)
+            {
+                return .bool(false)
+            }
+            else if let number:Number   = input.parse(as: NumberLiteral?.self)
+            {
+                return .number(number)
+            }
+            else if let string:String   = input.parse(as: StringLiteral?.self)
+            {
+                return .string(string)
+            }
+            else if let elements:[JSON] = input.parse(as: Array?.self)
+            {
+                return .array(elements)
+            }
+            else 
+            {
+                return .object(try input.parse(as: Object.self))
+            }
+        }
+    }
+    
+    private
+    enum NumberLiteral<Location>:ParsingRule
+    {
+        private 
+        enum PlusOrMinus:Grammar.TerminalClass 
+        {
+            typealias Terminal      = Character
+            typealias Construction  = Number.Sign
+            
+            static 
+            func parse(terminal character:Character) -> Number.Sign? 
+            {
+                switch character 
+                {
+                case "+":   return .plus 
+                case "-":   return .minus
+                default:    return nil
+                }
+            }
+        }
+        
+        typealias Terminal = Character
+        static 
+        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> Number
+            where Source:Collection, Source.Index == Location, Source.Element == Terminal
+        {
+            // https://datatracker.ietf.org/doc/html/rfc8259#section-6
+            // JSON does not allow prefix '+'
+            let sign:Number.Sign 
+            switch input.parse(as: Character.Minus<Location>?.self)
+            {
+            case  _?:   sign = .minus 
+            case nil:   sign = .plus
             }
             
-            let integer:Grammar.BigEndian   = try input.parse(as: Grammar.Reduce<Character.Digit, Grammar.BigEndian>.self)
-            self.units                      = try integer.as(UInt64.self, radix: 10)
-            
-            if  let    (_, fraction):(Void,                                             Grammar.BigEndian) = 
-                try? input.parse(as: (Character.Period, Grammar.Reduce<Character.Digit, Grammar.BigEndian>).self)
+            var units:UInt64    = 
+                try  input.parse(as: Grammar.UnsignedIntegerLiteral<Character.DecimalDigit<Location, UInt64>>.self)
+            var places:Int      = 0
+            if  var (_, remainder):(Void, UInt64) = 
+                try? input.parse(as: (Character.Period<Location>, Character.DecimalDigit<Location, UInt64>).self)
             {
-                self.places     = fraction.count
-                if  self.units != 0 
+                while true 
                 {
-                    // cannot do this if units == 0, since this may cause integer overflow
-                    guard       let unit:UInt64     = JSON._Base10.Exp[exactly: self.places, as: UInt64.self], 
-                        case   (let shifted, false) = self.units.multipliedReportingOverflow(by: unit)
+                    guard   case (let shifted, false) = units.multipliedReportingOverflow(by: 10), 
+                            case (let refined, false) = shifted.addingReportingOverflow(remainder)
                     else 
                     {
                         throw Grammar.IntegerOverflowError<UInt64>.init()
                     }
-                    self.units  = shifted
+                    places += 1
+                    units   = refined
+                    
+                    guard let next:UInt64 = input.parse(as: Character.DecimalDigit<Location, UInt64>?.self)
+                    else 
+                    {
+                        break 
+                    }
+                    remainder = next
                 }
-                
-                guard case (let refined, false) = self.units.addingReportingOverflow(try fraction.as(UInt64.self, radix: 10))
-                else 
-                {
-                    throw Grammar.IntegerOverflowError<UInt64>.init()
-                }
-                self.units      = refined
             }
-            else 
+            if  let _:Void              =     input.parse(as: Character.E.Anycase<Location>?.self) 
             {
-                self.places     = 0
-            }
-            
-            if  let (_, sign, exponent):(Void,                Sign?,                                 Grammar.BigEndian) = 
-                try?    input.parse(as: (Character.E.Anycase, Sign?, Grammar.Reduce<Character.Digit, Grammar.BigEndian>).self)
-            {
-                let exponent:Int = try exponent.as(Int.self, radix: 10)
+                let sign:Number.Sign?   =     input.parse(as: PlusOrMinus?.self)
+                let exponent:Int        = try input.parse(as: Grammar.UnsignedIntegerLiteral<Character.DecimalDigit<Location, Int>>.self)
+                // you too, can exploit the vulnerabilities below
                 switch sign
                 {
                 case .minus?:
-                    self.places        += exponent 
+                    places         += exponent 
                 case .plus?, nil:
-                    if self.places      < exponent
-                    {
-                        if self.units  != 0 
-                        {
-                            guard       let factor:UInt64   = JSON._Base10.Exp[exactly: exponent - self.places, as: UInt64.self], 
-                                case   (let shifted, false) = self.units.multipliedReportingOverflow(by: factor)
-                            else 
-                            {
-                                throw Grammar.IntegerOverflowError<UInt64>.init()
-                            }
-                            self.units = shifted
-                        }
-                        self.places     = 0 
-                    }
+                    guard places    < exponent
                     else 
                     {
-                        self.places    -= exponent
+                        places     -= exponent
+                        break 
                     }
+                    defer 
+                    {
+                        places      = 0
+                    }
+                    guard units    != 0 
+                    else 
+                    {
+                        break 
+                    }
+                    let shift:Int   = exponent - places 
+                    guard shift     < Base10.Exp.endIndex, case (let shifted, false) = 
+                        units.multipliedReportingOverflow(by: Base10.Exp[shift])
+                    else 
+                    {
+                        throw Grammar.IntegerOverflowError<UInt64>.init()
+                    }
+                    units           = shifted
                 }
             }
+            return .init(sign: sign, units: units, places: places)
         }
     }
-    struct StringLiteral:Grammar.Parsable 
+    enum StringLiteral<Location>:ParsingRule 
     {
-        typealias Terminal = Character
-
         private 
-        struct Element:Grammar.Parsable 
+        enum Element:ParsingRule 
         {
-            typealias Terminal = Character
-            
             private 
-            struct Escaped:Grammar.TerminalClass 
+            enum Escaped:Grammar.TerminalClass 
             {
-                typealias Terminal = Character
-                
-                let production:Character 
-                
-                init?(terminal character:Character)
+                typealias Terminal      = Character
+                typealias Construction  = Character 
+                static 
+                func parse(terminal character:Character) -> Character? 
                 {
                     switch character
                     {
-                    case "\\", "/": self.production = character
-                    case "b":       self.production = "\u{08}"
-                    case "f":       self.production = "\u{0C}"
-                    case "n":       self.production = "\u{0A}"
-                    case "r":       self.production = "\u{0D}"
-                    case "t":       self.production = "\u{09}"
+                    case "\\", "/": return character
+                    case "b":       return "\u{08}"
+                    case "f":       return "\u{0C}"
+                    case "n":       return "\u{0A}"
+                    case "r":       return "\u{0D}"
+                    case "t":       return "\u{09}"
                     default:        return nil 
                     }
                 }
             }
             private 
-            struct Unescaped:Grammar.TerminalClass
+            enum Unescaped:Grammar.TerminalClass
             {
-                typealias Terminal = Character
-                
-                let production:Character 
-                
-                init?(terminal character:Character)
+                typealias Terminal      = Character
+                typealias Construction  = Character 
+                static 
+                func parse(terminal character:Character) -> Character? 
                 {
                     for scalar:Unicode.Scalar in character.unicodeScalars
                     {
+                        ranges:
                         switch scalar 
                         {
                         case "\u{20}" ... "\u{21}", "\u{23}" ... "\u{5B}", "\u{5D}" ... "\u{10FFFF}":
-                            break  
+                            break ranges 
                         default:
                             return nil
                         }
                     }
-                    self.production = character
+                    return character
                 }
             } 
             
-            let production:Character 
-            
-            init<C>(parsing input:inout Grammar.Input<C>) throws where C:Collection, C.Element == Terminal
+            typealias Terminal = Character
+            static 
+            func parse<Source>(_ input:inout ParsingInput<Source>) throws -> Character
+                where Source:Collection, Source.Index == Location, Source.Element == Terminal
             {
-                if let character:Character = try? input.parse(as: Unescaped.self) 
+                if let character:Character = input.parse(as: Unescaped?.self) 
                 {
-                    self.production = character 
+                    return character 
                 }
+                try input.parse(as: Character.Backslash<Location>.self)
+                if let character:Character = input.parse(as: Escaped?.self)
+                {
+                    return character 
+                }
+                try input.parse(as: Character.U.Lowercase<Location>.self) 
+                let value:UInt16 = 
+                    (try input.parse(as: Character.HexDigit.Anycase<Location, UInt16>.self) << 12) |
+                    (try input.parse(as: Character.HexDigit.Anycase<Location, UInt16>.self) <<  8) |
+                    (try input.parse(as: Character.HexDigit.Anycase<Location, UInt16>.self) <<  4) |
+                    (try input.parse(as: Character.HexDigit.Anycase<Location, UInt16>.self)) 
+                guard let scalar:Unicode.Scalar = .init(value)
                 else 
                 {
-                    try input.parse(terminal: "\\")
-                    if let character:Character = try? input.parse(as: Escaped.self)
-                    {
-                        self.production = character 
-                    }
-                    else 
-                    {
-                        try input.parse(terminal: "u") 
-                        let hex:Grammar.BigEndian   = try input.parse(
-                            as: Grammar.Reduce4<Character.HexDigit.Anycase, Grammar.BigEndian>.self)
-                        // should never actually throw 
-                        let value:UInt16            = try hex.as(UInt16.self, radix: 16)
-                        guard let scalar:Unicode.Scalar = .init(value)
-                        else 
-                        {
-                            throw JSON.InvalidUnicodeScalarError.init(value: value)
-                        }
-                        self.production = Character.init(scalar)
-                    }
+                    throw InvalidUnicodeScalarError.init(value: value)
                 }
+                return Character.init(scalar)
             }
         }
         
-        let production:String 
-        
-        init<C>(parsing input:inout Grammar.Input<C>) throws where C:Collection, C.Element == Terminal
-        {
-            try                 input.parse(terminal: "\"")
-            self.production =   input.parse(as: Element.self, in: String.self)
-            try                 input.parse(terminal: "\"")
-        }
-    }
-}
-extension JSON 
-{
-    private 
-    struct Whitespace:Grammar.TerminalClass 
-    {
         typealias Terminal = Character
-        init?(terminal character:Character)
+        static 
+        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> String
+            where Source:Collection, Source.Index == Location, Source.Element == Terminal
         {
-            switch character 
-            {
-            case " ", "\t", "\n", "\r":
-                return 
-            default:
-                return nil
-            }
-        }
-        var terminal:Character
-        {
-            " "
-        }
-        var production:Void 
-        {
-            ()
-        }
-        init(production _:Void)
-        {
+            try                 input.parse(as: Character.Quote<Location>.self)
+            let string:String = input.parse(as: Element.self, in: String.self)
+            try                 input.parse(as: Character.Quote<Location>.self)
+            return string 
         }
     }
     
-    enum Separator 
+    private 
+    enum Whitespace<Location>:Grammar.TerminalClass 
     {
-        struct Name:Grammar.Parsable 
+        typealias Terminal      = Character
+        typealias Construction  = Void 
+        static 
+        func parse(terminal character:Character) -> Void? 
         {
-            typealias Terminal = Character
-            var production:Void 
+            switch character 
             {
-                ()
-            }
-            init<C>(parsing input:inout Grammar.Input<C>) throws where C:Collection, C.Element == Terminal
-            {
-                    input.parse(as: Whitespace.self, in: Void.self)
-                try input.parse(terminal: ":") 
-                    input.parse(as: Whitespace.self, in: Void.self)
-            }
-        }
-        struct Value:Grammar.Parsable 
-        {
-            typealias Terminal = Character
-            var production:Void 
-            {
-                ()
-            }
-            init<C>(parsing input:inout Grammar.Input<C>) throws where C:Collection, C.Element == Terminal
-            {
-                    input.parse(as: Whitespace.self, in: Void.self)
-                try input.parse(terminal: ",") 
-                    input.parse(as: Whitespace.self, in: Void.self)
+            case " ", "\t", "\n", "\r": return ()
+            default:                    return nil
             }
         }
     }
-    struct Array:Grammar.Parsable 
+    private 
+    enum Separator<Location> 
+    {
+        struct Name:ParsingRule 
+        {
+            typealias Terminal = Character
+            static 
+            func parse<Source>(_ input:inout ParsingInput<Source>) throws 
+                where Source:Collection, Source.Index == Location, Source.Element == Terminal
+            {
+                input.parse(as: Whitespace<Location>.self, in: Void.self)
+                try input.parse(as: Character.Colon<Location>.self) 
+                input.parse(as: Whitespace<Location>.self, in: Void.self)
+            }
+        }
+        struct Value:ParsingRule 
+        {
+            typealias Terminal = Character
+            static 
+            func parse<Source>(_ input:inout ParsingInput<Source>) throws 
+                where Source:Collection, Source.Index == Location, Source.Element == Terminal
+            {
+                input.parse(as: Whitespace<Location>.self, in: Void.self)
+                try input.parse(as: Character.Comma<Location>.self) 
+                input.parse(as: Whitespace<Location>.self, in: Void.self)
+            }
+        }
+    }
+    private 
+    enum Array<Location>:ParsingRule 
     {
         typealias Terminal = Character
-        
-        let production:[Value]
-        init<C>(parsing input:inout Grammar.Input<C>) throws where C:Collection, C.Element == Terminal 
+        static 
+        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> [JSON]
+            where Source:Collection, Source.Index == Location, Source.Element == Terminal
         {
-            try input.parse(as: ([Whitespace], Character.BracketLeft, [Whitespace]).self)
-            
-            if let head:Value = try? input.parse(as: Value.self)
+            try input.parse(as: ([Whitespace<Location>], Character.BracketLeft<Location>, [Whitespace<Location>]).self)
+            var elements:[JSON]
+            if let head:JSON = try? input.parse(as: Value<Location>.self)
             {
-                var elements:[Value] = [head]
-                while let (_, value):(Void, Value) = try? input.parse(as: (Separator.Value, Value).self)
+                elements = [head]
+                while let (_, value):(Void, JSON) = try? input.parse(as: (Separator<Location>.Value, Value<Location>).self)
                 {
                     elements.append(value)
                 }
-                self.production = elements
             }
             else 
             {
-                self.production = []
+                elements = []
             }
-            
-            try input.parse(as: ([Whitespace], Character.BracketRight, [Whitespace]).self)
+            try input.parse(as: ([Whitespace<Location>], Character.BracketRight<Location>, [Whitespace<Location>]).self)
+            return elements
         }
     }
-    struct Object:Grammar.Parsable 
+    enum Object<Location>:ParsingRule 
     {
-        typealias Terminal = Character
-        struct Item:Grammar.Parsable 
+        enum Item:ParsingRule 
         {
             typealias Terminal = Character
-            
-            let key:String 
-            let value:Value 
-            init<C>(parsing input:inout Grammar.Input<C>) throws where C:Collection, C.Element == Terminal
+            static 
+            func parse<Source>(_ input:inout ParsingInput<Source>) throws -> (key:String, value:JSON)
+                where Source:Collection, Source.Index == Location, Source.Element == Terminal
             {
-                self.key    =   try input.parse(as: StringLiteral.self)
-                                try input.parse(as: Separator.Name.self)
-                self.value  =   try input.parse(as: Value.self)
+                let key:String  = try input.parse(as: StringLiteral<Location>.self)
+                try input.parse(as: Separator<Location>.Name.self)
+                let value:JSON  = try input.parse(as: Value<Location>.self)
+                return (key, value)
             }
         }
         
-        let production:[String: Value]
-        
-        init<C>(parsing input:inout Grammar.Input<C>) throws where C:Collection, C.Element == Terminal 
+        typealias Terminal = Character
+        static 
+        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> [String: JSON]
+            where Source:Collection, Source.Index == Location, Source.Element == Terminal
         {
-            try input.parse(as: ([Whitespace], Character.BraceLeft, [Whitespace]).self)
-            
-            if let head:Item = try? input.parse(as: Item.self)
+            try input.parse(as: ([Whitespace<Location>], Character.BraceLeft<Location>, [Whitespace<Location>]).self)
+            var items:[String: JSON]
+            if let head:(key:String, value:JSON) = try? input.parse(as: Item.self)
             {
-                var items:[String: Value]             = [head.key: head.value]
-                while let (_, item):(Void, Item) = try? input.parse(as: (Separator.Value, Item).self)
+                items = [head.key: head.value]
+                while let (_, item):(Void, (key:String, value:JSON)) = try? input.parse(as: (Separator<Location>.Value, Item).self)
                 {
                     items[item.key] = item.value 
                 }
-                self.production = items 
             }
             else 
             {
-                self.production = [:]
+                items = [:]
             }
-            
-            try input.parse(as: ([Whitespace], Character.BraceRight, [Whitespace]).self)
+            try input.parse(as: ([Whitespace<Location>], Character.BraceRight<Location>, [Whitespace<Location>]).self)
+            return items
         }
     }
     
@@ -434,53 +452,47 @@ extension JSON
         }
     }
     fileprivate 
-    enum _Base10
+    enum Base10
     {
-        // do not edit me! i was copied-and-pasted from `bases.swift`!
-        enum Exp
-        {
-            static
-            let powers:[UInt64] = 
-            [
-                1, 
-                10, 
-                100, 
-                
-                1_000,
-                10_000, 
-                100_000, 
-                
-                1_000_000, 
-                10_000_000,
-                100_000_000,
-                
-                1_000_000_000, 
-                10_000_000_000,
-                100_000_000_000,
-                
-                1_000_000_000_000, 
-                10_000_000_000_000,
-                100_000_000_000_000,
-                
-                1_000_000_000_000_000, 
-                10_000_000_000_000_000,
-                100_000_000_000_000_000,
-                
-                1_000_000_000_000_000_000, 
-                10_000_000_000_000_000_000,
-            ]
+        static
+        let Exp:[UInt64] = 
+        [
+            1, 
+            10, 
+            100, 
+            
+            1_000,
+            10_000, 
+            100_000, 
+            
+            1_000_000, 
+            10_000_000,
+            100_000_000,
+            
+            1_000_000_000, 
+            10_000_000_000,
+            100_000_000_000,
+            
+            1_000_000_000_000, 
+            10_000_000_000_000,
+            100_000_000_000_000,
+            
+            1_000_000_000_000_000, 
+            10_000_000_000_000_000,
+            100_000_000_000_000_000,
+            
+            1_000_000_000_000_000_000, 
+            10_000_000_000_000_000_000,
             //  UInt64.max: 
             //  18_446_744_073_709_551_615
+        ]
+        enum Inverse 
+        {
             static 
-            subscript<T, U>(exactly x:T, as _:U.Type) -> U? where T:BinaryInteger, U:FixedWidthInteger 
+            subscript<T>(x:Int, as _:T.Type) -> T 
+                where T:BinaryFloatingPoint
             {
-                U.init(exactly: Self.powers[Int.init(x)])
-            }
-            static 
-            subscript<T, U>(inverse x:T, as _:U.Type) -> U 
-                where T:FixedWidthInteger, U:BinaryFloatingPoint
-            {
-                let inverses:[U] = 
+                let inverses:[T] = 
                 [
                     1, 
                     1e-1, 
@@ -509,7 +521,7 @@ extension JSON
                     1e-18, 
                     1e-19,
                 ]
-                return inverses[Int.init(x)]
+                return inverses[x]
             }
         }
     }
@@ -521,7 +533,7 @@ extension BinaryFloatingPoint
     init(_ decimal:JSON._Decimal) 
     {
         let normalized:JSON._Decimal = decimal.normalized
-        self = Self.init(normalized.units) * JSON._Base10.Exp[inverse: normalized.places, as: Self.self]
+        self = Self.init(normalized.units) * JSON.Base10.Inverse[Int.init(normalized.places), as: Self.self]
     }
 }
 
@@ -552,7 +564,7 @@ extension JSON.StringLiteral
         return escaped
     }
 }
-extension JSON.Value:CustomStringConvertible 
+extension JSON:CustomStringConvertible 
 {
     var description:String
     {
@@ -620,40 +632,23 @@ extension JSON
         case cannotConvert
     }
     
-    struct Decoder:Grammar.Parsable
+    struct Decoder
     {
-        typealias Terminal = Character
-        
         let codingPath:[CodingKey]
         let userInfo:[CodingUserInfoKey: Any]
         
-        let value:JSON.Value
+        let value:JSON
         
         fileprivate 
-        init(_ value:JSON.Value, path:[CodingKey])
+        init(_ value:JSON, path:[CodingKey])
         {
             self.value      = value 
             self.codingPath = path 
             self.userInfo   = [:]
         }
-        
-        init<C>(parsing input:inout Grammar.Input<C>) throws where C:Collection, C.Element == Terminal 
-        {
-            if let elements:[JSON.Value]        = try? input.parse(as: JSON.Array.self)
-            {
-                self.value = .array(elements)
-            }
-            else
-            {
-                let items:[String: JSON.Value]  = try  input.parse(as: JSON.Object.self)
-                self.value = .object(items)
-            }
-            self.codingPath = [ ]
-            self.userInfo   = [:]
-        }
     }
 }
-extension JSON.Array 
+extension JSON 
 {
     struct Index:CodingKey 
     {
@@ -683,7 +678,7 @@ extension JSON.Array
         }
     }
 }
-extension JSON.Value
+extension JSON
 {
     func decodeNil() -> Bool
     {
@@ -805,9 +800,9 @@ extension JSON.Decoder:Decoder & SingleValueDecodingContainer
     {
         let codingPath:[CodingKey]
         let allKeys:[Key]
-        let dictionary:[String: JSON.Value]
+        let dictionary:[String: JSON]
         
-        init(dictionary:[String: JSON.Value], path:[CodingKey])
+        init(dictionary:[String: JSON], path:[CodingKey])
         {
             self.codingPath = path
             self.allKeys    = dictionary.keys.compactMap(Key.init(stringValue:))
@@ -820,9 +815,9 @@ extension JSON.Decoder:Decoder & SingleValueDecodingContainer
         }
         
         private 
-        func value(_ key:Key) throws -> JSON.Value 
+        func value(_ key:Key) throws -> JSON 
         {
-            guard let child:JSON.Value = self.dictionary[key.stringValue]
+            guard let child:JSON = self.dictionary[key.stringValue]
             else 
             {
                 throw JSON.DecodingError.invalidKey(key.stringValue, path: self.codingPath)
@@ -923,7 +918,7 @@ extension JSON.Decoder:Decoder & SingleValueDecodingContainer
         let codingPath:[CodingKey]
         
         private 
-        let array:[JSON.Value]
+        let array:[JSON]
         private(set)
         var currentIndex:Int 
         
@@ -936,7 +931,7 @@ extension JSON.Decoder:Decoder & SingleValueDecodingContainer
             self.currentIndex >= self.array.endIndex
         }
         
-        init(array:[JSON.Value], path:[CodingKey])
+        init(array:[JSON], path:[CodingKey])
         {
             self.codingPath     = path
             self.currentIndex   = array.startIndex 
@@ -944,7 +939,7 @@ extension JSON.Decoder:Decoder & SingleValueDecodingContainer
         }
         
         private mutating 
-        func next() throws -> JSON.Value 
+        func next() throws -> JSON 
         {
             if self.isAtEnd 
             {
@@ -1048,7 +1043,7 @@ extension JSON.Decoder:Decoder & SingleValueDecodingContainer
         private 
         var nextPath:[CodingKey]
         {
-            self.codingPath + [JSON.Array.Index.init(intValue: self.currentIndex)]
+            self.codingPath + [JSON.Index.init(intValue: self.currentIndex)]
         }
         
         mutating 
@@ -1160,4 +1155,4 @@ extension JSON.Decoder:Decoder & SingleValueDecodingContainer
     {
         self
     }
-}
+} 
