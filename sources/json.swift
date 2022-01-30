@@ -25,386 +25,28 @@ enum JSON
         }
     }
     
-    case null 
-    case bool(Bool)
-    case number(Number)
-    case string(String)
-    case array([Self])
-    case object([String: Self])
-    
-    private
-    enum Keyword<Location> 
+    // includes quotes!
+    static 
+    func escape<S>(_ string:S) -> String where S:StringProtocol
     {
-        enum Null:Grammar.TerminalSequence 
+        var escaped:String = "\""
+        for character:Character in string 
         {
-            typealias Terminal = Character 
-            static 
-            var literal:String { "null" }
-        }
-        enum True:Grammar.TerminalSequence 
-        {
-            typealias Terminal = Character 
-            static 
-            var literal:String { "true" }
-        }
-        enum False:Grammar.TerminalSequence 
-        {
-            typealias Terminal = Character 
-            static 
-            var literal:String { "false" }
-        }
-    }
-    
-    enum Root<Location>:ParsingRule
-    {
-        typealias Terminal = Character
-        static 
-        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> Decoder
-            where Source:Collection, Source.Index == Location, Source.Element == Terminal
-        {
-            if let items:[String: JSON] = input.parse(as: Object<Location>?.self)
+            switch character
             {
-                return .init(.object(items), path: [])
-            }
-            else 
-            {
-                return .init(.array(try input.parse(as: Array<Location>.self)), path: [])
+            case "\"":      escaped += "\\\""
+            case "\\":      escaped += "\\\\"
+            case "/":       escaped += "\\/"
+            case "\u{08}":  escaped += "\\b"
+            case "\u{09}":  escaped += "\\t"
+            case "\u{0A}":  escaped += "\\n"
+            case "\u{0C}":  escaped += "\\f"
+            case "\u{0D}":  escaped += "\\r"
+            default:        escaped.append(character)
             }
         }
-    }
-    private
-    enum Value<Location>:ParsingRule
-    {
-        typealias Terminal = Character
-        static 
-        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> JSON
-            where Source:Collection, Source.Index == Location, Source.Element == Terminal
-        {
-            if      let _:Void          = input.parse(as: Keyword.Null?.self)
-            {
-                return .null 
-            }
-            else if let _:Void          = input.parse(as: Keyword.True?.self)
-            {
-                return .bool(true)
-            }
-            else if let _:Void          = input.parse(as: Keyword.False?.self)
-            {
-                return .bool(false)
-            }
-            else if let number:Number   = input.parse(as: NumberLiteral?.self)
-            {
-                return .number(number)
-            }
-            else if let string:String   = input.parse(as: StringLiteral?.self)
-            {
-                return .string(string)
-            }
-            else if let elements:[JSON] = input.parse(as: Array?.self)
-            {
-                return .array(elements)
-            }
-            else 
-            {
-                return .object(try input.parse(as: Object.self))
-            }
-        }
-    }
-    
-    private
-    enum NumberLiteral<Location>:ParsingRule
-    {
-        private 
-        enum PlusOrMinus:Grammar.TerminalClass 
-        {
-            typealias Terminal      = Character
-            typealias Construction  = Number.Sign
-            
-            static 
-            func parse(terminal character:Character) -> Number.Sign? 
-            {
-                switch character 
-                {
-                case "+":   return .plus 
-                case "-":   return .minus
-                default:    return nil
-                }
-            }
-        }
-        
-        typealias Terminal = Character
-        static 
-        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> Number
-            where Source:Collection, Source.Index == Location, Source.Element == Terminal
-        {
-            // https://datatracker.ietf.org/doc/html/rfc8259#section-6
-            // JSON does not allow prefix '+'
-            let sign:Number.Sign 
-            switch input.parse(as: Character.Minus<Location>?.self)
-            {
-            case  _?:   sign = .minus 
-            case nil:   sign = .plus
-            }
-            
-            var units:UInt64    = 
-                try  input.parse(as: Grammar.UnsignedIntegerLiteral<Character.DecimalDigit<Location, UInt64>>.self)
-            var places:Int      = 0
-            if  var (_, remainder):(Void, UInt64) = 
-                try? input.parse(as: (Character.Period<Location>, Character.DecimalDigit<Location, UInt64>).self)
-            {
-                while true 
-                {
-                    guard   case (let shifted, false) = units.multipliedReportingOverflow(by: 10), 
-                            case (let refined, false) = shifted.addingReportingOverflow(remainder)
-                    else 
-                    {
-                        throw Grammar.IntegerOverflowError<UInt64>.init()
-                    }
-                    places += 1
-                    units   = refined
-                    
-                    guard let next:UInt64 = input.parse(as: Character.DecimalDigit<Location, UInt64>?.self)
-                    else 
-                    {
-                        break 
-                    }
-                    remainder = next
-                }
-            }
-            if  let _:Void              =     input.parse(as: Character.E.Anycase<Location>?.self) 
-            {
-                let sign:Number.Sign?   =     input.parse(as: PlusOrMinus?.self)
-                let exponent:Int        = try input.parse(as: Grammar.UnsignedIntegerLiteral<Character.DecimalDigit<Location, Int>>.self)
-                // you too, can exploit the vulnerabilities below
-                switch sign
-                {
-                case .minus?:
-                    places         += exponent 
-                case .plus?, nil:
-                    guard places    < exponent
-                    else 
-                    {
-                        places     -= exponent
-                        break 
-                    }
-                    defer 
-                    {
-                        places      = 0
-                    }
-                    guard units    != 0 
-                    else 
-                    {
-                        break 
-                    }
-                    let shift:Int   = exponent - places 
-                    guard shift     < Base10.Exp.endIndex, case (let shifted, false) = 
-                        units.multipliedReportingOverflow(by: Base10.Exp[shift])
-                    else 
-                    {
-                        throw Grammar.IntegerOverflowError<UInt64>.init()
-                    }
-                    units           = shifted
-                }
-            }
-            return .init(sign: sign, units: units, places: places)
-        }
-    }
-    enum StringLiteral<Location>:ParsingRule 
-    {
-        private 
-        enum Element:ParsingRule 
-        {
-            private 
-            enum Escaped:Grammar.TerminalClass 
-            {
-                typealias Terminal      = Character
-                typealias Construction  = Character 
-                static 
-                func parse(terminal character:Character) -> Character? 
-                {
-                    switch character
-                    {
-                    case "\\", "/": return character
-                    case "b":       return "\u{08}"
-                    case "f":       return "\u{0C}"
-                    case "n":       return "\u{0A}"
-                    case "r":       return "\u{0D}"
-                    case "t":       return "\u{09}"
-                    default:        return nil 
-                    }
-                }
-            }
-            private 
-            enum Unescaped:Grammar.TerminalClass
-            {
-                typealias Terminal      = Character
-                typealias Construction  = Character 
-                static 
-                func parse(terminal character:Character) -> Character? 
-                {
-                    for scalar:Unicode.Scalar in character.unicodeScalars
-                    {
-                        ranges:
-                        switch scalar 
-                        {
-                        case "\u{20}" ... "\u{21}", "\u{23}" ... "\u{5B}", "\u{5D}" ... "\u{10FFFF}":
-                            break ranges 
-                        default:
-                            return nil
-                        }
-                    }
-                    return character
-                }
-            } 
-            
-            typealias Terminal = Character
-            static 
-            func parse<Source>(_ input:inout ParsingInput<Source>) throws -> Character
-                where Source:Collection, Source.Index == Location, Source.Element == Terminal
-            {
-                if let character:Character = input.parse(as: Unescaped?.self) 
-                {
-                    return character 
-                }
-                try input.parse(as: Character.Backslash<Location>.self)
-                if let character:Character = input.parse(as: Escaped?.self)
-                {
-                    return character 
-                }
-                try input.parse(as: Character.U.Lowercase<Location>.self) 
-                let value:UInt16 = 
-                    (try input.parse(as: Character.HexDigit.Anycase<Location, UInt16>.self) << 12) |
-                    (try input.parse(as: Character.HexDigit.Anycase<Location, UInt16>.self) <<  8) |
-                    (try input.parse(as: Character.HexDigit.Anycase<Location, UInt16>.self) <<  4) |
-                    (try input.parse(as: Character.HexDigit.Anycase<Location, UInt16>.self)) 
-                guard let scalar:Unicode.Scalar = .init(value)
-                else 
-                {
-                    throw InvalidUnicodeScalarError.init(value: value)
-                }
-                return Character.init(scalar)
-            }
-        }
-        
-        typealias Terminal = Character
-        static 
-        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> String
-            where Source:Collection, Source.Index == Location, Source.Element == Terminal
-        {
-            try                 input.parse(as: Character.Quote<Location>.self)
-            let string:String = input.parse(as: Element.self, in: String.self)
-            try                 input.parse(as: Character.Quote<Location>.self)
-            return string 
-        }
-    }
-    
-    private 
-    enum Whitespace<Location>:Grammar.TerminalClass 
-    {
-        typealias Terminal      = Character
-        typealias Construction  = Void 
-        static 
-        func parse(terminal character:Character) -> Void? 
-        {
-            switch character 
-            {
-            case " ", "\t", "\n", "\r": return ()
-            default:                    return nil
-            }
-        }
-    }
-    private 
-    enum Separator<Location> 
-    {
-        struct Name:ParsingRule 
-        {
-            typealias Terminal = Character
-            static 
-            func parse<Source>(_ input:inout ParsingInput<Source>) throws 
-                where Source:Collection, Source.Index == Location, Source.Element == Terminal
-            {
-                input.parse(as: Whitespace<Location>.self, in: Void.self)
-                try input.parse(as: Character.Colon<Location>.self) 
-                input.parse(as: Whitespace<Location>.self, in: Void.self)
-            }
-        }
-        struct Value:ParsingRule 
-        {
-            typealias Terminal = Character
-            static 
-            func parse<Source>(_ input:inout ParsingInput<Source>) throws 
-                where Source:Collection, Source.Index == Location, Source.Element == Terminal
-            {
-                input.parse(as: Whitespace<Location>.self, in: Void.self)
-                try input.parse(as: Character.Comma<Location>.self) 
-                input.parse(as: Whitespace<Location>.self, in: Void.self)
-            }
-        }
-    }
-    private 
-    enum Array<Location>:ParsingRule 
-    {
-        typealias Terminal = Character
-        static 
-        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> [JSON]
-            where Source:Collection, Source.Index == Location, Source.Element == Terminal
-        {
-            try input.parse(as: ([Whitespace<Location>], Character.BracketLeft<Location>, [Whitespace<Location>]).self)
-            var elements:[JSON]
-            if let head:JSON = try? input.parse(as: Value<Location>.self)
-            {
-                elements = [head]
-                while let (_, value):(Void, JSON) = try? input.parse(as: (Separator<Location>.Value, Value<Location>).self)
-                {
-                    elements.append(value)
-                }
-            }
-            else 
-            {
-                elements = []
-            }
-            try input.parse(as: ([Whitespace<Location>], Character.BracketRight<Location>, [Whitespace<Location>]).self)
-            return elements
-        }
-    }
-    enum Object<Location>:ParsingRule 
-    {
-        enum Item:ParsingRule 
-        {
-            typealias Terminal = Character
-            static 
-            func parse<Source>(_ input:inout ParsingInput<Source>) throws -> (key:String, value:JSON)
-                where Source:Collection, Source.Index == Location, Source.Element == Terminal
-            {
-                let key:String  = try input.parse(as: StringLiteral<Location>.self)
-                try input.parse(as: Separator<Location>.Name.self)
-                let value:JSON  = try input.parse(as: Value<Location>.self)
-                return (key, value)
-            }
-        }
-        
-        typealias Terminal = Character
-        static 
-        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> [String: JSON]
-            where Source:Collection, Source.Index == Location, Source.Element == Terminal
-        {
-            try input.parse(as: ([Whitespace<Location>], Character.BraceLeft<Location>, [Whitespace<Location>]).self)
-            var items:[String: JSON]
-            if let head:(key:String, value:JSON) = try? input.parse(as: Item.self)
-            {
-                items = [head.key: head.value]
-                while let (_, item):(Void, (key:String, value:JSON)) = try? input.parse(as: (Separator<Location>.Value, Item).self)
-                {
-                    items[item.key] = item.value 
-                }
-            }
-            else 
-            {
-                items = [:]
-            }
-            try input.parse(as: ([Whitespace<Location>], Character.BraceRight<Location>, [Whitespace<Location>]).self)
-            return items
-        }
+        escaped += "\""
+        return escaped
     }
     
     fileprivate 
@@ -525,6 +167,370 @@ enum JSON
             }
         }
     }
+    
+    case null 
+    case bool(Bool)
+    case number(Number)
+    case string(String)
+    case array([Self])
+    case object([String: Self])
+    
+    enum Rule<Location> 
+    {
+        typealias Codepoint = Grammar.Encoding<Location, Unicode.Scalar>
+        typealias Digit<T>  = Grammar.Digit<Location, Unicode.Scalar, T> where T:BinaryInteger
+    }
+}
+extension JSON.Rule 
+{
+    private
+    enum Keyword
+    {
+        enum Null:Grammar.TerminalSequence 
+        {
+            typealias Terminal = Unicode.Scalar 
+            static 
+            var literal:[Unicode.Scalar] { ["n", "u", "l", "l"] }
+        }
+        enum True:Grammar.TerminalSequence 
+        {
+            typealias Terminal = Unicode.Scalar 
+            static 
+            var literal:[Unicode.Scalar] { ["t", "r", "u", "e"] }
+        }
+        enum False:Grammar.TerminalSequence 
+        {
+            typealias Terminal = Unicode.Scalar 
+            static 
+            var literal:[Unicode.Scalar] { ["f", "a", "l", "s", "e"] }
+        }
+    }
+    
+    enum Root:ParsingRule 
+    {
+        typealias Terminal = Unicode.Scalar
+        static 
+        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> JSON.Decoder
+            where Source:Collection, Source.Index == Location, Source.Element == Terminal
+        {
+            if let items:[String: JSON] = input.parse(as: Object?.self)
+            {
+                return .init(.object(items), path: [])
+            }
+            else 
+            {
+                return .init(.array(try input.parse(as: Array.self)), path: [])
+            }
+        }
+    }
+    private
+    enum Value:ParsingRule
+    {
+        typealias Terminal = Unicode.Scalar
+        static 
+        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> JSON
+            where Source:Collection, Source.Index == Location, Source.Element == Terminal
+        {
+            if      let _:Void          = input.parse(as: Keyword.Null?.self)
+            {
+                return .null 
+            }
+            else if let _:Void          = input.parse(as: Keyword.True?.self)
+            {
+                return .bool(true)
+            }
+            else if let _:Void          = input.parse(as: Keyword.False?.self)
+            {
+                return .bool(false)
+            }
+            else if let number:JSON.Number = input.parse(as: NumberLiteral?.self)
+            {
+                return .number(number)
+            }
+            else if let string:String   = input.parse(as: StringLiteral?.self)
+            {
+                return .string(string)
+            }
+            else if let elements:[JSON] = input.parse(as: Array?.self)
+            {
+                return .array(elements)
+            }
+            else 
+            {
+                return .object(try input.parse(as: Object.self))
+            }
+        }
+    }
+    
+    private
+    enum NumberLiteral:ParsingRule
+    {
+        private 
+        enum PlusOrMinus:Grammar.TerminalClass 
+        {
+            typealias Terminal      = Unicode.Scalar
+            typealias Construction  = JSON.Number.Sign
+            
+            static 
+            func parse(terminal:Unicode.Scalar) -> JSON.Number.Sign? 
+            {
+                switch terminal 
+                {
+                case "+":   return .plus 
+                case "-":   return .minus
+                default:    return nil
+                }
+            }
+        }
+        
+        typealias Terminal = Unicode.Scalar
+        static 
+        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> JSON.Number
+            where Source:Collection, Source.Index == Location, Source.Element == Terminal
+        {
+            // https://datatracker.ietf.org/doc/html/rfc8259#section-6
+            // JSON does not allow prefix '+'
+            let sign:JSON.Number.Sign 
+            switch input.parse(as: Codepoint.Minus?.self)
+            {
+            case  _?:   sign = .minus 
+            case nil:   sign = .plus
+            }
+            
+            var units:UInt64    = 
+                try  input.parse(as: Grammar.UnsignedIntegerLiteral<Digit<UInt64>.Decimal>.self)
+            var places:Int      = 0
+            if  var (_, remainder):(Void, UInt64) = 
+                try? input.parse(as: (Codepoint.Period, Digit<UInt64>.Decimal).self)
+            {
+                while true 
+                {
+                    guard   case (let shifted, false) = units.multipliedReportingOverflow(by: 10), 
+                            case (let refined, false) = shifted.addingReportingOverflow(remainder)
+                    else 
+                    {
+                        throw Grammar.IntegerOverflowError<UInt64>.init()
+                    }
+                    places += 1
+                    units   = refined
+                    
+                    guard let next:UInt64 = input.parse(as: Digit<UInt64>.Decimal?.self)
+                    else 
+                    {
+                        break 
+                    }
+                    remainder = next
+                }
+            }
+            if  let _:Void                  =     input.parse(as: Codepoint.E.Anycase?.self) 
+            {
+                let sign:JSON.Number.Sign?  =     input.parse(as: PlusOrMinus?.self)
+                let exponent:Int            = try input.parse(as: Grammar.UnsignedIntegerLiteral<Digit<Int>.Decimal>.self)
+                // you too, can exploit the vulnerabilities below
+                switch sign
+                {
+                case .minus?:
+                    places         += exponent 
+                case .plus?, nil:
+                    guard places    < exponent
+                    else 
+                    {
+                        places     -= exponent
+                        break 
+                    }
+                    defer 
+                    {
+                        places      = 0
+                    }
+                    guard units    != 0 
+                    else 
+                    {
+                        break 
+                    }
+                    let shift:Int   = exponent - places 
+                    guard shift     < JSON.Base10.Exp.endIndex, case (let shifted, false) = 
+                        units.multipliedReportingOverflow(by: JSON.Base10.Exp[shift])
+                    else 
+                    {
+                        throw Grammar.IntegerOverflowError<UInt64>.init()
+                    }
+                    units           = shifted
+                }
+            }
+            return .init(sign: sign, units: units, places: places)
+        }
+    }
+    enum StringLiteral:ParsingRule 
+    {
+        private 
+        enum Element:ParsingRule 
+        {
+            private 
+            enum Escaped:Grammar.TerminalClass 
+            {
+                typealias Terminal      = Unicode.Scalar
+                typealias Construction  = Unicode.Scalar 
+                static 
+                func parse(terminal:Unicode.Scalar) -> Unicode.Scalar? 
+                {
+                    switch terminal
+                    {
+                    case "\\", "/": return terminal
+                    case "b":       return "\u{08}"
+                    case "f":       return "\u{0C}"
+                    case "n":       return "\u{0A}"
+                    case "r":       return "\u{0D}"
+                    case "t":       return "\u{09}"
+                    default:        return nil 
+                    }
+                }
+            }
+            private 
+            enum Unescaped:Grammar.TerminalClass
+            {
+                typealias Terminal      = Unicode.Scalar
+                typealias Construction  = Unicode.Scalar 
+                static 
+                func parse(terminal:Unicode.Scalar) -> Unicode.Scalar? 
+                {
+                    switch terminal 
+                    {
+                    case "\u{20}" ... "\u{21}", "\u{23}" ... "\u{5B}", "\u{5D}" ... "\u{10FFFF}":
+                        return terminal 
+                    default:
+                        return nil
+                    }
+                }
+            } 
+            
+            typealias Terminal = Unicode.Scalar
+            static 
+            func parse<Source>(_ input:inout ParsingInput<Source>) throws -> Character
+                where Source:Collection, Source.Index == Location, Source.Element == Terminal
+            {
+                if let scalar:Unicode.Scalar = input.parse(as: Unescaped?.self) 
+                {
+                    return Character.init(scalar)
+                }
+                try input.parse(as: Codepoint.Backslash.self)
+                if let scalar:Unicode.Scalar = input.parse(as: Escaped?.self)
+                {
+                    return Character.init(scalar)
+                }
+                try input.parse(as: Codepoint.U.Lowercase.self) 
+                let value:UInt16 = 
+                    (try input.parse(as: Digit<UInt16>.Hex.Anycase.self) << 12) |
+                    (try input.parse(as: Digit<UInt16>.Hex.Anycase.self) <<  8) |
+                    (try input.parse(as: Digit<UInt16>.Hex.Anycase.self) <<  4) |
+                    (try input.parse(as: Digit<UInt16>.Hex.Anycase.self)) 
+                if let scalar:Unicode.Scalar = .init(value)
+                {
+                    return Character.init(scalar)
+                }
+                else 
+                {
+                    throw JSON.InvalidUnicodeScalarError.init(value: value)
+                }
+            }
+        }
+        
+        typealias Terminal = Unicode.Scalar
+        static 
+        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> String
+            where Source:Collection, Source.Index == Location, Source.Element == Terminal
+        {
+            try                 input.parse(as: Codepoint.Quote.self)
+            let string:String = input.parse(as: Element.self, in: String.self)
+            try                 input.parse(as: Codepoint.Quote.self)
+            return string 
+        }
+    }
+    
+    private 
+    enum Whitespace:Grammar.TerminalClass 
+    {
+        typealias Terminal      = Unicode.Scalar
+        typealias Construction  = Void 
+        static 
+        func parse(terminal:Unicode.Scalar) -> Void? 
+        {
+            switch terminal 
+            {
+            case " ", "\t", "\n", "\r": return ()
+            default:                    return nil
+            }
+        }
+    }
+    
+    private 
+    typealias Padded<Rule> = Grammar.Pad<Rule, Whitespace> 
+        where Rule:ParsingRule, Rule.Location == Location, Rule.Terminal == Unicode.Scalar
+    
+    private 
+    enum Array:ParsingRule 
+    {
+        typealias Terminal = Unicode.Scalar
+        static 
+        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> [JSON]
+            where Source:Collection, Source.Index == Location, Source.Element == Terminal
+        {
+            try input.parse(as: Padded<Codepoint.BracketLeft>.self)
+            var elements:[JSON]
+            if let head:JSON = try? input.parse(as: Value.self)
+            {
+                elements = [head]
+                while let (_, value):(Void, JSON) = try? input.parse(as: (Padded<Codepoint.Comma>, Value).self)
+                {
+                    elements.append(value)
+                }
+            }
+            else 
+            {
+                elements = []
+            }
+            try input.parse(as: Padded<Codepoint.BracketRight>.self)
+            return elements
+        }
+    }
+    enum Object:ParsingRule 
+    {
+        enum Item:ParsingRule 
+        {
+            typealias Terminal = Unicode.Scalar
+            static 
+            func parse<Source>(_ input:inout ParsingInput<Source>) throws -> (key:String, value:JSON)
+                where Source:Collection, Source.Index == Location, Source.Element == Terminal
+            {
+                let key:String  = try input.parse(as: StringLiteral.self)
+                try input.parse(as: Padded<Codepoint.Colon>.self)
+                let value:JSON  = try input.parse(as: Value.self)
+                return (key, value)
+            }
+        }
+        
+        typealias Terminal = Unicode.Scalar
+        static 
+        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> [String: JSON]
+            where Source:Collection, Source.Index == Location, Source.Element == Terminal
+        {
+            try input.parse(as: Padded<Codepoint.BraceLeft>.self)
+            var items:[String: JSON]
+            if let head:(key:String, value:JSON) = try? input.parse(as: Item.self)
+            {
+                items = [head.key: head.value]
+                while let (_, item):(Void, (key:String, value:JSON)) = try? input.parse(as: (Padded<Codepoint.Comma>, Item).self)
+                {
+                    items[item.key] = item.value 
+                }
+            }
+            else 
+            {
+                items = [:]
+            }
+            try input.parse(as: Padded<Codepoint.BraceRight>.self)
+            return items
+        }
+    }
 }
 fileprivate 
 extension BinaryFloatingPoint 
@@ -538,31 +544,9 @@ extension BinaryFloatingPoint
 }
 
 
-extension JSON.StringLiteral 
+extension JSON.Rule.StringLiteral 
 {
-    // includes quotes!
-    static 
-    func escape<S>(_ string:S) -> String where S:StringProtocol
-    {
-        var escaped:String = "\""
-        for character:Character in string 
-        {
-            switch character
-            {
-            case "\"":      escaped += "\\\""
-            case "\\":      escaped += "\\\\"
-            case "/":       escaped += "\\/"
-            case "\u{08}":  escaped += "\\b"
-            case "\u{09}":  escaped += "\\t"
-            case "\u{0A}":  escaped += "\\n"
-            case "\u{0C}":  escaped += "\\f"
-            case "\u{0D}":  escaped += "\\r"
-            default:        escaped.append(character)
-            }
-        }
-        escaped += "\""
-        return escaped
-    }
+
 }
 extension JSON:CustomStringConvertible 
 {
