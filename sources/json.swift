@@ -1,27 +1,46 @@
+@frozen
+public
 enum JSON
 {
+    public static
+    func _benchmark(_ string:String) throws -> Int
+    {
+        let payloads:[Self] = try Grammar.parse(string.unicodeScalars, as: Rule.Value.self, in: [Self].self)
+        return payloads.count
+    }
+    public 
     struct InvalidUnicodeScalarError:Error
     {
         let value:UInt16  
     }
     
+    public 
     struct Number 
     {
+        @frozen 
+        public 
         enum Sign
         {
             case plus 
             case minus 
         }
-        
-        var sign:Sign, 
-            units:UInt64, 
-            places:Int
-        
-        init(sign:Sign, units:UInt64, places:Int)
+        @propertyWrapper 
+        struct Places
         {
-            self.sign   = sign 
-            self.units  = units 
-            self.places = places 
+            var projectedValue:UInt32
+            var wrappedValue:UInt64 { UInt64.init(self.projectedValue) }
+        }
+        
+        // this should allow instances of this type to fit in 2 words
+        var sign:Sign
+        @Places
+        var places:UInt64
+        var units:UInt64
+        init(sign:Sign, units:UInt64, places:UInt32)
+        {
+            self.sign       = sign 
+            self.units      = units 
+            self._places    = .init(projectedValue: places)
         }
     }
     
@@ -210,8 +229,9 @@ extension JSON.Rule
     {
         typealias Terminal = Unicode.Scalar
         static 
-        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> JSON.Decoder
-            where Source:Collection, Source.Index == Location, Source.Element == Terminal
+        func parse<Source, Diagnostics>(_ input:inout ParsingInput<Source, Diagnostics>) throws -> JSON.Decoder
+            where   Diagnostics:ParsingDiagnostics,
+                    Source:Collection, Source.Index == Location, Source.Element == Terminal
         {
             if let items:[String: JSON] = input.parse(as: Object?.self)
             {
@@ -223,41 +243,43 @@ extension JSON.Rule
             }
         }
     }
-    private
+    //private
     enum Value:ParsingRule
     {
         typealias Terminal = Unicode.Scalar
         static 
-        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> JSON
-            where Source:Collection, Source.Index == Location, Source.Element == Terminal
+        func parse<Source, Diagnostics>(_ input:inout ParsingInput<Source, Diagnostics>) throws -> JSON
+            where   Diagnostics:ParsingDiagnostics,
+                    Source:Collection, Source.Index == Location, Source.Element == Terminal
         {
-            if      let _:Void          = input.parse(as: Keyword.Null?.self)
-            {
-                return .null 
-            }
-            else if let _:Void          = input.parse(as: Keyword.True?.self)
-            {
-                return .bool(true)
-            }
-            else if let _:Void          = input.parse(as: Keyword.False?.self)
-            {
-                return .bool(false)
-            }
-            else if let number:JSON.Number = input.parse(as: NumberLiteral?.self)
+            if let number:JSON.Number           = input.parse(as: NumberLiteral?.self)
             {
                 return .number(number)
             }
-            else if let string:String   = input.parse(as: StringLiteral?.self)
+            else if let string:String           = input.parse(as: StringLiteral?.self)
             {
                 return .string(string)
             }
-            else if let elements:[JSON] = input.parse(as: Array?.self)
+            else if let elements:[JSON]         = input.parse(as: Array?.self)
             {
                 return .array(elements)
             }
-            else 
+            else if let items:[String: JSON]    = input.parse(as: Object?.self)
             {
-                return .object(try input.parse(as: Object.self))
+                return .object(items)
+            }
+            else if let _:Void                  = input.parse(as: Keyword.True?.self)
+            {
+                return .bool(true)
+            }
+            else if let _:Void                  = input.parse(as: Keyword.False?.self)
+            {
+                return .bool(false)
+            }
+            else
+            {
+                try input.parse(as: Keyword.Null.self)
+                return .null 
             }
         }
     }
@@ -285,8 +307,9 @@ extension JSON.Rule
         
         typealias Terminal = Unicode.Scalar
         static 
-        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> JSON.Number
-            where Source:Collection, Source.Index == Location, Source.Element == Terminal
+        func parse<Source, Diagnostics>(_ input:inout ParsingInput<Source, Diagnostics>) throws -> JSON.Number
+            where   Diagnostics:ParsingDiagnostics,
+                    Source:Collection, Source.Index == Location, Source.Element == Terminal
         {
             // https://datatracker.ietf.org/doc/html/rfc8259#section-6
             // JSON does not allow prefix '+'
@@ -299,7 +322,7 @@ extension JSON.Rule
             
             var units:UInt64    = 
                 try  input.parse(as: Grammar.UnsignedIntegerLiteral<Digit<UInt64>.Decimal>.self)
-            var places:Int      = 0
+            var places:UInt32   = 0
             if  var (_, remainder):(Void, UInt64) = 
                 try? input.parse(as: (Codepoint.Period, Digit<UInt64>.Decimal).self)
             {
@@ -325,7 +348,7 @@ extension JSON.Rule
             if  let _:Void                  =     input.parse(as: Codepoint.E.Anycase?.self) 
             {
                 let sign:JSON.Number.Sign?  =     input.parse(as: PlusOrMinus?.self)
-                let exponent:Int            = try input.parse(as: Grammar.UnsignedIntegerLiteral<Digit<Int>.Decimal>.self)
+                let exponent:UInt32         = try input.parse(as: Grammar.UnsignedIntegerLiteral<Digit<UInt32>.Decimal>.self)
                 // you too, can exploit the vulnerabilities below
                 switch sign
                 {
@@ -347,7 +370,7 @@ extension JSON.Rule
                     {
                         break 
                     }
-                    let shift:Int   = exponent - places 
+                    let shift:Int   = .init(exponent - places) 
                     guard shift     < JSON.Base10.Exp.endIndex, case (let shifted, false) = 
                         units.multipliedReportingOverflow(by: JSON.Base10.Exp[shift])
                     else 
@@ -405,8 +428,9 @@ extension JSON.Rule
             
             typealias Terminal = Unicode.Scalar
             static 
-            func parse<Source>(_ input:inout ParsingInput<Source>) throws -> Character
-                where Source:Collection, Source.Index == Location, Source.Element == Terminal
+            func parse<Source, Diagnostics>(_ input:inout ParsingInput<Source, Diagnostics>) throws -> Character
+                where   Diagnostics:ParsingDiagnostics,
+                        Source:Collection, Source.Index == Location, Source.Element == Terminal
             {
                 if let scalar:Unicode.Scalar = input.parse(as: Unescaped?.self) 
                 {
@@ -436,8 +460,9 @@ extension JSON.Rule
         
         typealias Terminal = Unicode.Scalar
         static 
-        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> String
-            where Source:Collection, Source.Index == Location, Source.Element == Terminal
+        func parse<Source, Diagnostics>(_ input:inout ParsingInput<Source, Diagnostics>) throws -> String
+            where   Diagnostics:ParsingDiagnostics,
+                    Source:Collection, Source.Index == Location, Source.Element == Terminal
         {
             try                 input.parse(as: Codepoint.Quote.self)
             let string:String = input.parse(as: Element.self, in: String.self)
@@ -471,8 +496,9 @@ extension JSON.Rule
     {
         typealias Terminal = Unicode.Scalar
         static 
-        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> [JSON]
-            where Source:Collection, Source.Index == Location, Source.Element == Terminal
+        func parse<Source, Diagnostics>(_ input:inout ParsingInput<Source, Diagnostics>) throws -> [JSON]
+            where   Diagnostics:ParsingDiagnostics,
+                    Source:Collection, Source.Index == Location, Source.Element == Terminal
         {
             try input.parse(as: Padded<Codepoint.BracketLeft>.self)
             var elements:[JSON]
@@ -498,8 +524,9 @@ extension JSON.Rule
         {
             typealias Terminal = Unicode.Scalar
             static 
-            func parse<Source>(_ input:inout ParsingInput<Source>) throws -> (key:String, value:JSON)
-                where Source:Collection, Source.Index == Location, Source.Element == Terminal
+            func parse<Source, Diagnostics>(_ input:inout ParsingInput<Source, Diagnostics>) throws -> (key:String, value:JSON)
+                where   Diagnostics:ParsingDiagnostics,
+                        Source:Collection, Source.Index == Location, Source.Element == Terminal
             {
                 let key:String  = try input.parse(as: StringLiteral.self)
                 try input.parse(as: Padded<Codepoint.Colon>.self)
@@ -510,8 +537,9 @@ extension JSON.Rule
         
         typealias Terminal = Unicode.Scalar
         static 
-        func parse<Source>(_ input:inout ParsingInput<Source>) throws -> [String: JSON]
-            where Source:Collection, Source.Index == Location, Source.Element == Terminal
+        func parse<Source, Diagnostics>(_ input:inout ParsingInput<Source, Diagnostics>) throws -> [String: JSON]
+            where   Diagnostics:ParsingDiagnostics,
+                    Source:Collection, Source.Index == Location, Source.Element == Terminal
         {
             try input.parse(as: Padded<Codepoint.BraceLeft>.self)
             var items:[String: JSON]
@@ -550,6 +578,7 @@ extension JSON.Rule.StringLiteral
 }
 extension JSON:CustomStringConvertible 
 {
+    public
     var description:String
     {
         switch self 
@@ -759,8 +788,8 @@ extension JSON
         case .number(let value):
             return .init(dictionary: 
             [
-                "units":  .number(.init(sign: value.sign, units:             value.units,   places: 0)),
-                "places": .number(.init(sign:      .plus, units: UInt64.init(value.places), places: 0)),
+                "units":  .number(.init(sign: value.sign, units: value.units,  places: 0)),
+                "places": .number(.init(sign:      .plus, units: value.places, places: 0)),
             ], path: path)
         default:
             throw JSON.DecodingError.expectedKeyedContainer
