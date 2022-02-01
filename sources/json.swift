@@ -229,9 +229,10 @@ extension JSON.Rule
     {
         typealias Terminal = Unicode.Scalar
         static 
-        func parse<Source, Diagnostics>(_ input:inout ParsingInput<Source, Diagnostics>) throws -> JSON.Decoder
+        func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> JSON.Decoder
             where   Diagnostics:ParsingDiagnostics,
-                    Source:Collection, Source.Index == Location, Source.Element == Terminal
+                    Diagnostics.Source.Index == Location,
+                    Diagnostics.Source.Element == Terminal
         {
             if let items:[String: JSON] = input.parse(as: Object?.self)
             {
@@ -248,9 +249,10 @@ extension JSON.Rule
     {
         typealias Terminal = Unicode.Scalar
         static 
-        func parse<Source, Diagnostics>(_ input:inout ParsingInput<Source, Diagnostics>) throws -> JSON
+        func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> JSON
             where   Diagnostics:ParsingDiagnostics,
-                    Source:Collection, Source.Index == Location, Source.Element == Terminal
+                    Diagnostics.Source.Index == Location,
+                    Diagnostics.Source.Element == Terminal
         {
             if let number:JSON.Number           = input.parse(as: NumberLiteral?.self)
             {
@@ -307,9 +309,10 @@ extension JSON.Rule
         
         typealias Terminal = Unicode.Scalar
         static 
-        func parse<Source, Diagnostics>(_ input:inout ParsingInput<Source, Diagnostics>) throws -> JSON.Number
+        func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> JSON.Number
             where   Diagnostics:ParsingDiagnostics,
-                    Source:Collection, Source.Index == Location, Source.Element == Terminal
+                    Diagnostics.Source.Index == Location,
+                    Diagnostics.Source.Element == Terminal
         {
             // https://datatracker.ietf.org/doc/html/rfc8259#section-6
             // JSON does not allow prefix '+'
@@ -428,9 +431,10 @@ extension JSON.Rule
             
             typealias Terminal = Unicode.Scalar
             static 
-            func parse<Source, Diagnostics>(_ input:inout ParsingInput<Source, Diagnostics>) throws -> Character
+            func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> Character
                 where   Diagnostics:ParsingDiagnostics,
-                        Source:Collection, Source.Index == Location, Source.Element == Terminal
+                        Diagnostics.Source.Index == Location,
+                        Diagnostics.Source.Element == Terminal
             {
                 if let scalar:Unicode.Scalar = input.parse(as: Unescaped?.self) 
                 {
@@ -460,9 +464,10 @@ extension JSON.Rule
         
         typealias Terminal = Unicode.Scalar
         static 
-        func parse<Source, Diagnostics>(_ input:inout ParsingInput<Source, Diagnostics>) throws -> String
+        func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> String
             where   Diagnostics:ParsingDiagnostics,
-                    Source:Collection, Source.Index == Location, Source.Element == Terminal
+                    Diagnostics.Source.Index == Location,
+                    Diagnostics.Source.Element == Terminal
         {
             try                 input.parse(as: Codepoint.Quote.self)
             let string:String = input.parse(as: Element.self, in: String.self)
@@ -496,9 +501,10 @@ extension JSON.Rule
     {
         typealias Terminal = Unicode.Scalar
         static 
-        func parse<Source, Diagnostics>(_ input:inout ParsingInput<Source, Diagnostics>) throws -> [JSON]
+        func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> [JSON]
             where   Diagnostics:ParsingDiagnostics,
-                    Source:Collection, Source.Index == Location, Source.Element == Terminal
+                    Diagnostics.Source.Index == Location,
+                    Diagnostics.Source.Element == Terminal
         {
             try input.parse(as: Padded<Codepoint.BracketLeft>.self)
             var elements:[JSON]
@@ -524,9 +530,10 @@ extension JSON.Rule
         {
             typealias Terminal = Unicode.Scalar
             static 
-            func parse<Source, Diagnostics>(_ input:inout ParsingInput<Source, Diagnostics>) throws -> (key:String, value:JSON)
+            func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> (key:String, value:JSON)
                 where   Diagnostics:ParsingDiagnostics,
-                        Source:Collection, Source.Index == Location, Source.Element == Terminal
+                        Diagnostics.Source.Index == Location,
+                        Diagnostics.Source.Element == Terminal
             {
                 let key:String  = try input.parse(as: StringLiteral.self)
                 try input.parse(as: Padded<Codepoint.Colon>.self)
@@ -537,9 +544,10 @@ extension JSON.Rule
         
         typealias Terminal = Unicode.Scalar
         static 
-        func parse<Source, Diagnostics>(_ input:inout ParsingInput<Source, Diagnostics>) throws -> [String: JSON]
+        func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> [String: JSON]
             where   Diagnostics:ParsingDiagnostics,
-                    Source:Collection, Source.Index == Location, Source.Element == Terminal
+                    Diagnostics.Source.Index == Location,
+                    Diagnostics.Source.Element == Terminal
         {
             try input.parse(as: Padded<Codepoint.BraceLeft>.self)
             var items:[String: JSON]
