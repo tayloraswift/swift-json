@@ -7,6 +7,7 @@ let package = Package(
     [
         .library    (name: "swift-json", targets: ["JSON"]),
         .executable (name: "benchmarks", targets: ["JSONBenchmarks"]),
+        .executable (name: "proportions", targets: ["Proportions"]),
     ],
     dependencies: [],
     targets: 
@@ -17,14 +18,30 @@ let package = Package(
             [
                 "grammar/README.md",
             ]),
+        .target(name: "JSON_OLD", 
+            path: "old/", 
+            exclude: 
+            [
+                "README.md",
+            ]),
         .executableTarget(name: "JSONBenchmarks",
             dependencies: 
             [
                 .target(name: "JSON"),
+                .target(name: "JSON_OLD"),
             ],
             path: "benchmarks/",
             exclude: 
             [
+            ]),
+        .executableTarget(name: "Proportions",
+            dependencies: 
+            [
+            ],
+            path: "proportions/",
+            exclude: 
+            [
+                "grammar/README.md",
             ]),
     ]
 )
