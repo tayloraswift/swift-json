@@ -3,9 +3,9 @@ public
 enum JSON
 {
     public static
-    func _benchmark(_ string:String) throws -> Int
+    func _benchmark(parsing json:[UInt8]) throws -> Int
     {
-        let payloads:[Self] = try Grammar.parse(string.utf8, as: Rule<String.Index>.Root.self, in: [Self].self)
+        let payloads:[Self] = try Grammar.parse(json, as: Rule<Int>.Root.self, in: [Self].self)
         return payloads.count
     }
     

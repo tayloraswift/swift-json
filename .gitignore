@@ -1,2 +1,8 @@
 .build
 Package.resolved
+FlameGraph/
+*.folded
+*.svg 
+perf.data
+perf.data.old
+perf.txt
