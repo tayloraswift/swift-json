@@ -142,6 +142,35 @@ enum JSON
             }
         }
         public
+        func callAsFunction<T>(as _:(units:T, places:T)?.Type) -> (units:T, places:T)? 
+            where T:FixedWidthInteger & SignedInteger 
+        {
+            guard let places:T      = .init(exactly: self.places)
+            else 
+            {
+                return nil
+            }
+            switch self.sign 
+            {
+            case .minus: 
+                let negated:Int64   = .init(bitPattern: 0 &- self.units)
+                guard negated      <= 0, 
+                    let units:T     = .init(exactly: negated)
+                else 
+                {
+                    return nil 
+                }
+                return (units: units, places: places)
+            case .plus: 
+                guard let units:T = .init(exactly: self.units)
+                else 
+                {
+                    return nil 
+                }
+                return (units: units, places: places)
+            }
+        }
+        public
         func callAsFunction<T>(as _:T.Type) -> T where T:BinaryFloatingPoint 
         {
             var places:Int      = .init(self.places), 
