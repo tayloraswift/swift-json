@@ -1,13 +1,13 @@
-@frozen
-public
+@frozen public
 enum JSON
 {
     // force specializations 
-    public static
-    func _manifest(_ json:[UInt8]) throws -> [Self]
+    /* public static
+    func _manifest<Source, Rule>(_ json:Source) throws -> Rule.Construction 
+        where Rule:ParsingRule, Source:Collection, Rule.Location == Source.Index
     {
-        try Grammar.parse(json, as: Rule<Int>.Root.self, in: [Self].self)
-    }
+        try Grammar.parse(json, as: Rule.self)
+    } */
     public static
     func _break(_ json:[UInt8]) throws -> [Range<Int>]
     {
@@ -27,6 +27,11 @@ enum JSON
     {
         public
         let value:UInt16  
+        @inlinable public 
+        init(value:UInt16)
+        {
+            self.value = value
+        }
     }
     // this is distinct from `Grammar.IntegerOverflowError<T>`, and only thrown
     // by the conversions on `Number`. this is the error thrown by the `Decoder`
@@ -45,47 +50,35 @@ enum JSON
         }
     }
     
-    public 
+    @frozen public 
     struct Number:CustomStringConvertible 
     {
-        @frozen 
-        public 
+        @frozen public 
         enum Sign
         {
             case plus 
             case minus 
         }
-        @propertyWrapper 
-        public 
-        struct Places
-        {
-            public 
-            var projectedValue:UInt32
-            public 
-            var wrappedValue:UInt64 { UInt64.init(self.projectedValue) }
-            
-            public 
-            init(projectedValue:UInt32)
-            {
-                self.projectedValue = projectedValue
-            }
-        }
-        
         // this should allow instances of this type to fit in 2 words
         public 
         var sign:Sign
-        @Places
+        // cannot have an inlinable property wrapper
         public 
-        var places:UInt64
+        var _places:UInt32
+        @inlinable public 
+        var places:UInt64 
+        {
+            .init(self._places)
+        }
         public 
         var units:UInt64
         
-        public
+        @inlinable public
         init(sign:Sign, units:UInt64, places:UInt32)
         {
             self.sign       = sign 
             self.units      = units 
-            self._places    = .init(projectedValue: places)
+            self._places    = places
         }
         public 
         var description:String
@@ -197,10 +190,10 @@ enum JSON
             }
         }
     }
-    
+    public 
     enum Base10
     {
-        static
+        public static
         let Exp:[UInt64] = 
         [
             1, 
@@ -232,9 +225,10 @@ enum JSON
             //  UInt64.max: 
             //  18_446_744_073_709_551_615
         ]
+        public 
         enum Inverse 
         {
-            static 
+            @inlinable public static 
             subscript<T>(x:Int, as _:T.Type) -> T 
                 where T:BinaryFloatingPoint
             {
@@ -310,36 +304,45 @@ extension JSON
     public 
     enum Rule<Location> 
     {
+        public 
         typealias ASCII     = Grammar.Encoding<Location, UInt8>.ASCII
+        public 
         typealias Digit<T>  = Grammar.Digit<Location, UInt8, T>.ASCII where T:BinaryInteger
     }
 }
 extension JSON.Rule 
 {
+    public 
     enum Keyword
     {
+        public 
         enum Null:Grammar.TerminalSequence 
         {
+            public 
             typealias Terminal = UInt8 
-            static 
+            @inlinable public static 
             var literal:[UInt8] 
             { 
                 [0x6e, 0x75, 0x6c, 0x6c]
             }
         }
+        public 
         enum True:Grammar.TerminalSequence 
         {
+            public 
             typealias Terminal = UInt8 
-            static 
+            @inlinable public static 
             var literal:[UInt8] 
             { 
                 [0x74, 0x72, 0x75, 0x65]
             }
         }
+        public 
         enum False:Grammar.TerminalSequence 
         {
+            public 
             typealias Terminal = UInt8 
-            static 
+            @inlinable public static 
             var literal:[UInt8] 
             { 
                 [0x66, 0x61, 0x6c, 0x73, 0x65]
@@ -351,7 +354,7 @@ extension JSON.Rule
     {
         public 
         typealias Terminal = UInt8
-        public static 
+        @inlinable public static 
         func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> JSON
             where   Diagnostics:ParsingDiagnostics,
                     Diagnostics.Source.Index == Location,
@@ -372,7 +375,7 @@ extension JSON.Rule
     {
         public 
         typealias Terminal = UInt8
-        public static 
+        @inlinable public static 
         func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> JSON
             where   Diagnostics:ParsingDiagnostics,
                     Diagnostics.Source.Index == Location,
@@ -413,12 +416,14 @@ extension JSON.Rule
     public 
     enum NumberLiteral:ParsingRule
     {
+        public 
         enum PlusOrMinus:Grammar.TerminalClass 
         {
+            public 
             typealias Terminal      = UInt8
+            public 
             typealias Construction  = JSON.Number.Sign
-            
-            static 
+            @inlinable public static 
             func parse(terminal:UInt8) -> JSON.Number.Sign? 
             {
                 switch terminal 
@@ -431,7 +436,7 @@ extension JSON.Rule
         }
         public 
         typealias Terminal = UInt8
-        public static 
+        @inlinable public static 
         func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> JSON.Number
             where   Diagnostics:ParsingDiagnostics,
                     Diagnostics.Source.Index == Location,
@@ -512,13 +517,17 @@ extension JSON.Rule
     public 
     enum StringLiteral:ParsingRule 
     {
+        public 
         enum CodeUnit 
         {
+            public 
             enum Unescaped:Grammar.TerminalClass
             {
+                public 
                 typealias Terminal      = UInt8
+                public 
                 typealias Construction  = Void 
-                static 
+                @inlinable public static 
                 func parse(terminal:UInt8) -> Void? 
                 {
                     switch terminal 
@@ -530,11 +539,14 @@ extension JSON.Rule
                     }
                 }
             } 
+            public 
             enum Escaped:Grammar.TerminalClass 
             {
+                public 
                 typealias Terminal      = UInt8
+                public 
                 typealias Construction  = Unicode.Scalar 
-                static 
+                @inlinable public static 
                 func parse(terminal:UInt8) -> Unicode.Scalar? 
                 {
                     switch terminal
@@ -551,10 +563,12 @@ extension JSON.Rule
                 }
             }
         }
+        public 
         enum EscapeSequence:ParsingRule 
         {
+            public 
             typealias Terminal = UInt8
-            static 
+            @inlinable public static 
             func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> String
                 where   Diagnostics:ParsingDiagnostics,
                         Diagnostics.Source.Index == Location,
@@ -597,7 +611,7 @@ extension JSON.Rule
         }
         public 
         typealias Terminal = UInt8
-        public static 
+        @inlinable public static 
         func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> String
             where   Diagnostics:ParsingDiagnostics,
                     Diagnostics.Source.Index == Location,
@@ -623,12 +637,14 @@ extension JSON.Rule
             return string 
         }
     }
-    
+    public 
     enum Whitespace:Grammar.TerminalClass 
     {
+        public 
         typealias Terminal      = UInt8
+        public 
         typealias Construction  = Void 
-        static 
+        @inlinable public static 
         func parse(terminal:UInt8) -> Void? 
         {
             switch terminal 
@@ -644,6 +660,7 @@ extension JSON.Rule
         }
     }
     
+    public 
     typealias Padded<Rule> = Grammar.Pad<Rule, Whitespace> 
         where Rule:ParsingRule, Rule.Location == Location, Rule.Terminal == UInt8
     
@@ -652,7 +669,7 @@ extension JSON.Rule
     {
         public 
         typealias Terminal = UInt8
-        public static 
+        @inlinable public static 
         func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> [JSON]
             where   Diagnostics:ParsingDiagnostics,
                     Diagnostics.Source.Index == Location,
@@ -679,10 +696,12 @@ extension JSON.Rule
     public 
     enum Object:ParsingRule 
     {
+        public 
         enum Item:ParsingRule 
         {
+            public 
             typealias Terminal = UInt8
-            static 
+            @inlinable public static 
             func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> (key:String, value:JSON)
                 where   Diagnostics:ParsingDiagnostics,
                         Diagnostics.Source.Index == Location,
@@ -696,7 +715,7 @@ extension JSON.Rule
         }
         public 
         typealias Terminal = UInt8
-        public static 
+        @inlinable public static 
         func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> [String: JSON]
             where   Diagnostics:ParsingDiagnostics,
                     Diagnostics.Source.Index == Location,
