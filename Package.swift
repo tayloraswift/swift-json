@@ -5,7 +5,7 @@ let package = Package(
     name: "swift-json",
     products: 
     [
-        .library    (name: "swift-json",    targets: ["JSON"]),
+        .library    (name: "JSON",          targets: ["JSON"]),
     
         .executable (name: "examples",      targets: ["JSONExamples"]),
         .executable (name: "benchmarks",    targets: ["JSONBenchmarks"]),
