@@ -4,84 +4,23 @@ enum Perf
     static 
     func main() throws 
     {
-        let test:String = 
-        """
-        benchmarks 102226 18460.447618:     911806 cycles: 
-        55c6e55a2f5a $sSS17UnicodeScalarViewVSlsSly7ElementQz5IndexQzcirTW+0x13a (inlined)
-        55c6e55a2f5a $s4JSON12ParsingInputV4next33_1B94CF74D2CAE9ACCA10B6F46CA4FB04LL7ElementQzSgyFSS17UnicodeScalarViewV_Tg5+0x13a (inlined)
-        55c6e55a2f5a $s4JSON21_GrammarTerminalClassPAAE5parsey12ConstructionQzAA12ParsingInputVyqd__GzKSlRd__5IndexQyd__8LocationRtz7ElementQyd__0C0RtzlFZA2AO4RuleO10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_SSAJV_G_SS17UnicodeScalarViewVTg5+0x13a (inlined)
-        55c6e55a2f5a $s4JSONAAO4RuleO10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_x_GAA07ParsingB0A2aIP5parsey12ConstructionQzAA0K5InputVyqd__GzKSlRd__5IndexQyd__8LocationRtz7ElementQyd__8TerminalRtzlFZTWSSAQV_SS17UnicodeScalarViewVTg5+0x13a (inlined)
-        55c6e55a2f5a $s4JSON12ParsingInputV5parse2as12ConstructionQyd__qd__m_tKAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFAgCyxGzKXEfU_SS17UnicodeScalarViewV_A2AO0G0O10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_SSAOV_GTg5+0x13a (inlined)
-        55c6e55a2f5a $s4JSON12ParsingInputV5group33_1B94CF74D2CAE9ACCA10B6F46CA4FB04LLyqd_0_qd__m_qd_0_ACyxGzKXEtKr0_lFSS17UnicodeScalarViewV_A2AO4RuleO10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_SS5IndexV_GytTg5+0x13a (inlined)
-        55c6e55a2f5a $s4JSON12ParsingInputV5parse2as12ConstructionQyd__qd__m_tKAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFSS17UnicodeScalarViewV_A2AO0G0O10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_SSAOV_GTg5+0x13a (inlined)
-        55c6e55a2f5a $s4JSON12ParsingInputV5parse2as12ConstructionQyd__Sgqd__Sgm_tAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFSS17UnicodeScalarViewV_A2AO0G0O10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_SSAQV_GTg5+0x13a (inlined)
-        55c6e55a2f5a $s4JSON12ParsingInputV5parse2as2inyqd__m_ytmtAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzyt12ConstructionRtd__lFSS17UnicodeScalarViewV_A2AO0G0O10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_SSANV_GTg5Tf4ddn_n+0x13a (/home/klossy/dev/ss-json/.build/x86_64-unknown-linux-gnu/release/benchmarks)
-        55c6e55a4937 $s4JSON12ParsingInputV5parse2as2inyqd__m_ytmtAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzyt12ConstructionRtd__lFSS17UnicodeScalarViewV_A2AO0G0O10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_SSANV_GTg5+0x247 (inlined)
-        55c6e55a4937 $s4JSON7GrammarO3PadO5parsey12ConstructionQzAA12ParsingInputVyqd__GzKSlRd__5IndexQyd__8LocationRt_7ElementQyd__8TerminalRt_lFZAC8EncodingOAAs7UnicodeO6ScalarVRs_rlE5CommaOy_SSALVAY_G_A2AO4RuleO10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_A0__GSS0mN4ViewVTg5+0x247 (inlined)
-        55c6e55a4937 $s4JSON7GrammarO3PadOy_xq_GAA11ParsingRuleA2aGP5parsey12ConstructionQzAA0D5InputVyqd__GzKSlRd__5IndexQyd__8LocationRtz7ElementQyd__8TerminalRtzlFZTWAC8EncodingOAAs7UnicodeO6ScalarVRs_rlE5CommaOy_SSAOVA0__G_A2AO0E0O10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_A3__GSS0nO4ViewVTg5+0x247 (inlined)
-        55c6e55a4937 $s4JSON12ParsingInputV5parse2as12ConstructionQyd___AFQyd_0_tqd___qd_0_tm_tKAA0B4RuleRd__AaIRd_0_8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzANQyd_0_AORSAJQyd_0_AKRSr0_lFAG_AHtACyxGzKXEfU_SS17UnicodeScalarViewV_AA7GrammarO3PadOy_AX8EncodingOAAs0L0O0M0VRs_rlE5CommaOy_SSAPVA4__GA2AO0G0O10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_A7__GGA11_5ValueOy_A7__GTg5+0x247 (inlined)
-        55c6e55a4937 $s4JSON12ParsingInputV5parse2as12ConstructionQyd___AFQyd_0_tqd___qd_0_tm_tKAA0B4RuleRd__AaIRd_0_8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzANQyd_0_AORSAJQyd_0_AKRSr0_lFAG_AHtACyxGzKXEfU_SS17UnicodeScalarViewV_AA7GrammarO3PadOy_AX8EncodingOAAs0L0O0M0VRs_rlE5CommaOy_SSAPVA4__GA2AO0G0O10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_A7__GGA11_5ValueOy_A7__GTG5+0x247 (inlined)
-        55c6e55a4937 $s4JSON12ParsingInputV5group33_1B94CF74D2CAE9ACCA10B6F46CA4FB04LLyqd_0_qd__m_qd_0_ACyxGzKXEtKr0_lFSS17UnicodeScalarViewV_AA7GrammarO3PadOy_AJ8EncodingOAAs0N0O0O0VRs_rlE5CommaOy_SS5IndexVAR_GA2AO4RuleO10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_AV_GG_AZ5ValueOy_AV_Gtyt_AXtTg5+0x247 (inlined)
-        55c6e55a4937 $s4JSON12ParsingInputV5parse2as12ConstructionQyd___AFQyd_0_tqd___qd_0_tm_tKAA0B4RuleRd__AaIRd_0_8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzANQyd_0_AORSAJQyd_0_AKRSr0_lFSS17UnicodeScalarViewV_AA7GrammarO3PadOy_AW8EncodingOAAs0L0O0M0VRs_rlE5CommaOy_SSAPVA3__GA2AO0G0O10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_A6__GGA10_5ValueOy_A6__GTg5+0x247 (inlined)
-        55c6e55a4937 $s4JSONAAO4RuleO5Array33_CEFB79D06B863FC55EDE85E244D7901ELLO5parseySayABGAA12ParsingInputVyqd__GzK5IndexQyd__RszSlRd__s7UnicodeO6ScalarV7ElementRtd__lFZSSAMV_SS0oP4ViewVTg5Tf4nd_n+0x247 (/home/klossy/dev/ss-json/.build/x86_64-unknown-linux-gnu/release/benchmarks)
-        55c6e55a4a11 $s4JSONAAO4RuleO5Array33_CEFB79D06B863FC55EDE85E244D7901ELLO5parseySayABGAA12ParsingInputVyqd__GzK5IndexQyd__RszSlRd__s7UnicodeO6ScalarV7ElementRtd__lFZSSAMV_SS0oP4ViewVTg5+0x71 (inlined)
-        55c6e55a4a11 $s4JSONAAO4RuleO5Array33_CEFB79D06B863FC55EDE85E244D7901ELLOy_x_GAA07ParsingB0A2aIP5parsey12ConstructionQzAA0K5InputVyqd__GzKSlRd__5IndexQyd__8LocationRtz7ElementQyd__8TerminalRtzlFZTWSSAQV_SS17UnicodeScalarViewVTg5+0x71 (inlined)
-        55c6e55a4a11 $s4JSON12ParsingInputV5parse2as12ConstructionQyd__qd__m_tKAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFAgCyxGzKXEfU_SS17UnicodeScalarViewV_A2AO0G0O5Array33_CEFB79D06B863FC55EDE85E244D7901ELLOy_SSAOV_GTg5+0x71 (inlined)
-        55c6e55a4a11 $s4JSON12ParsingInputV5parse2as12ConstructionQyd__qd__m_tKAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFAgCyxGzKXEfU_SS17UnicodeScalarViewV_A2AO0G0O5Array33_CEFB79D06B863FC55EDE85E244D7901ELLOy_SSAOV_GTG5+0x71 (inlined)
-        55c6e55a4a11 $s4JSON12ParsingInputV5group33_1B94CF74D2CAE9ACCA10B6F46CA4FB04LLyqd_0_qd__m_qd_0_ACyxGzKXEtKr0_lFSS17UnicodeScalarViewV_A2AO4RuleO5Array33_CEFB79D06B863FC55EDE85E244D7901ELLOy_SS5IndexV_GSayAIGTg5+0x71 (inlined)
-        55c6e55a4a11 $s4JSON12ParsingInputV5parse2as12ConstructionQyd__qd__m_tKAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFSS17UnicodeScalarViewV_A2AO0G0O5Array33_CEFB79D06B863FC55EDE85E244D7901ELLOy_SSAOV_GTg5+0x71 (inlined)
-        55c6e55a4a11 $s4JSON12ParsingInputV5parse2as12ConstructionQyd__Sgqd__Sgm_tAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFSS17UnicodeScalarViewV_A2AO0G0O5Array33_CEFB79D06B863FC55EDE85E244D7901ELLOy_SSAQV_GTg5+0x71 (inlined)
-        55c6e55a4a11 $s4JSONAAO4RuleO5ValueO5parseyAbA12ParsingInputVyqd__GzK5IndexQyd__RszSlRd__s7UnicodeO6ScalarV7ElementRtd__lFZSSAKV_SS0hI4ViewVTg5Tf4nd_n+0x71 (/home/klossy/dev/ss-json/.build/x86_64-unknown-linux-gnu/release/benchmarks)
-        55c6e55a41a7 $s4JSONAAO4RuleO5ValueO5parseyAbA12ParsingInputVyqd__GzK5IndexQyd__RszSlRd__s7UnicodeO6ScalarV7ElementRtd__lFZSSAKV_SS0hI4ViewVTg5+0x87 (inlined)
-        55c6e55a41a7 $s4JSONAAO4RuleO5ValueOy_x_GAA07ParsingB0A2aHP5parsey12ConstructionQzAA0D5InputVyqd__GzKSlRd__5IndexQyd__8LocationRtz7ElementQyd__8TerminalRtzlFZTWSSAPV_SS17UnicodeScalarViewVTg5+0x87 (inlined)
-        55c6e55a41a7 $s4JSON12ParsingInputV5parse2as12ConstructionQyd__qd__m_tKAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFAgCyxGzKXEfU_SS17UnicodeScalarViewV_A2AO0G0O5ValueOy_SSAOV_GTg5+0x87 (inlined)
-        55c6e55a41a7 $s4JSON12ParsingInputV5parse2as12ConstructionQyd__qd__m_tKAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFAgCyxGzKXEfU_SS17UnicodeScalarViewV_A2AO0G0O5ValueOy_SSAOV_GTG5+0x87 (inlined)
-        55c6e55a41a7 $s4JSON12ParsingInputV5group33_1B94CF74D2CAE9ACCA10B6F46CA4FB04LLyqd_0_qd__m_qd_0_ACyxGzKXEtKr0_lFSS17UnicodeScalarViewV_A2AO4RuleO5ValueOy_SS5IndexV_GAITg5+0x87 (inlined)
-        55c6e55a41a7 $s4JSON12ParsingInputV5parse2as12ConstructionQyd__qd__m_tKAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFSS17UnicodeScalarViewV_A2AO0G0O5ValueOy_SSAOV_GTg5+0x87 (inlined)
-        55c6e55a41a7 $s4JSONAAO4RuleO6ObjectO4ItemO5parseySS3key_AB5valuetAA12ParsingInputVyqd__GzK5IndexQyd__RszSlRd__s7UnicodeO6ScalarV7ElementRtd__lFZSSAOV_SS0kL4ViewVTg5Tf4nd_n+0x87 (/home/klossy/dev/ss-json/.build/x86_64-unknown-linux-gnu/release/benchmarks)
-        55c6e55a45ea $s4JSONAAO4RuleO6ObjectO4ItemO5parseySS3key_AB5valuetAA12ParsingInputVyqd__GzK5IndexQyd__RszSlRd__s7UnicodeO6ScalarV7ElementRtd__lFZSSAOV_SS0kL4ViewVTg5+0x3fa (inlined)
-        55c6e55a45ea $s4JSONAAO4RuleO6ObjectO4ItemOy_x__GAA07ParsingB0A2aJP5parsey12ConstructionQzAA0E5InputVyqd__GzKSlRd__5IndexQyd__8LocationRtz7ElementQyd__8TerminalRtzlFZTWSSARV_SS17UnicodeScalarViewVTg5+0x3fa (inlined)
-        55c6e55a45ea $s4JSON12ParsingInputV5parse2as12ConstructionQyd___AFQyd_0_tqd___qd_0_tm_tKAA0B4RuleRd__AaIRd_0_8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzANQyd_0_AORSAJQyd_0_AKRSr0_lFAG_AHtACyxGzKXEfU_SS17UnicodeScalarViewV_AA7GrammarO3PadOy_AX8EncodingOAAs0L0O0M0VRs_rlE5CommaOy_SSAPVA4__GA2AO0G0O10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_A7__GGA11_6ObjectO4ItemOy_A7___GTg5+0x3fa (inlined)
-        55c6e55a45ea $s4JSON12ParsingInputV5parse2as12ConstructionQyd___AFQyd_0_tqd___qd_0_tm_tKAA0B4RuleRd__AaIRd_0_8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzANQyd_0_AORSAJQyd_0_AKRSr0_lFAG_AHtACyxGzKXEfU_SS17UnicodeScalarViewV_AA7GrammarO3PadOy_AX8EncodingOAAs0L0O0M0VRs_rlE5CommaOy_SSAPVA4__GA2AO0G0O10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_A7__GGA11_6ObjectO4ItemOy_A7___GTG5+0x3fa (inlined)
-        55c6e55a45ea $s4JSON12ParsingInputV5group33_1B94CF74D2CAE9ACCA10B6F46CA4FB04LLyqd_0_qd__m_qd_0_ACyxGzKXEtKr0_lFSS17UnicodeScalarViewV_AA7GrammarO3PadOy_AJ8EncodingOAAs0N0O0O0VRs_rlE5CommaOy_SS5IndexVAR_GA2AO4RuleO10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_AV_GG_AZ6ObjectO4ItemOy_AV__Gtyt_SS3key_AX5valuettTg5+0x3fa (inlined)
-        55c6e55a45ea $s4JSON12ParsingInputV5parse2as12ConstructionQyd___AFQyd_0_tqd___qd_0_tm_tKAA0B4RuleRd__AaIRd_0_8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzANQyd_0_AORSAJQyd_0_AKRSr0_lFSS17UnicodeScalarViewV_AA7GrammarO3PadOy_AW8EncodingOAAs0L0O0M0VRs_rlE5CommaOy_SSAPVA3__GA2AO0G0O10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_A6__GGA10_6ObjectO4ItemOy_A6___GTg5+0x3fa (inlined)
-        55c6e55a45ea $s4JSONAAO4RuleO6ObjectO5parseySDySSABGAA12ParsingInputVyqd__GzK5IndexQyd__RszSlRd__s7UnicodeO6ScalarV7ElementRtd__lFZSSALV_SS0hI4ViewVTg5Tf4nd_n+0x3fa (/home/klossy/dev/ss-json/.build/x86_64-unknown-linux-gnu/release/benchmarks)
-        55c6e55a4a40 $s4JSONAAO4RuleO6ObjectO5parseySDySSABGAA12ParsingInputVyqd__GzK5IndexQyd__RszSlRd__s7UnicodeO6ScalarV7ElementRtd__lFZSSALV_SS0hI4ViewVTg5+0xa0 (inlined)
-        55c6e55a4a40 $s4JSONAAO4RuleO6ObjectOy_x_GAA07ParsingB0A2aHP5parsey12ConstructionQzAA0D5InputVyqd__GzKSlRd__5IndexQyd__8LocationRtz7ElementQyd__8TerminalRtzlFZTWSSAPV_SS17UnicodeScalarViewVTg5+0xa0 (inlined)
-        55c6e55a4a40 $s4JSON12ParsingInputV5parse2as12ConstructionQyd__qd__m_tKAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFAgCyxGzKXEfU_SS17UnicodeScalarViewV_A2AO0G0O6ObjectOy_SSAOV_GTg5+0xa0 (inlined)
-        55c6e55a4a40 $s4JSON12ParsingInputV5parse2as12ConstructionQyd__qd__m_tKAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFAgCyxGzKXEfU_SS17UnicodeScalarViewV_A2AO0G0O6ObjectOy_SSAOV_GTG5+0xa0 (inlined)
-        55c6e55a4a40 $s4JSON12ParsingInputV5group33_1B94CF74D2CAE9ACCA10B6F46CA4FB04LLyqd_0_qd__m_qd_0_ACyxGzKXEtKr0_lFSS17UnicodeScalarViewV_A2AO4RuleO6ObjectOy_SS5IndexV_GSDySSAIGTg5+0xa0 (inlined)
-        55c6e55a4a40 $s4JSON12ParsingInputV5parse2as12ConstructionQyd__qd__m_tKAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFSS17UnicodeScalarViewV_A2AO0G0O6ObjectOy_SSAOV_GTg5+0xa0 (inlined)
-        55c6e55a4a40 $s4JSON12ParsingInputV5parse2as12ConstructionQyd__Sgqd__Sgm_tAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFSS17UnicodeScalarViewV_A2AO0G0O6ObjectOy_SSAQV_GTg5+0xa0 (inlined)
-        55c6e55a4a40 $s4JSONAAO4RuleO5ValueO5parseyAbA12ParsingInputVyqd__GzK5IndexQyd__RszSlRd__s7UnicodeO6ScalarV7ElementRtd__lFZSSAKV_SS0hI4ViewVTg5Tf4nd_n+0xa0 (/home/klossy/dev/ss-json/.build/x86_64-unknown-linux-gnu/release/benchmarks)
-        55c6e55a41a7 $s4JSONAAO4RuleO5ValueO5parseyAbA12ParsingInputVyqd__GzK5IndexQyd__RszSlRd__s7UnicodeO6ScalarV7ElementRtd__lFZSSAKV_SS0hI4ViewVTg5+0x87 (inlined)
-        55c6e55a41a7 $s4JSONAAO4RuleO5ValueOy_x_GAA07ParsingB0A2aHP5parsey12ConstructionQzAA0D5InputVyqd__GzKSlRd__5IndexQyd__8LocationRtz7ElementQyd__8TerminalRtzlFZTWSSAPV_SS17UnicodeScalarViewVTg5+0x87 (inlined)
-        55c6e55a41a7 $s4JSON12ParsingInputV5parse2as12ConstructionQyd__qd__m_tKAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFAgCyxGzKXEfU_SS17UnicodeScalarViewV_A2AO0G0O5ValueOy_SSAOV_GTg5+0x87 (inlined)
-        55c6e55a41a7 $s4JSON12ParsingInputV5parse2as12ConstructionQyd__qd__m_tKAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFAgCyxGzKXEfU_SS17UnicodeScalarViewV_A2AO0G0O5ValueOy_SSAOV_GTG5+0x87 (inlined)
-        55c6e55a41a7 $s4JSON12ParsingInputV5group33_1B94CF74D2CAE9ACCA10B6F46CA4FB04LLyqd_0_qd__m_qd_0_ACyxGzKXEtKr0_lFSS17UnicodeScalarViewV_A2AO4RuleO5ValueOy_SS5IndexV_GAITg5+0x87 (inlined)
-        55c6e55a41a7 $s4JSON12ParsingInputV5parse2as12ConstructionQyd__qd__m_tKAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFSS17UnicodeScalarViewV_A2AO0G0O5ValueOy_SSAOV_GTg5+0x87 (inlined)
-        55c6e55a41a7 $s4JSONAAO4RuleO6ObjectO4ItemO5parseySS3key_AB5valuetAA12ParsingInputVyqd__GzK5IndexQyd__RszSlRd__s7UnicodeO6ScalarV7ElementRtd__lFZSSAOV_SS0kL4ViewVTg5Tf4nd_n+0x87 (/home/klossy/dev/ss-json/.build/x86_64-unknown-linux-gnu/release/benchmarks)
-        55c6e55a45ea $s4JSONAAO4RuleO6ObjectO4ItemO5parseySS3key_AB5valuetAA12ParsingInputVyqd__GzK5IndexQyd__RszSlRd__s7UnicodeO6ScalarV7ElementRtd__lFZSSAOV_SS0kL4ViewVTg5+0x3fa (inlined)
-        55c6e55a45ea $s4JSONAAO4RuleO6ObjectO4ItemOy_x__GAA07ParsingB0A2aJP5parsey12ConstructionQzAA0E5InputVyqd__GzKSlRd__5IndexQyd__8LocationRtz7ElementQyd__8TerminalRtzlFZTWSSARV_SS17UnicodeScalarViewVTg5+0x3fa (inlined)
-        55c6e55a45ea $s4JSON12ParsingInputV5parse2as12ConstructionQyd___AFQyd_0_tqd___qd_0_tm_tKAA0B4RuleRd__AaIRd_0_8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzANQyd_0_AORSAJQyd_0_AKRSr0_lFAG_AHtACyxGzKXEfU_SS17UnicodeScalarViewV_AA7GrammarO3PadOy_AX8EncodingOAAs0L0O0M0VRs_rlE5CommaOy_SSAPVA4__GA2AO0G0O10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_A7__GGA11_6ObjectO4ItemOy_A7___GTg5+0x3fa (inlined)
-        55c6e55a45ea $s4JSON12ParsingInputV5parse2as12ConstructionQyd___AFQyd_0_tqd___qd_0_tm_tKAA0B4RuleRd__AaIRd_0_8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzANQyd_0_AORSAJQyd_0_AKRSr0_lFAG_AHtACyxGzKXEfU_SS17UnicodeScalarViewV_AA7GrammarO3PadOy_AX8EncodingOAAs0L0O0M0VRs_rlE5CommaOy_SSAPVA4__GA2AO0G0O10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_A7__GGA11_6ObjectO4ItemOy_A7___GTG5+0x3fa (inlined)
-        55c6e55a45ea $s4JSON12ParsingInputV5group33_1B94CF74D2CAE9ACCA10B6F46CA4FB04LLyqd_0_qd__m_qd_0_ACyxGzKXEtKr0_lFSS17UnicodeScalarViewV_AA7GrammarO3PadOy_AJ8EncodingOAAs0N0O0O0VRs_rlE5CommaOy_SS5IndexVAR_GA2AO4RuleO10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_AV_GG_AZ6ObjectO4ItemOy_AV__Gtyt_SS3key_AX5valuettTg5+0x3fa (inlined)
-        55c6e55a45ea $s4JSON12ParsingInputV5parse2as12ConstructionQyd___AFQyd_0_tqd___qd_0_tm_tKAA0B4RuleRd__AaIRd_0_8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzANQyd_0_AORSAJQyd_0_AKRSr0_lFSS17UnicodeScalarViewV_AA7GrammarO3PadOy_AW8EncodingOAAs0L0O0M0VRs_rlE5CommaOy_SSAPVA3__GA2AO0G0O10Whitespace33_CEFB79D06B863FC55EDE85E244D7901ELLOy_A6__GGA10_6ObjectO4ItemOy_A6___GTg5+0x3fa (inlined)
-        55c6e55a45ea $s4JSONAAO4RuleO6ObjectO5parseySDySSABGAA12ParsingInputVyqd__GzK5IndexQyd__RszSlRd__s7UnicodeO6ScalarV7ElementRtd__lFZSSALV_SS0hI4ViewVTg5Tf4nd_n+0x3fa (/home/klossy/dev/ss-json/.build/x86_64-unknown-linux-gnu/release/benchmarks)
-        55c6e55a5def $s4JSONAAO4RuleO6ObjectO5parseySDySSABGAA12ParsingInputVyqd__GzK5IndexQyd__RszSlRd__s7UnicodeO6ScalarV7ElementRtd__lFZSSALV_SS0hI4ViewVTg5+0x12af (inlined)
-        55c6e55a5def $s4JSONAAO4RuleO6ObjectOy_x_GAA07ParsingB0A2aHP5parsey12ConstructionQzAA0D5InputVyqd__GzKSlRd__5IndexQyd__8LocationRtz7ElementQyd__8TerminalRtzlFZTWSSAPV_SS17UnicodeScalarViewVTg5+0x12af (inlined)
-        55c6e55a5def $s4JSON12ParsingInputV5parse2as12ConstructionQyd__qd__m_tKAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFAgCyxGzKXEfU_SS17UnicodeScalarViewV_A2AO0G0O6ObjectOy_SSAOV_GTg5+0x12af (inlined)
-        55c6e55a5def $s4JSON12ParsingInputV5parse2as12ConstructionQyd__qd__m_tKAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFAgCyxGzKXEfU_SS17UnicodeScalarViewV_A2AO0G0O6ObjectOy_SSAOV_GTG5+0x12af (inlined)
-        55c6e55a5def $s4JSON12ParsingInputV5group33_1B94CF74D2CAE9ACCA10B6F46CA4FB04LLyqd_0_qd__m_qd_0_ACyxGzKXEtKr0_lFSS17UnicodeScalarViewV_A2AO4RuleO6ObjectOy_SS5IndexV_GSDySSAIGTg5+0x12af (inlined)
-        55c6e55a5def $s4JSON12ParsingInputV5parse2as12ConstructionQyd__qd__m_tKAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFSS17UnicodeScalarViewV_A2AO0G0O6ObjectOy_SSAOV_GTg5+0x12af (inlined)
-        55c6e55a5def $s4JSON12ParsingInputV5parse2as12ConstructionQyd__Sgqd__Sgm_tAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFSS17UnicodeScalarViewV_A2AO0G0O6ObjectOy_SSAQV_GTg5+0x12af (inlined)
-        55c6e55a5def $s4JSONAAO4RuleO5ValueO5parseyAbA12ParsingInputVyqd__GzK5IndexQyd__RszSlRd__s7UnicodeO6ScalarV7ElementRtd__lFZSSAKV_SS0hI4ViewVTg5+0x12af (inlined)
-        55c6e55a5def $s4JSONAAO4RuleO5ValueOy_x_GAA07ParsingB0A2aHP5parsey12ConstructionQzAA0D5InputVyqd__GzKSlRd__5IndexQyd__8LocationRtz7ElementQyd__8TerminalRtzlFZTWSSAPV_SS17UnicodeScalarViewVTg5+0x12af (inlined)
-        55c6e55a5def $s4JSON12ParsingInputV5parse2as12ConstructionQyd__qd__m_tKAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFAgCyxGzKXEfU_SS17UnicodeScalarViewV_A2AO0G0O5ValueOy_SSAOV_GTg5+0x12af (inlined)
-        55c6e55a5def $s4JSON12ParsingInputV5parse2as12ConstructionQyd__qd__m_tKAA0B4RuleRd__8TerminalQyd__7ElementRtz8LocationQyd__5IndexRtzlFAgCyxGzKXEfU_SS17UnicodeScalarViewV_A2AO0G0O5ValueOy_SSAOV_GTG5+0x12af (inlined)
-        55c6e55a5def $s4JSON12ParsingInputV5group33_1B94CF74D2CAE9ACCA10B6F46CA4FB04LLyqd_0_qd__m_qd_0_ACyxGzKXEtKr0_lFSS17UnicodeScalarViewV_A2AO4RuleO5ValueOy_SS5IndexV_GAITg5+0x12af (inlined)
-        """
-        print(try Grammar.parse(test.unicodeScalars, as: Rule<String.Index>.Sample.self))
+        let test:String = try File.read(from: "perf.txt")
+        
+        do 
+        {
+            let samples:[(process:Process, sample:Sample)] = 
+            try Grammar.parse(diagnosing: test.unicodeScalars, as: Rule<String.Index>.SampleVector.self)
+            print(samples.count)
+        }
+        catch let error as ParsingError<String.Index> 
+        {
+            print(error.annotate(source: test, line: { String.init($0.map{ $0 == "\t" ? " " : $0 }) }, 
+                newline: \.isNewline))
+        }
+        catch let error 
+        {
+            print(error)
+        }
     }
     
     struct Process:Identifiable
@@ -137,7 +76,7 @@ extension Perf.Rule
         {
             typealias Terminal = Unicode.Scalar 
             static 
-            var literal:[Unicode.Scalar] { ["k", "e", "r", "n", "e", "l", ".", "a", "l", "l", "s", "y", "m", "s"] }
+            var literal:[Unicode.Scalar] { ["k", "e", "r", "n", "e", "l", ".", "k", "a", "l", "l", "s", "y", "m", "s"] }
         }
         enum Unknown:Grammar.TerminalSequence 
         {
@@ -471,6 +410,26 @@ extension Perf.Rule
                 trace.append(frame)
             }
             return (.init(id: process, command: command), .init(period: period, trace: trace))
+        }
+    }
+    enum SampleVector:ParsingRule 
+    {
+        typealias Terminal = Unicode.Scalar
+        static 
+        func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) 
+            throws -> [(process:Perf.Process, sample:Perf.Sample)]
+            where   Diagnostics:ParsingDiagnostics,
+                    Diagnostics.Source.Index == Location,
+                    Diagnostics.Source.Element == Terminal
+        {
+            var samples:[(process:Perf.Process, sample:Perf.Sample)]    = []
+            input.parse(as: Codepoint.Whitespace.self, in: Void.self)
+            while let (process, sample):(Perf.Process, Perf.Sample)     = input.parse(as: Sample?.self)
+            {
+                samples.append((process, sample))
+                input.parse(as: Codepoint.Whitespace.self, in: Void.self)
+            }
+            return samples
         }
     }
 }
