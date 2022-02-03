@@ -2,11 +2,24 @@
 public
 enum JSON
 {
+    // force specializations 
     public static
-    func _benchmark(parsing json:[UInt8]) throws -> Int
+    func _manifest(_ json:[UInt8]) throws -> [Self]
     {
-        let payloads:[Self] = try Grammar.parse(json, as: Rule<Int>.Root.self, in: [Self].self)
-        return payloads.count
+        try Grammar.parse(json, as: Rule<Int>.Root.self, in: [Self].self)
+    }
+    public static
+    func _break(_ json:[UInt8]) throws -> [Range<Int>]
+    {
+        var input:ParsingInput<Grammar.NoDiagnostics<[UInt8]>> = .init(json)
+        var indices:[Range<Int>]    = []
+        var start:Int               = input.index 
+        while let _:Self = input.parse(as: Rule<Int>.Root?.self)
+        {
+            indices.append(start ..< input.index)
+            start = input.index
+        }
+        return indices 
     }
     
     public 
