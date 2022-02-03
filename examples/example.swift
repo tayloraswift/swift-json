@@ -20,10 +20,9 @@ enum Main
         """
         {"success":true,"value":0.1}
         """
-        let decoder:JSON        = 
-            try Grammar.parse(string.utf8, as: JSON.Rule<String.Index>.Root.self)
-        let response:Response  = 
-            try .init(from: decoder)
+        let decoder:JSON        = try Grammar.parse(string.utf8, 
+            as: JSON.Rule<String.Index>.Root.self)
+        let response:Response   = try .init(from: decoder)
         
         print(response)
         
@@ -33,12 +32,14 @@ enum Main
         """
         do 
         {
-            let _:JSON = 
-                try Grammar.parse(diagnosing: invalid.utf8, as: JSON.Rule<String.Index>.Root.self)
+            let _:JSON = try Grammar.parse(diagnosing: invalid.utf8, 
+                as: JSON.Rule<String.Index>.Root.self)
         }
         catch let error as ParsingError<String.Index> 
         {
-            print(error.annotate(source: invalid, line: String.init(_:), newline: \.isNewline))
+            let debug:String = error.annotate(source: invalid, 
+                line: String.init(_:), newline: \.isNewline)
+            print(debug)
         }
     }
 }
