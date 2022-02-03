@@ -1,5 +1,5 @@
 <p align="center">
-  <strong><em><code>json</code></em></strong><br><small><code>0.1.0</code></small>
+  <strong><em><code>json</code></em></strong><br><small><code>0.1.1</code></small>
 </p>
 
 `swift-json` is a pure-Swift JSON parsing library designed for high-performance, high-throughput server-side applications. When compared using the test data [`captured.json`](cases/), `swift-json` is nearly 7 times faster than `Foundation.JSONDecoder` ([see benchmark source code](benchmarks/)).
@@ -101,7 +101,8 @@ let package = Package(
     dependencies: 
     [
         // other dependencies
-        .package(url: "https://github.com/kelvin13/ss-json", from: "0.1.0"),
+        .package(name: "swift-json", 
+            url: "https://github.com/kelvin13/ss-json", from: "0.1.1"),
     ],
     targets: 
     [
