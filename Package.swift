@@ -5,10 +5,11 @@ let package = Package(
     name: "swift-json",
     products: 
     [
-        .library    (name: "swift-json", targets: ["JSON"]),
+        .library    (name: "swift-json",    targets: ["JSON"]),
     
-        .executable (name: "benchmarks", targets: ["JSONBenchmarks"]),
-        .executable (name: "proportions", targets: ["Proportions"]),
+        .executable (name: "examples",      targets: ["JSONExamples"]),
+        .executable (name: "benchmarks",    targets: ["JSONBenchmarks"]),
+        .executable (name: "proportions",   targets: ["Proportions"]),
     ],
     dependencies: 
     [
@@ -20,6 +21,15 @@ let package = Package(
             exclude: 
             [
                 "grammar/README.md",
+            ]),
+        .executableTarget(name: "JSONExamples",
+            dependencies: 
+            [
+                .target(name: "JSON"),
+            ],
+            path: "examples/",
+            exclude: 
+            [
             ]),
         .executableTarget(name: "JSONBenchmarks",
             dependencies: 

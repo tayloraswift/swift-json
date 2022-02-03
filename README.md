@@ -1,22 +1,14 @@
 <p align="center">
-  <strong><em><code>json</code></em></strong><br><small>server-side swift submodule</small>
+  <strong><em><code>json</code></em></strong><br><small><code>0.1.0</code></small>
 </p>
 
-This is a non-resilient Swift submodule. It should be imported as a Git submodule, not an SPM package. 
-
-**This submodule depends on**:
-
-* [`grammar`](https://github.com/kelvin13/ss-grammar)
-
-**This submodule will add the following top-level symbols to your namespace**:
-
-* `enum JSON`
-
-All declarations are `internal`.
+`JSON` is a pure-Swift JSON parsing library designed for high-performance, high-throughput server-side applications. 
 
 example usage:
 
 ```swift
+import JSON 
+
 @main 
 enum Main 
 {
@@ -25,7 +17,7 @@ enum Main
         let units:Int 
         let places:Int 
     }
-    struct Number:Codable 
+    struct Response:Codable 
     {
         let success:Bool 
         let value:Decimal
@@ -37,9 +29,12 @@ enum Main
         """
         {"success":true,"value":0.1}
         """
-        let decoder:JSON.Decoder = try Grammar.parse(string, as: JSON.Decoder.self)
-        let number:Number = try .init(from: decoder)
-        print(number)
+        let decoder:JSON        = 
+            try Grammar.parse(string.utf8, as: JSON.Rule<String.Index>.Root.self)
+        let response:Response  = 
+            try .init(from: decoder)
+        
+        print(response)
         
         let invalid:String = 
         """
@@ -47,27 +42,38 @@ enum Main
         """
         do 
         {
-            let _:JSON.Decoder = try Grammar.parse(invalid, as: JSON.Decoder.self)
+            let _:JSON = 
+                try Grammar.parse(diagnosing: invalid.utf8, as: JSON.Rule<String.Index>.Root.self)
         }
-        catch let error 
+        catch let error as ParsingError<String.Index> 
         {
-            print("expected error:")
-            print(error)
+            print(error.annotate(source: invalid, line: String.init(_:), newline: \.isNewline))
         }
     }
 }
+
 ```
 ```text
-$ swift run
+$ .build/release/examples
+Response(success: true, value: JSONExamples.Main.Decimal(units: 1, places: 1))
 
-Number(success: true, value: ss_json.Main.Decimal(units: 1, places: 1))
+JSON.Grammar.Expected<(extension in JSON):JSON.Grammar.Encoding<Swift.String.Index, Swift.UInt8>.ASCII.Quote>: expected construction by rule 'Quote'
+{"success":true,value:0.1}
+                ^
+note: expected pattern '(extension in JSON):JSON.Grammar.Encoding<Swift.String.Index, Swift.UInt8>.ASCII.Quote'
+{"success":true,value:0.1}
+                ^
+note: while parsing value of type 'Swift.String' by rule 'JSON.JSON.Rule<Swift.String.Index>.StringLiteral'
+{"success":true,value:0.1}
+                ^
+note: while parsing value of type '((), (key: Swift.String, value: JSON.JSON))' by rule '(JSON.Grammar.Pad<(extension in JSON):JSON.Grammar.Encoding<Swift.String.Index, Swift.UInt8>.ASCII.Comma, JSON.JSON.Rule<Swift.String.Index>.Whitespace>, JSON.JSON.Rule<Swift.String.Index>.Object.Item)'
+{"success":true,value:0.1}
+               ^~
+note: while parsing value of type 'Swift.Dictionary<Swift.String, JSON.JSON>' by rule 'JSON.JSON.Rule<Swift.String.Index>.Object'
+{"success":true,value:0.1}
+^~~~~~~~~~~~~~~~~
+note: while parsing value of type 'JSON.JSON' by rule 'JSON.JSON.Rule<Swift.String.Index>.Root'
+{"success":true,value:0.1}
+^~~~~~~~~~~~~~~~~
 
-expected error:
-ss_json.Grammar.ExpectedTerminal<Swift.Character>: expected '"' (encountered 'v')
-note: while parsing productionless rule (literal sequence at json.swift:259)
-note: while parsing value of type 'String' by rule 'StringLiteral'
-note: while parsing value of type '((), Item)' by rule '(Value, Item)'
-note: while parsing value of type 'Dictionary<String, Value>' by rule 'Object'
-note: while parsing value of type 'Decoder' by rule 'Decoder'
-note: while parsing input sequence '{"success":true,value:0.1}'
 ```
