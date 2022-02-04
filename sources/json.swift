@@ -551,14 +551,15 @@ extension JSON.Rule
                 {
                     switch terminal
                     {
-                    // '\\', '\/'
-                    case 0x5c, 0x2f:    return .init(terminal) 
-                    case 0x62:          return "\u{08}" // '\b'
-                    case 0x66:          return "\u{0C}" // '\f'
-                    case 0x6e:          return "\u{0A}" // '\n'
-                    case 0x72:          return "\u{0D}" // '\r'
-                    case 0x74:          return "\u{09}" // '\t'
-                    default:            return nil 
+                    // '\\', '\"', '\/'
+                    case 0x5c, 0x22, 0x2f:
+                                return .init(terminal) 
+                    case 0x62:  return "\u{08}" // '\b'
+                    case 0x66:  return "\u{0C}" // '\f'
+                    case 0x6e:  return "\u{0A}" // '\n'
+                    case 0x72:  return "\u{0D}" // '\r'
+                    case 0x74:  return "\u{09}" // '\t'
+                    default:    return nil 
                     }
                 }
             }
