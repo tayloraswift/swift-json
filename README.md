@@ -1,8 +1,22 @@
 <p align="center">
-  <strong><em><code>json</code></em></strong><br><small><code>0.1.1</code></small>
+  <strong><em><code>json</code></em></strong><br><small><code>0.1.3</code></small>
 </p>
 
 `swift-json` is a pure-Swift JSON parsing library designed for high-performance, high-throughput server-side applications. When compared using the test data [`captured.json`](cases/), `swift-json` is nearly 7 times faster than `Foundation.JSONDecoder` ([see benchmark source code](benchmarks/)).
+
+**Importing this module will expose the following top-level symbol(s)**:
+
+* `enum JSON`
+
+**In addition, this module re-exports the following top-level symbol(s) from the `Grammar` module of [`swift-grammar`](https://github.com/kelvin13/swift-grammar)**:
+
+* `enum Grammar`
+* `protocol TraceableError`
+* `protocol TraceableErrorRoot`
+* `struct ParsingError<Index>`
+* `struct ParsingInput<Diagnostics>`
+* `protocol ParsingRule`
+* `protocol ParsingDiagnostics`
 
 ## example usage
 
@@ -101,16 +115,15 @@ let package = Package(
     dependencies: 
     [
         // other dependencies
-        .package(name: "swift-json", 
-            url: "https://github.com/kelvin13/ss-json", from: "0.1.1"),
+        .package(url: "https://github.com/kelvin13/swift-json", from: "0.1.3"),
     ],
     targets: 
     [
         .target(name: "example", 
             dependencies: 
             [
-                // other dependencies
                 .product(name: "JSON", package: "swift-json"),
+                // other dependencies
             ]),
         // other targets
     ]

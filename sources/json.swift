@@ -1,13 +1,8 @@
+@_exported import Grammar
+
 @frozen public
 enum JSON
 {
-    // force specializations 
-    /* public static
-    func _manifest<Source, Rule>(_ json:Source) throws -> Rule.Construction 
-        where Rule:ParsingRule, Source:Collection, Rule.Location == Source.Index
-    {
-        try Grammar.parse(json, as: Rule.self)
-    } */
     public static
     func _break(_ json:[UInt8]) throws -> [Range<Int>]
     {
@@ -42,7 +37,7 @@ enum JSON
         public
         let number:Number
         public
-        let overflows:FixedWidthInteger.Type
+        let overflows:any FixedWidthInteger.Type
         public
         var description:String 
         {

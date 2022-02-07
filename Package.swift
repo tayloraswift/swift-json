@@ -13,14 +13,18 @@ let package = Package(
     ],
     dependencies: 
     [
+        .package(url: "https://github.com/kelvin13/swift-grammar", from: "0.1.0")
     ],
     targets: 
     [
         .target(name: "JSON", 
+            dependencies: 
+            [
+                .product(name: "Grammar", package: "swift-grammar"),
+            ],
             path: "sources/", 
             exclude: 
             [
-                "grammar/README.md",
             ]),
         .executableTarget(name: "JSONExamples",
             dependencies: 
@@ -44,11 +48,11 @@ let package = Package(
         .executableTarget(name: "Proportions",
             dependencies: 
             [
+                .product(name: "Grammar", package: "swift-grammar"),
             ],
             path: "proportions/",
             exclude: 
             [
-                "grammar/README.md",
             ]),
     ]
 )

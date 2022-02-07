@@ -1,3 +1,5 @@
+import Grammar
+
 @main
 enum Perf 
 {
