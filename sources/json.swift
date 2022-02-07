@@ -37,7 +37,7 @@ enum JSON
         public
         let number:Number
         public
-        let overflows:any FixedWidthInteger.Type
+        let overflows:FixedWidthInteger.Type
         public
         var description:String 
         {
