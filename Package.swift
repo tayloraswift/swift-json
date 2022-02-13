@@ -13,7 +13,7 @@ let package = Package(
     ],
     dependencies: 
     [
-        .package(url: "https://github.com/kelvin13/swift-grammar", from: "0.1.0")
+        .package(url: "https://github.com/kelvin13/swift-grammar", from: "0.1.1")
     ],
     targets: 
     [
