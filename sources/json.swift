@@ -1,7 +1,7 @@
 @_exported import Grammar
 
 @frozen public
-enum JSON
+enum JSON:Sendable
 {
     public static
     func _break(_ json:[UInt8]) throws -> [Range<Int>]
@@ -18,7 +18,7 @@ enum JSON
     }
     
     public 
-    struct InvalidUnicodeScalarError:Error
+    struct InvalidUnicodeScalarError:Error, Sendable
     {
         public
         let value:UInt16  
@@ -32,7 +32,7 @@ enum JSON
     // by the conversions on `Number`. this is the error thrown by the `Decoder`
     // implementation.
     public
-    struct IntegerOverflowError:Error, CustomStringConvertible 
+    struct IntegerOverflowError:Error, Sendable, CustomStringConvertible 
     {
         public
         let number:Number
@@ -45,18 +45,14 @@ enum JSON
         }
     }
     
+    // this layout should allow instances of `Number` to fit in 2 words
     @frozen public 
-    struct Number:CustomStringConvertible 
+    struct Number:CustomStringConvertible, Sendable
     {
-        @frozen public 
-        enum Sign
-        {
-            case plus 
-            case minus 
-        }
-        // this should allow instances of this type to fit in 2 words
+        // this is backed by an `Int`, but the swift compiler can optimize it 
+        // into a `UInt8`-sized field
         public 
-        var sign:Sign
+        var sign:FloatingPointSign 
         // cannot have an inlinable property wrapper
         public 
         var _places:UInt32
@@ -69,7 +65,7 @@ enum JSON
         var units:UInt64
         
         @inlinable public
-        init(sign:Sign, units:UInt64, places:UInt32)
+        init(sign:FloatingPointSign, units:UInt64, places:UInt32)
         {
             self.sign       = sign 
             self.units      = units 
@@ -417,9 +413,9 @@ extension JSON.Rule
             public 
             typealias Terminal      = UInt8
             public 
-            typealias Construction  = JSON.Number.Sign
+            typealias Construction  = FloatingPointSign
             @inlinable public static 
-            func parse(terminal:UInt8) -> JSON.Number.Sign? 
+            func parse(terminal:UInt8) -> FloatingPointSign? 
             {
                 switch terminal 
                 {
@@ -439,7 +435,7 @@ extension JSON.Rule
         {
             // https://datatracker.ietf.org/doc/html/rfc8259#section-6
             // JSON does not allow prefix '+'
-            let sign:JSON.Number.Sign 
+            let sign:FloatingPointSign
             switch input.parse(as: ASCII.Minus?.self)
             {
             case  _?:   sign = .minus 
@@ -473,7 +469,7 @@ extension JSON.Rule
             }
             if  let _:Void                  =     input.parse(as: ASCII.E.Anycase?.self) 
             {
-                let sign:JSON.Number.Sign?  =     input.parse(as: PlusOrMinus?.self)
+                let sign:FloatingPointSign? =     input.parse(as: PlusOrMinus?.self)
                 let exponent:UInt32         = try input.parse(as: Grammar.UnsignedIntegerLiteral<Digit<UInt32>.Decimal>.self)
                 // you too, can exploit the vulnerabilities below
                 switch sign
