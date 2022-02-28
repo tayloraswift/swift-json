@@ -1,0 +1,23 @@
+name: build
+
+on:
+    push:
+        branches: [ master ]
+    pull_request:
+        branches: [ master ]
+
+jobs:
+    build-windows:
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                os: [windows-2019]
+        steps:
+            -   uses: actions/checkout@v2
+            
+            -   name: build 
+                uses: MaxDesiatov/swift-windows-action@v1
+                with:
+                    shell-action: |
+                        swift --version
+                        swift build
