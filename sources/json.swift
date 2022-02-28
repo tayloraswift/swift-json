@@ -1,7 +1,13 @@
 @_exported import Grammar
 
+#if swift(>=5.5)
+extension JSON:Sendable {}
+extension JSON.Number:Sendable {}
+extension JSON.IntegerOverflowError:Sendable {}
+extension JSON.InvalidUnicodeScalarError:Sendable {}
+#endif 
 @frozen public
-enum JSON:Sendable
+enum JSON
 {
     public static
     func _break(_ json:[UInt8]) throws -> [Range<Int>]
@@ -18,7 +24,7 @@ enum JSON:Sendable
     }
     
     public 
-    struct InvalidUnicodeScalarError:Error, Sendable
+    struct InvalidUnicodeScalarError:Error
     {
         public
         let value:UInt16  
@@ -32,22 +38,44 @@ enum JSON:Sendable
     // by the conversions on `Number`. this is the error thrown by the `Decoder`
     // implementation.
     public
-    struct IntegerOverflowError:Error, Sendable, CustomStringConvertible 
+    struct IntegerOverflowError:Error, CustomStringConvertible 
     {
         public
         let number:Number
+        
+        #if swift(<5.6)
         public
-        let overflows:FixedWidthInteger.Type
+        let type:Any.Type
+        
+        init(number:Number, overflows:Any.Type)
+        {
+            self.number = number 
+            self.type   = overflows 
+        }
+        #else 
+        @available(swift, deprecated: 5.6)
+        public
+        var type:Any.Type { self.overflows }
+        
+        @available(swift, introduced: 5.6)
+        public
+        let overflows:any FixedWidthInteger.Type
+        #endif
+        
         public
         var description:String 
         {
+            #if swift(<5.6)
+            return "integer literal '\(number)' overflows decoded type '\(self.type)'"
+            #else 
             "integer literal '\(number)' overflows decoded type '\(self.overflows)'"
+            #endif
         }
     }
     
     // this layout should allow instances of `Number` to fit in 2 words
     @frozen public 
-    struct Number:CustomStringConvertible, Sendable
+    struct Number:CustomStringConvertible
     {
         // this is backed by an `Int`, but the swift compiler can optimize it 
         // into a `UInt8`-sized field
@@ -129,7 +157,7 @@ enum JSON:Sendable
         func callAsFunction<T>(as _:(units:T, places:T)?.Type) -> (units:T, places:T)? 
             where T:FixedWidthInteger & SignedInteger 
         {
-            guard let places:T      = .init(exactly: self.places)
+            guard let places:T      = T.init(exactly: self.places)
             else 
             {
                 return nil
@@ -137,16 +165,16 @@ enum JSON:Sendable
             switch self.sign 
             {
             case .minus: 
-                let negated:Int64   = .init(bitPattern: 0 &- self.units)
+                let negated:Int64   = Int64.init(bitPattern: 0 &- self.units)
                 guard negated      <= 0, 
-                    let units:T     = .init(exactly: negated)
+                    let units:T     = T.init(exactly: negated)
                 else 
                 {
                     return nil 
                 }
                 return (units: units, places: places)
             case .plus: 
-                guard let units:T = .init(exactly: self.units)
+                guard let units:T   = T.init(exactly: self.units)
                 else 
                 {
                     return nil 
@@ -582,7 +610,7 @@ extension JSON.Rule
                             (try input.parse(as: Digit<UInt16>.Hex.Anycase.self) <<  8) |
                             (try input.parse(as: Digit<UInt16>.Hex.Anycase.self) <<  4) |
                             (try input.parse(as: Digit<UInt16>.Hex.Anycase.self)) 
-                        if let scalar:Unicode.Scalar = .init(value)
+                        if let scalar:Unicode.Scalar = Unicode.Scalar.init(value)
                         {
                             unescaped.append(Character.init(scalar))
                         }

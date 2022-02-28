@@ -19,7 +19,7 @@ extension JSON
         }
         init?(stringValue:String)
         {
-            guard let value:Int = .init(stringValue)
+            guard let value:Int = Int.init(stringValue)
             else 
             {
                 return nil 
