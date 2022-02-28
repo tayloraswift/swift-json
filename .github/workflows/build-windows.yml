@@ -1,4 +1,4 @@
-name: build
+name: build-windows
 
 on:
     push:
@@ -11,13 +11,15 @@ jobs:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                os: [windows-2019]
+                os: [windows-2022, windows-2019, windows-2016]
+                swift: [5.5.3, 5.4.3, 5.3.3]
         steps:
             -   uses: actions/checkout@v2
             
             -   name: build 
                 uses: MaxDesiatov/swift-windows-action@v1
                 with:
+                    swift-version: "${{ matrix.swift }}"
                     shell-action: |
                         swift --version
                         swift build
