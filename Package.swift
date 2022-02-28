@@ -1,12 +1,10 @@
 // swift-tools-version:5.5
 import PackageDescription
 
-let executable:(products:[Product], targets:[Target]) 
+var executable:(products:[Product], targets:[Target]) 
 executable.products = 
 [
     .executable (name: "examples",      targets: ["JSONExamples"]),
-    .executable (name: "benchmarks",    targets: ["JSONBenchmarks"]),
-    .executable (name: "proportions",   targets: ["Proportions"]),
 ]
 executable.targets =
 [
@@ -19,26 +17,32 @@ executable.targets =
         exclude: 
         [
         ]),
-    .executableTarget(name: "JSONBenchmarks",
-        dependencies: 
-        [
-            .target(name: "JSON"),
-        ],
-        path: "benchmarks/",
-        exclude: 
-        [
-            "script",
-        ]),
-    .executableTarget(name: "Proportions",
-        dependencies: 
-        [
-            .product(name: "Grammar", package: "swift-grammar"),
-        ],
-        path: "proportions/",
-        exclude: 
-        [
-        ]),
 ]
+#if os(macOS) || os(Linux)
+executable.products.append(.executable(name: "benchmarks", targets: ["JSONBenchmarks"]))
+executable.targets.append(.executableTarget(name: "JSONBenchmarks",
+    dependencies: 
+    [
+        .target(name: "JSON"),
+    ],
+    path: "benchmarks/",
+    exclude: 
+    [
+        "script",
+    ]))
+#endif 
+#if os(Linux)
+executable.products.append(.executable(name: "proportions", targets: ["Proportions"]))
+executable.targets.append(.executableTarget(name: "Proportions",
+    dependencies: 
+    [
+        .product(name: "Grammar", package: "swift-grammar"),
+    ],
+    path: "proportions/",
+    exclude: 
+    [
+    ]))
+#endif
 
 let package:Package = .init(
     name: "swift-json",
