@@ -18,8 +18,9 @@ executable.targets =
         [
         ]),
 ]
-#if os(macOS) || os(Linux)
+#if os(Linux)
 executable.products.append(.executable(name: "benchmarks", targets: ["JSONBenchmarks"]))
+executable.products.append(.executable(name: "proportions", targets: ["Proportions"]))
 executable.targets.append(.executableTarget(name: "JSONBenchmarks",
     dependencies: 
     [
@@ -30,9 +31,6 @@ executable.targets.append(.executableTarget(name: "JSONBenchmarks",
     [
         "script",
     ]))
-#endif 
-#if os(Linux)
-executable.products.append(.executable(name: "proportions", targets: ["Proportions"]))
 executable.targets.append(.executableTarget(name: "Proportions",
     dependencies: 
     [
