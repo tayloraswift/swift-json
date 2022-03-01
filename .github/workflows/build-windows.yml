@@ -11,8 +11,8 @@ jobs:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                os: [windows-2019]
-                swift: [5.5.3, 5.4.3, 5.3.3]
+                os: [windows-2022, windows-2019]
+                swift: [5.5.3, 5.4.3]
         steps:
             -   uses: actions/checkout@v2
             
