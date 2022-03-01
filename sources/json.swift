@@ -53,7 +53,7 @@ enum JSON
             self.type   = overflows 
         }
         #else 
-        @available(swift, deprecated: 5.6)
+        @available(swift, deprecated: 5.6, message: "use the more strongly-typed `overflows` property")
         public
         var type:Any.Type { self.overflows }
         
