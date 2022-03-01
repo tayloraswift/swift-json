@@ -1,1 +1,35 @@
-Package@swift-5.3.swift
+// swift-tools-version:5.4
+import PackageDescription
+// note: this manifest is exactly the same as `Package@swift-5.3.swift`. it’s 
+// needed because of the following SPM error:
+// error: the package manifest at '/Package@swift-5.4.swift' cannot be accessed 
+// (InternalError(description: "Internal error. Please file a bug at https://bugs.swift.org with this info. symlinks not supported"))
+
+let executable:(products:[Product], targets:[Target]) 
+
+executable.products = []
+executable.targets  = []
+
+let package:Package = .init(
+    name: "swift-json",
+    products: executable.products +
+    [
+        .library(name: "JSON", targets: ["JSON"]),
+    ],
+    dependencies: 
+    [
+        .package(url: "https://github.com/kelvin13/swift-grammar", from: "0.1.2")
+    ],
+    targets: executable.targets +
+    [
+        .target(name: "JSON", 
+            dependencies: 
+            [
+                .product(name: "Grammar", package: "swift-grammar"),
+            ],
+            path: "sources/", 
+            exclude: 
+            [
+            ]),
+    ]
+)

@@ -1,6 +1,6 @@
 <div align="center">
   
-***`json`***<br>`0.2.0`
+***`json`***<br>`0.2.1`
   
 [![ci build status](https://github.com/kelvin13/swift-json/actions/workflows/build.yml/badge.svg)](https://github.com/kelvin13/swift-json/actions/workflows/build.yml)
 [![ci windows build status](https://github.com/kelvin13/swift-json/actions/workflows/build-windows.yml/badge.svg)](https://github.com/kelvin13/swift-json/actions/workflows/build-windows.yml)
@@ -123,7 +123,7 @@ let package = Package(
     dependencies: 
     [
         // other dependencies
-        .package(url: "https://github.com/kelvin13/swift-json", from: "0.2.0"),
+        .package(url: "https://github.com/kelvin13/swift-json", from: "0.2.1"),
     ],
     targets: 
     [
