@@ -105,20 +105,31 @@ extension JSON
         default:                    return nil
         }
     }
+    @available(*, deprecated, message: "handle duplicate keys explicitly with `callAsFunction(as:uniquingKeysWith:)`")
     func callAsFunction(as _:[String: Self].Type) -> [String: Self]? 
+    {
+        self(as: [String: Self].self) { $1 }
+    }
+    func callAsFunction(as _:[(key:String, value:Self)].Type) -> [(key:String, value:Self)]? 
     {
         switch self 
         {
         case .object(let items):
             return items
         case .number(let number):
-            return 
-                [
-                    "units":  .number(.init(sign: number.sign, units: number.units,  places: 0)),
-                    "places": .number(.init(sign:       .plus, units: number.places, places: 0)),
-                ]
+            let units:Number    = .init(sign: number.sign, units: number.units,  places: 0),
+                places:Number   = .init(sign:       .plus, units: number.places, places: 0)
+            return [("units", .number(units)), ("places", .number(places))]
         default:
             return nil 
+        }
+    }
+    func callAsFunction(as _:[String: Self].Type, 
+        uniquingKeysWith combine:(Self, Self) throws -> Self) rethrows -> [String: Self]? 
+    {
+        try self(as: [(key:String, value:Self)].self).map
+        {
+            try [String: Self].init($0, uniquingKeysWith: combine)
         }
     }
 }
@@ -314,8 +325,12 @@ extension JSON.Decoder:Decoder
     func container<Key>(keyedBy _:Key.Type) throws -> KeyedDecodingContainer<Key> 
         where Key:CodingKey 
     {
-        let items:[String: JSON]            = try self.diagnose(self.value.callAsFunction(as:))
-        let decoder:JSON.Dictionary<Key>    = .init(items, path: self.codingPath)
+        let decoder:JSON.Dictionary<Key> = .init(
+            try     self.diagnose(self.value.callAsFunction(as:)), 
+            path:   self.codingPath)
+        {
+            (_, overwrite) in overwrite 
+        }
         return .init(decoder)
     }
 }
@@ -328,10 +343,15 @@ extension JSON
         let allKeys:[Key]
         let items:[String: JSON]
         
-        init(_ items:[String: JSON], path:[CodingKey])
+        init(_ items:[(key:String, value:JSON)], path:[CodingKey], 
+            uniquingKeysWith combine:(JSON, JSON) throws -> JSON) rethrows
+        {
+            self.init(try .init(items, uniquingKeysWith: combine), path: path)
+        }
+        init(_ items:[String: JSON], path:[CodingKey]) 
         {
             self.codingPath = path
-            self.items      = items 
+            self.items      = items
             self.allKeys    = items.keys.compactMap(Key.init(stringValue:))
         }
     }
@@ -493,9 +513,12 @@ extension JSON.Dictionary:KeyedDecodingContainerProtocol
     func nestedContainer<NestedKey>(keyedBy _:NestedKey.Type, forKey key:Key) 
         throws -> KeyedDecodingContainer<NestedKey>
     {
-        let items:[String: JSON]                = try self.diagnose(key, JSON.callAsFunction(as:))
-        let decoder:JSON.Dictionary<NestedKey>  = .init(items, 
+        let decoder:JSON.Dictionary<NestedKey>  = .init(
+            try   self.diagnose(key, JSON.callAsFunction(as:)), 
             path: self.codingPath + CollectionOfOne<CodingKey>.init(key))
+        {
+            (_, overwrite) in overwrite 
+        }
         return .init(decoder)
     }
 }
@@ -675,9 +698,12 @@ extension JSON.Array:UnkeyedDecodingContainer
         throws -> KeyedDecodingContainer<NestedKey>
     {
         let key:JSON.Index                      = .init(intValue: self.currentIndex) 
-        let items:[String: JSON]                = try self.diagnose(JSON.callAsFunction(as:))
-        let decoder:JSON.Dictionary<NestedKey>  = .init(items, 
+        let decoder:JSON.Dictionary<NestedKey>  = .init(
+            try   self.diagnose(JSON.callAsFunction(as:)), 
             path: self.codingPath + CollectionOfOne<CodingKey>.init(key))
+        {
+            (_, overwrite) in overwrite
+        }
         return .init(decoder)
     }
 }

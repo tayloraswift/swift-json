@@ -315,7 +315,7 @@ enum JSON
     case number(Number)
     case string(String)
     case array([Self])
-    case object([String: Self])
+    case object([(key:String, value:Self)])
 }
 
 extension JSON 
@@ -379,7 +379,7 @@ extension JSON.Rule
                     Diagnostics.Source.Index == Location,
                     Diagnostics.Source.Element == Terminal
         {
-            if let items:[String: JSON] = input.parse(as: Object?.self)
+            if let items:[(key:String, value:JSON)] = input.parse(as: Object?.self)
             {
                 return .object(items)
             }
@@ -400,27 +400,27 @@ extension JSON.Rule
                     Diagnostics.Source.Index == Location,
                     Diagnostics.Source.Element == Terminal
         {
-            if let number:JSON.Number           = input.parse(as: NumberLiteral?.self)
+            if let number:JSON.Number = input.parse(as: NumberLiteral?.self)
             {
                 return .number(number)
             }
-            else if let string:String           = input.parse(as: StringLiteral?.self)
+            else if let string:String = input.parse(as: StringLiteral?.self)
             {
                 return .string(string)
             }
-            else if let elements:[JSON]         = input.parse(as: Array?.self)
+            else if let elements:[JSON] = input.parse(as: Array?.self)
             {
                 return .array(elements)
             }
-            else if let items:[String: JSON]    = input.parse(as: Object?.self)
+            else if let items:[(key:String, value:JSON)] = input.parse(as: Object?.self)
             {
                 return .object(items)
             }
-            else if let _:Void                  = input.parse(as: Keyword.True?.self)
+            else if let _:Void = input.parse(as: Keyword.True?.self)
             {
                 return .bool(true)
             }
-            else if let _:Void                  = input.parse(as: Keyword.False?.self)
+            else if let _:Void = input.parse(as: Keyword.False?.self)
             {
                 return .bool(false)
             }
@@ -700,9 +700,9 @@ extension JSON.Rule
             if let head:JSON = try? input.parse(as: Value.self)
             {
                 elements = [head]
-                while let (_, value):(Void, JSON) = try? input.parse(as: (Padded<ASCII.Comma>, Value).self)
+                while let (_, next):(Void, JSON) = try? input.parse(as: (Padded<ASCII.Comma>, Value).self)
                 {
-                    elements.append(value)
+                    elements.append(next)
                 }
             }
             else 
@@ -736,24 +736,24 @@ extension JSON.Rule
         public 
         typealias Terminal = UInt8
         @inlinable public static 
-        func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> [String: JSON]
+        func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> [(key:String, value:JSON)]
             where   Diagnostics:ParsingDiagnostics,
                     Diagnostics.Source.Index == Location,
                     Diagnostics.Source.Element == Terminal
         {
             try input.parse(as: Padded<ASCII.BraceLeft>.self)
-            var items:[String: JSON]
+            var items:[(key:String, value:JSON)]
             if let head:(key:String, value:JSON) = try? input.parse(as: Item.self)
             {
-                items = [head.key: head.value]
-                while let (_, item):(Void, (key:String, value:JSON)) = try? input.parse(as: (Padded<ASCII.Comma>, Item).self)
+                items = [head]
+                while let (_, next):(Void, (key:String, value:JSON)) = try? input.parse(as: (Padded<ASCII.Comma>, Item).self)
                 {
-                    items[item.key] = item.value 
+                    items.append(next)
                 }
             }
             else 
             {
-                items = [:]
+                items = []
             }
             try input.parse(as: Padded<ASCII.BraceRight>.self)
             return items
