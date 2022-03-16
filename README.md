@@ -26,6 +26,10 @@
 * `protocol ParsingRule`
 * `protocol ParsingDiagnostics`
 
+**This module has library interfaces:**
+
+* `@_spi(experimental)`
+
 ## example usage
 
 The `JSON` module in `swift-json` enables you to express JSON parsing tasks as **constructive parsers**. This makes the `JSON` module very flexible without requiring much configuration from users who simply want to parse a JSON message from a remote peer.

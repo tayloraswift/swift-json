@@ -47,6 +47,7 @@ enum JSON
         public
         let type:Any.Type
         
+        public 
         init(number:Number, overflows:Any.Type)
         {
             self.number = number 
@@ -60,6 +61,13 @@ enum JSON
         @available(swift, introduced: 5.6)
         public
         let overflows:any FixedWidthInteger.Type
+        
+        public 
+        init(number:Number, overflows:any FixedWidthInteger.Type)
+        {
+            self.number = number 
+            self.overflows = overflows 
+        }
         #endif
         
         public

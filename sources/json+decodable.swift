@@ -31,107 +31,6 @@ extension JSON
     {
         case `super` = "super"
     }
-    
-    func callAsFunction(is _:Void.Type) -> Bool
-    {
-        switch self 
-        {
-        case .null: return true 
-        default:    return false
-        }
-    }
-    func callAsFunction(as _:Bool.Type) -> Bool?
-    {
-        switch self 
-        {
-        case .bool(let value):  return value
-        default:                return nil 
-        }
-    }
-    func callAsFunction<T>(as _:T.Type) throws -> T? 
-        where T:FixedWidthInteger & SignedInteger
-    {
-        // do not use init(exactly:) with decimal value directly, as this 
-        // will also accept values like 1.0, which we want to reject
-        guard case .number(let number) = self 
-        else 
-        {
-            return nil
-        }
-        guard let integer:T = number(as: T?.self)
-        else 
-        {
-            throw IntegerOverflowError.init(number: number, overflows: T.self)
-        }
-        return integer 
-    }
-    func callAsFunction<T>(as _:T.Type) throws -> T?
-        where T:FixedWidthInteger & UnsignedInteger
-    {
-        guard case .number(let number) = self 
-        else 
-        {
-            return nil
-        }
-        guard let integer:T = number(as: T?.self)
-        else 
-        {
-            throw IntegerOverflowError.init(number: number, overflows: T.self)
-        }
-        return integer 
-    }
-    func callAsFunction<T>(as _:T.Type) -> T?
-        where T:BinaryFloatingPoint
-    {
-        switch self 
-        {
-        case .number(let number):   return number(as: T.self)
-        default:                    return nil 
-        }
-    }
-    func callAsFunction(as _:String.Type) -> String?
-    {
-        switch self 
-        {
-        case .string(let string):   return string
-        default:                    return nil
-        }
-    }
-    func callAsFunction(as _:[Self].Type) -> [Self]?
-    {
-        switch self 
-        {
-        case .array(let elements):  return elements 
-        default:                    return nil
-        }
-    }
-    @available(*, deprecated, message: "handle duplicate keys explicitly with `callAsFunction(as:uniquingKeysWith:)`")
-    func callAsFunction(as _:[String: Self].Type) -> [String: Self]? 
-    {
-        self(as: [String: Self].self) { $1 }
-    }
-    func callAsFunction(as _:[(key:String, value:Self)].Type) -> [(key:String, value:Self)]? 
-    {
-        switch self 
-        {
-        case .object(let items):
-            return items
-        case .number(let number):
-            let units:Number    = .init(sign: number.sign, units: number.units,  places: 0),
-                places:Number   = .init(sign:       .plus, units: number.places, places: 0)
-            return [("units", .number(units)), ("places", .number(places))]
-        default:
-            return nil 
-        }
-    }
-    func callAsFunction(as _:[String: Self].Type, 
-        uniquingKeysWith combine:(Self, Self) throws -> Self) rethrows -> [String: Self]? 
-    {
-        try self(as: [(key:String, value:Self)].self).map
-        {
-            try [String: Self].init($0, uniquingKeysWith: combine)
-        }
-    }
 }
 extension JSON:Decoder 
 {
@@ -211,11 +110,11 @@ extension JSON.Decoder:SingleValueDecodingContainer
         let context:DecodingError.Context = .init(codingPath: path, debugDescription: description)
         return .typeMismatch(T.self, context)
     }
-    func diagnose<T>(_ decode:(T.Type) throws -> T?) throws -> T
+    func diagnose<T>(_ decode:(T?.Type) throws -> T?) throws -> T
     {
         do 
         {
-            if let decoded:T = try decode(T.self)
+            if let decoded:T = try decode(T?.self)
             {
                 return decoded 
             }
@@ -229,77 +128,77 @@ extension JSON.Decoder:SingleValueDecodingContainer
     public
     func decodeNil() -> Bool
     {
-        self.value(is: Void.self)
+        self.value.is(Void.self)
     }
     public
     func decode(_:Bool.Type) throws -> Bool
     {
-        try self.diagnose(self.value.callAsFunction(as:))
+        try self.diagnose(self.value.as(explicit:))
     }
     public
     func decode(_:Int.Type) throws -> Int
     {
-        try self.diagnose(self.value.callAsFunction(as:))
+        try self.diagnose(self.value.as(explicit:))
     }
     public
     func decode(_:Int64.Type) throws -> Int64
     {
-        try self.diagnose(self.value.callAsFunction(as:))
+        try self.diagnose(self.value.as(explicit:))
     }
     public
     func decode(_:Int32.Type) throws -> Int32
     {
-        try self.diagnose(self.value.callAsFunction(as:))
+        try self.diagnose(self.value.as(explicit:))
     }
     public
     func decode(_:Int16.Type) throws -> Int16
     {
-        try self.diagnose(self.value.callAsFunction(as:))
+        try self.diagnose(self.value.as(explicit:))
     }
     public
     func decode(_:Int8.Type) throws -> Int8
     {
-        try self.diagnose(self.value.callAsFunction(as:))
+        try self.diagnose(self.value.as(explicit:))
     }
     public
     func decode(_:UInt.Type) throws -> UInt
     {
-        try self.diagnose(self.value.callAsFunction(as:))
+        try self.diagnose(self.value.as(explicit:))
     }
     public
     func decode(_:UInt64.Type) throws -> UInt64
     {
-        try self.diagnose(self.value.callAsFunction(as:))
+        try self.diagnose(self.value.as(explicit:))
     }
     public
     func decode(_:UInt32.Type) throws -> UInt32
     {
-        try self.diagnose(self.value.callAsFunction(as:))
+        try self.diagnose(self.value.as(explicit:))
     }
     public
     func decode(_:UInt16.Type) throws -> UInt16
     {
-        try self.diagnose(self.value.callAsFunction(as:))
+        try self.diagnose(self.value.as(explicit:))
     }
     public
     func decode(_:UInt8.Type) throws -> UInt8
     {
-        try self.diagnose(self.value.callAsFunction(as:))
+        try self.diagnose(self.value.as(explicit:))
     }
     public
     func decode(_:Float.Type) throws -> Float
     {
-        try self.diagnose(self.value.callAsFunction(as:))
+        try self.diagnose(self.value.as(explicit:))
     }
     public
     func decode(_:Double.Type) throws -> Double
     {
-        try self.diagnose(self.value.callAsFunction(as:))
+        try self.diagnose(self.value.as(explicit:))
     }
     public
     func decode(_:String.Type) throws -> String
     {
-        try self.diagnose(self.value.callAsFunction(as:))
+        try self.diagnose(self.value.as(explicit:))
     }
     public 
     func decode<T>(_:T.Type) throws -> T where T:Decodable
@@ -317,37 +216,32 @@ extension JSON.Decoder:Decoder
     public 
     func unkeyedContainer() throws -> UnkeyedDecodingContainer
     {
-        let elements:[JSON]                 = try self.diagnose(self.value.callAsFunction(as:))
-        let decoder:JSON.Array              = .init(elements, path: self.codingPath)
-        return       decoder as UnkeyedDecodingContainer        
+        JSON.Array.init(try self.diagnose(self.value.as(explicit:)) as [JSON], 
+            path: self.codingPath) 
+        as UnkeyedDecodingContainer        
     }
     public 
     func container<Key>(keyedBy _:Key.Type) throws -> KeyedDecodingContainer<Key> 
         where Key:CodingKey 
     {
-        let decoder:JSON.Dictionary<Key> = .init(
-            try     self.diagnose(self.value.callAsFunction(as:)), 
-            path:   self.codingPath)
-        {
-            (_, overwrite) in overwrite 
-        }
-        return .init(decoder)
+        KeyedDecodingContainer<Key>.init(
+        JSON.Dictionary<Key>.init([String: JSON].init(try self.diagnose(self.value.as(explicit:)) 
+            as [(key:String, value:JSON)])
+            {
+                (_, overwrite) in overwrite 
+            }, 
+            path:   self.codingPath))
     }
 }
 
 extension JSON 
-{    
+{
     struct Dictionary<Key> where Key:CodingKey
     {
         let codingPath:[CodingKey]
         let allKeys:[Key]
         let items:[String: JSON]
         
-        init(_ items:[(key:String, value:JSON)], path:[CodingKey], 
-            uniquingKeysWith combine:(JSON, JSON) throws -> JSON) rethrows
-        {
-            self.init(try .init(items, uniquingKeysWith: combine), path: path)
-        }
         init(_ items:[String: JSON], path:[CodingKey]) 
         {
             self.codingPath = path
@@ -364,7 +258,7 @@ extension JSON.Dictionary:KeyedDecodingContainerProtocol
         self.items.keys.contains(key.stringValue)
     }
     // local `Key` type may be different from the dictionary’s `Key` type
-    func diagnose<Key, T>(_ key:Key, _ decode:(JSON) -> (T.Type) throws -> T?) throws -> T
+    func diagnose<Key, T>(_ key:Key, _ decode:(JSON) -> (T?.Type) throws -> T?) throws -> T
         where Key:CodingKey
     {
         var path:[CodingKey] 
@@ -380,7 +274,7 @@ extension JSON.Dictionary:KeyedDecodingContainerProtocol
         }
         do 
         {
-            if let decoded:T = try decode(value)(T.self)
+            if let decoded:T = try decode(value)(T?.self)
             {
                 return decoded 
             }
@@ -394,77 +288,77 @@ extension JSON.Dictionary:KeyedDecodingContainerProtocol
     
     func decodeNil(forKey key:Key) throws -> Bool
     {
-        try self.diagnose(key, { `self` in { _ in `self`(is: Void.self) } })
+        try self.diagnose(key, { `self` in { _ in `self`.is(Void.self) } })
     }
     public
     func decode(_:Bool.Type, forKey key:Key) throws -> Bool
     {
-        try self.diagnose(key, JSON.callAsFunction(as:))
+        try self.diagnose(key, JSON.as(explicit:))
     }
     public
     func decode(_:Int.Type, forKey key:Key) throws -> Int
     {
-        try self.diagnose(key, JSON.callAsFunction(as:))
+        try self.diagnose(key, JSON.as(explicit:))
     }
     public
     func decode(_:Int64.Type, forKey key:Key) throws -> Int64
     {
-        try self.diagnose(key, JSON.callAsFunction(as:))
+        try self.diagnose(key, JSON.as(explicit:))
     }
     public
     func decode(_:Int32.Type, forKey key:Key) throws -> Int32
     {
-        try self.diagnose(key, JSON.callAsFunction(as:))
+        try self.diagnose(key, JSON.as(explicit:))
     }
     public
     func decode(_:Int16.Type, forKey key:Key) throws -> Int16
     {
-        try self.diagnose(key, JSON.callAsFunction(as:))
+        try self.diagnose(key, JSON.as(explicit:))
     }
     public
     func decode(_:Int8.Type, forKey key:Key) throws -> Int8
     {
-        try self.diagnose(key, JSON.callAsFunction(as:))
+        try self.diagnose(key, JSON.as(explicit:))
     }
     public
     func decode(_:UInt.Type, forKey key:Key) throws -> UInt
     {
-        try self.diagnose(key, JSON.callAsFunction(as:))
+        try self.diagnose(key, JSON.as(explicit:))
     }
     public
     func decode(_:UInt64.Type, forKey key:Key) throws -> UInt64
     {
-        try self.diagnose(key, JSON.callAsFunction(as:))
+        try self.diagnose(key, JSON.as(explicit:))
     }
     public
     func decode(_:UInt32.Type, forKey key:Key) throws -> UInt32
     {
-        try self.diagnose(key, JSON.callAsFunction(as:))
+        try self.diagnose(key, JSON.as(explicit:))
     }
     public
     func decode(_:UInt16.Type, forKey key:Key) throws -> UInt16
     {
-        try self.diagnose(key, JSON.callAsFunction(as:))
+        try self.diagnose(key, JSON.as(explicit:))
     }
     public
     func decode(_:UInt8.Type, forKey key:Key) throws -> UInt8
     {
-        try self.diagnose(key, JSON.callAsFunction(as:))
+        try self.diagnose(key, JSON.as(explicit:))
     }
     public
     func decode(_:Float.Type, forKey key:Key) throws -> Float
     {
-        try self.diagnose(key, JSON.callAsFunction(as:))
+        try self.diagnose(key, JSON.as(explicit:))
     }
     public
     func decode(_:Double.Type, forKey key:Key) throws -> Double
     {
-        try self.diagnose(key, JSON.callAsFunction(as:))
+        try self.diagnose(key, JSON.as(explicit:))
     }
     public
     func decode(_:String.Type, forKey key:Key) throws -> String
     {
-        try self.diagnose(key, JSON.callAsFunction(as:))
+        try self.diagnose(key, JSON.as(explicit:))
     }
     public
     func decode<T>(_:T.Type, forKey key:Key) throws -> T where T:Decodable
@@ -504,22 +398,21 @@ extension JSON.Dictionary:KeyedDecodingContainerProtocol
     func nestedUnkeyedContainer(forKey key:Key) 
         throws -> UnkeyedDecodingContainer
     {
-        let elements:[JSON]                     = try self.diagnose(key, JSON.callAsFunction(as:))
-        let decoder:JSON.Array                  = .init(elements, 
+        JSON.Array.init(try self.diagnose(key, JSON.as(explicit:)) as [JSON], 
             path: self.codingPath + CollectionOfOne<CodingKey>.init(key))
-        return       decoder as UnkeyedDecodingContainer
+        as UnkeyedDecodingContainer
     }
     public 
     func nestedContainer<NestedKey>(keyedBy _:NestedKey.Type, forKey key:Key) 
         throws -> KeyedDecodingContainer<NestedKey>
     {
-        let decoder:JSON.Dictionary<NestedKey>  = .init(
-            try   self.diagnose(key, JSON.callAsFunction(as:)), 
-            path: self.codingPath + CollectionOfOne<CodingKey>.init(key))
-        {
-            (_, overwrite) in overwrite 
-        }
-        return .init(decoder)
+        KeyedDecodingContainer<NestedKey>.init(
+        JSON.Dictionary<NestedKey>.init([String: JSON].init(try self.diagnose(key, JSON.as(explicit:)) 
+            as [(key:String, value:JSON)])
+            {
+                (_, overwrite) in overwrite 
+            }, 
+            path: self.codingPath + CollectionOfOne<CodingKey>.init(key)))
     }
 }
 
@@ -556,7 +449,7 @@ extension JSON.Array:UnkeyedDecodingContainer
     }
     
     mutating 
-    func diagnose<T>(_ decode:(JSON) -> (T.Type) throws -> T?) throws -> T
+    func diagnose<T>(_ decode:(JSON) -> (T?.Type) throws -> T?) throws -> T
     {
         let key:JSON.Index  = .init(intValue: self.currentIndex) 
         var path:[CodingKey] 
@@ -575,7 +468,7 @@ extension JSON.Array:UnkeyedDecodingContainer
         self.currentIndex  += 1
         do 
         {
-            if let decoded:T = try decode(value)(T.self)
+            if let decoded:T = try decode(value)(T?.self)
             {
                 return decoded 
             }
@@ -590,77 +483,77 @@ extension JSON.Array:UnkeyedDecodingContainer
     public mutating 
     func decodeNil() throws -> Bool
     {
-        try self.diagnose{ `self` in { _ in `self`(is: Void.self) } }
+        try self.diagnose{ `self` in { _ in `self`.is(Void.self) } }
     }
     public mutating 
     func decode(_:Bool.Type) throws -> Bool
     {
-        try self.diagnose(JSON.callAsFunction(as:))
+        try self.diagnose(JSON.as(explicit:))
     }
     public mutating 
     func decode(_:Int.Type) throws -> Int
     {
-        try self.diagnose(JSON.callAsFunction(as:))
+        try self.diagnose(JSON.as(explicit:))
     }
     public mutating 
     func decode(_:Int64.Type) throws -> Int64
     {
-        try self.diagnose(JSON.callAsFunction(as:))
+        try self.diagnose(JSON.as(explicit:))
     }
     public mutating 
     func decode(_:Int32.Type) throws -> Int32
     {
-        try self.diagnose(JSON.callAsFunction(as:))
+        try self.diagnose(JSON.as(explicit:))
     }
     public mutating 
     func decode(_:Int16.Type) throws -> Int16
     {
-        try self.diagnose(JSON.callAsFunction(as:))
+        try self.diagnose(JSON.as(explicit:))
     }
     public mutating 
     func decode(_:Int8.Type) throws -> Int8
     {
-        try self.diagnose(JSON.callAsFunction(as:))
+        try self.diagnose(JSON.as(explicit:))
     }
     public mutating 
     func decode(_:UInt.Type) throws -> UInt
     {
-        try self.diagnose(JSON.callAsFunction(as:))
+        try self.diagnose(JSON.as(explicit:))
     }
     public mutating 
     func decode(_:UInt64.Type) throws -> UInt64
     {
-        try self.diagnose(JSON.callAsFunction(as:))
+        try self.diagnose(JSON.as(explicit:))
     }
     public mutating 
     func decode(_:UInt32.Type) throws -> UInt32
     {
-        try self.diagnose(JSON.callAsFunction(as:))
+        try self.diagnose(JSON.as(explicit:))
     }
     public mutating 
     func decode(_:UInt16.Type) throws -> UInt16
     {
-        try self.diagnose(JSON.callAsFunction(as:))
+        try self.diagnose(JSON.as(explicit:))
     }
     public mutating 
     func decode(_:UInt8.Type) throws -> UInt8
     {
-        try self.diagnose(JSON.callAsFunction(as:))
+        try self.diagnose(JSON.as(explicit:))
     }
     public mutating 
     func decode(_:Float.Type) throws -> Float
     {
-        try self.diagnose(JSON.callAsFunction(as:))
+        try self.diagnose(JSON.as(explicit:))
     }
     public mutating 
     func decode(_:Double.Type) throws -> Double
     {
-        try self.diagnose(JSON.callAsFunction(as:))
+        try self.diagnose(JSON.as(explicit:))
     }
     public mutating 
     func decode(_:String.Type) throws -> String
     {
-        try self.diagnose(JSON.callAsFunction(as:))
+        try self.diagnose(JSON.as(explicit:))
     }
     public mutating 
     func decode<T>(_:T.Type) throws -> T where T:Decodable
@@ -687,23 +580,24 @@ extension JSON.Array:UnkeyedDecodingContainer
     func nestedUnkeyedContainer() 
         throws -> UnkeyedDecodingContainer
     {
-        let key:JSON.Index                      = .init(intValue: self.currentIndex) 
-        let elements:[JSON]                     = try self.diagnose(JSON.callAsFunction(as:))
-        let decoder:JSON.Array                  = .init(elements, 
-            path: self.codingPath + CollectionOfOne<CodingKey>.init(key))
-        return       decoder as UnkeyedDecodingContainer
+        JSON.Array.init(try self.diagnose(JSON.as(explicit:)) as [JSON], 
+            path: self.codingPath 
+            + 
+            CollectionOfOne<CodingKey>.init(JSON.Index.init(intValue: self.currentIndex)))
+        as UnkeyedDecodingContainer
     }
     public mutating 
     func nestedContainer<NestedKey>(keyedBy _:NestedKey.Type) 
         throws -> KeyedDecodingContainer<NestedKey>
     {
-        let key:JSON.Index                      = .init(intValue: self.currentIndex) 
-        let decoder:JSON.Dictionary<NestedKey>  = .init(
-            try   self.diagnose(JSON.callAsFunction(as:)), 
-            path: self.codingPath + CollectionOfOne<CodingKey>.init(key))
-        {
-            (_, overwrite) in overwrite
-        }
-        return .init(decoder)
+        KeyedDecodingContainer<NestedKey>.init(
+        JSON.Dictionary<NestedKey>.init([String: JSON].init(try self.diagnose(JSON.as(explicit:)) 
+            as [(key:String, value:JSON)])
+            {
+                (_, overwrite) in overwrite 
+            }, 
+            path: self.codingPath 
+            + 
+            CollectionOfOne<CodingKey>.init(JSON.Index.init(intValue: self.currentIndex))))
     }
 }
