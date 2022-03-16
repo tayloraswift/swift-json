@@ -1,4 +1,4 @@
-// primitive decoding hooks (optional)
+// primitive decoding hooks (optional, does not include null)
 extension JSON
 {
     @_spi(experimental) @inlinable public 
@@ -11,7 +11,7 @@ extension JSON
         }
     }
     @_spi(experimental) @inlinable public 
-    func `as`(_:Void?.Type) -> Void?
+    func `as`(_:Void.Type) -> Void?
     {
         switch self 
         {
@@ -20,7 +20,7 @@ extension JSON
         }
     }
     @_spi(experimental) @inlinable public 
-    func `as`(explicit _:Bool?.Type) -> Bool?
+    func `as`(_:Bool.Type) -> Bool?
     {
         switch self 
         {
@@ -30,7 +30,7 @@ extension JSON
     }
     // this still throws, but not because of a type mismatch
     @_spi(experimental) @inlinable public 
-    func `as`<T>(explicit _:T?.Type) throws -> T? 
+    func `as`<T>(_:T.Type) throws -> T? 
         where T:FixedWidthInteger & SignedInteger
     {
         // do not use init(exactly:) with decimal value directly, as this 
@@ -48,7 +48,7 @@ extension JSON
         return integer 
     }
     @_spi(experimental) @inlinable public 
-    func `as`<T>(explicit _:T?.Type) throws -> T?
+    func `as`<T>(_:T.Type) throws -> T?
         where T:FixedWidthInteger & UnsignedInteger
     {
         guard case .number(let number) = self 
@@ -64,7 +64,7 @@ extension JSON
         return integer 
     }
     @_spi(experimental) @inlinable public 
-    func `as`<T>(explicit _:T?.Type) -> T?
+    func `as`<T>(_:T.Type) -> T?
         where T:BinaryFloatingPoint
     {
         switch self 
@@ -74,7 +74,7 @@ extension JSON
         }
     }
     @_spi(experimental) @inlinable public 
-    func `as`(explicit _:String?.Type) -> String?
+    func `as`(_:String.Type) -> String?
     {
         switch self 
         {
@@ -83,7 +83,7 @@ extension JSON
         }
     }
     @_spi(experimental) @inlinable public 
-    func `as`(explicit _:[Self]?.Type) -> [Self]?
+    func `as`(_:[Self].Type) -> [Self]?
     {
         switch self 
         {
@@ -92,13 +92,15 @@ extension JSON
         }
     }
     
-    @available(*, unavailable, message: "handle duplicate keys explicitly with `as(explicit:uniquingKeysWith:)`")
-    func `as`(explicit _:[String: Self]?.Type) -> [String: Self]? 
+    /* @_disfavoredOverload
+    @available(*, unavailable, message: "handle duplicate keys explicitly with `as(_:uniquingKeysWith:)`")
+    public 
+    func `as`(_:[String: Self].Type) -> [String: Self]? 
     {
-        self.as(explicit: [String: Self]?.self) { $1 }
-    }
+        self.as([String: Self].self) { $1 }
+    } */
     @_spi(experimental) @inlinable public 
-    func `as`(explicit _:[(key:String, value:Self)]?.Type) -> [(key:String, value:Self)]? 
+    func `as`(_:[(key:String, value:Self)].Type) -> [(key:String, value:Self)]? 
     {
         switch self 
         {
@@ -113,12 +115,150 @@ extension JSON
         }
     }
     @_spi(experimental) @inlinable public 
-    func `as`(explicit _:[String: Self]?.Type, 
+    func `as`(_:[String: Self].Type, 
         uniquingKeysWith combine:(Self, Self) throws -> Self) rethrows -> [String: Self]? 
     {
-        try self.as(explicit: [(key:String, value:Self)]?.self).map
+        try self.as([(key:String, value:Self)].self).map
         {
             try [String: Self].init($0, uniquingKeysWith: combine)
         }
     }
 }
+// primitive decoding hooks (throws, does not include null)
+extension JSON
+{
+    @_spi(experimental) public 
+    enum PrimitiveError:Error 
+    {
+        case converting(JSON, to:Any.Type)
+    }
+    
+    @inline(__always)
+    @_spi(experimental) @inlinable public 
+    func apply<T>(pattern:(Self) -> (T.Type) throws -> T?) throws -> T
+    {
+        if let value:T = try pattern(self)(T.self)
+        {
+            return value 
+        }
+        else 
+        {
+            throw PrimitiveError.converting(self, to: T.self)
+        }
+    }
+    @_spi(experimental) @inlinable public 
+    func `as`(_:Bool.Type) throws -> Bool
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+    @_spi(experimental) @inlinable public 
+    func `as`<T>(_:T.Type) throws -> T
+        where T:FixedWidthInteger & SignedInteger
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+    @_spi(experimental) @inlinable public 
+    func `as`<T>(_:T.Type) throws -> T
+        where T:FixedWidthInteger & UnsignedInteger
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+    @_spi(experimental) @inlinable public 
+    func `as`<T>(_:T.Type) throws -> T
+        where T:BinaryFloatingPoint
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+    @_spi(experimental) @inlinable public 
+    func `as`(_:String.Type) throws -> String
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+    @_spi(experimental) @inlinable public 
+    func `as`(_:[Self].Type) throws -> [Self]
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+
+    @_spi(experimental) @inlinable public 
+    func `as`(_:[(key:String, value:Self)].Type) throws -> [(key:String, value:Self)]
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+    @_spi(experimental) @inlinable public 
+    func `as`(_:[String: Self].Type, 
+        uniquingKeysWith combine:(Self, Self) throws -> Self) throws -> [String: Self]
+    {
+        try [String: Self].init(try self.as([(key:String, value:Self)].self), 
+            uniquingKeysWith: combine)
+    }
+} 
+// primitive decoding hooks (throws, includes null)
+extension JSON
+{
+    @inline(__always)
+    @_spi(experimental) @inlinable public 
+    func apply<T>(pattern:(Self) -> (T.Type) throws -> T?) throws -> T?
+    {
+        if case .null = self 
+        {
+            return nil 
+        }
+        else if let value:T = try pattern(self)(T.self)
+        {
+            return value 
+        }
+        else 
+        {
+            throw PrimitiveError.converting(self, to: T?.self)
+        }
+    }
+    @_spi(experimental) @inlinable public 
+    func `as`(_:Bool?.Type) throws -> Bool?
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+    @_spi(experimental) @inlinable public 
+    func `as`<T>(_:T?.Type) throws -> T? 
+        where T:FixedWidthInteger & SignedInteger
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+    @_spi(experimental) @inlinable public 
+    func `as`<T>(_:T?.Type) throws -> T?
+        where T:FixedWidthInteger & UnsignedInteger
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+    @_spi(experimental) @inlinable public 
+    func `as`<T>(_:T?.Type) throws -> T?
+        where T:BinaryFloatingPoint
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+    @_spi(experimental) @inlinable public 
+    func `as`(_:String?.Type) throws -> String?
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+    @_spi(experimental) @inlinable public 
+    func `as`(_:[Self]?.Type) throws -> [Self]?
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+
+    @_spi(experimental) @inlinable public 
+    func `as`(_:[(key:String, value:Self)]?.Type) throws -> [(key:String, value:Self)]? 
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+    @_spi(experimental) @inlinable public 
+    func `as`(_:[String: Self]?.Type, 
+        uniquingKeysWith combine:(Self, Self) throws -> Self) throws -> [String: Self]? 
+    {
+        try self.as([(key:String, value:Self)]?.self).map 
+        {
+            try [String: Self].init($0, uniquingKeysWith: combine)
+        }
+    }
+} 
