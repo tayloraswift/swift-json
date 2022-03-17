@@ -1,40 +1,41 @@
-# Solution name
+# swift-json
 
-* Proposal: [SSWG-NNNN](NNNN-filename.md)
-* Authors: [Author 1](https://github.com/swiftdev), [Author 2](https://github.com/swiftdev)
+* Proposal: [SSWG-0019](sswg-0019-swift-json.md)
+* Authors: [Kelvin Ma](https://github.com/kelvin13) ([@taylorswift](https://forums.swift.org/u/taylorswift/summary))
 * Review Manager: TBD
-* Status: **Awaiting implementation**
-* Implementation: [repo name](https://github.com/repo-url)
-* Forum Threads: [Pitch](https://forums.swift.org/), [Discussion](https://forums.swift.org/), [Review](https://forums.swift.org/)
-
-*During the review process, add the following fields as needed:*
-
-* Decision Notes: [Rationale](https://forums.swift.org/), [Additional Commentary](https://forums.swift.org/)
-* Previous Revision(s): [1](https://github.com/swift-server/sswg/blob/...commit-ID.../proposals/NNNN-filename.md)
-* Previous Proposal(s): [SSWG-XXXX](XXXX-filename.md)
+* Status: **Released ([v0.2.1](https://github.com/kelvin13/swift-json/releases))**
+* Implementation: [`swift-json`](https://github.com/kelvin13/swift-json)
+* Forum Threads: [Pitch](https://forums.swift.org/t/json/54922), Discussion, Review
 
 ## Package Description
-A quick 1-2 sentence description of the solution's package, like you might see in a package catalog.
 
-|  |  |
-|--|--|
-| **Package Name** | `your proposed package name, eg. swift-package` |
-| **Module Name** | `your formatted module name, eg. SwiftPackage` |
-| **Proposed Maturity Level** | [Sandbox](https://github.com/swift-server/sswg/blob/main/process/incubation.md#process-diagram) |
-| **License** | [TBD](https://choosealicense.com/) |
-| **Dependencies** | List your dependencies (and their versions), with links |
+Composable, high-performance json parsing.
+
+-  **Project name**: *SwiftJSON* 
+-  **Package name**: **`swift-json`**
+-  **Module name**: `JSON`
+-  **Proposed Maturity Level**: [Sandbox](https://github.com/swift-server/sswg/blob/main/process/incubation.md#process-diagram)
+-  **License**: [Apache 2.0](https://github.com/kelvin13/swift-json/blob/master/LICENSE)
+-  **Dependencies**: [**`swift-grammar`**](https://github.com/kelvin13/swift-grammar)
+
 
 ## Introduction
 
-A short explanation as to what is hoping to be accomplished with the proposed package. Try to keep it to a
-single-paragraph "elevator pitch" so the reader understands what
-problem this proposal is addressing.
+JSON is one of the most common formats to exchange structured data as over a network. Nearly all server-side applications use JSON, which makes it an excellent candidate for library standardization.
 
 ## Motivation
 
-Describe the reasoning for this package to be proposed to the Swift Server Working Group to be recommended for use across the Swift Server ecosystem.
+Right now we’re limited to using the `JSONDecoder` vended by Foundation, either directly via a Foundation import, or indirectly [through Vapor](https://github.com/vapor/vapor/blob/main/Sources/Vapor/Content/JSONCoder%2BCustom.swift). 
 
-If there are missing capabilities or flexibility with existing packages, outline them with clear examples.
+Aside from requiring users to depend on Foundation, `JSONDecoder` has other disadvantages for server-side applications:
+
+-   `JSONDecoder` is inefficient (compared to `swift-json`) because it only vends a [`Decodable`](https://swiftinit.org/reference/swift/decodable)/[`Decoder`](https://swiftinit.org/reference/swift/decoder) interface, which has well-known performance issues due to the intrinsic overhead of protocol existentials.
+
+-   `JSONDecoder` struggles with decimal values, as it parses them all as floating point, which can lead to data corruption.
+
+-   `JSONDecoder` does not provide a means of parsing multiple concatenated JSON messages, which precludes performant handling of high-volume, real-time streams of JSON data.
+
+-   `JSONDecoder` has reference semantics, forces users into stateful decoding patterns, and does not fit well into Swift’s value-oriented design philosophy.
 
 ## Proposed solution
 
