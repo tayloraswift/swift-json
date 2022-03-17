@@ -128,9 +128,28 @@ extension JSON
 extension JSON
 {
     @_spi(experimental) public 
-    enum PrimitiveError:Error 
+    enum PrimitiveError:TraceableErrorRoot
     {
-        case converting(JSON, to:Any.Type)
+        public static 
+        var namespace:String 
+        {
+            "primitive decoding error"
+        }
+        
+        case matching(variant:JSON, as:Any.Type)
+        case undefined(key:String, in:[String: JSON])
+        
+        public 
+        var message:String 
+        {
+            switch self 
+            {
+            case .matching(variant: let json, as: let type):
+                return "expected type '\(type)' does not match json value '\(json)'"
+            case .undefined(key: let key, in: let items):
+                return "undefined key '\(key)'; valid items are: \(items)"
+            }
+        }
     }
     
     @inline(__always)
@@ -143,8 +162,13 @@ extension JSON
         }
         else 
         {
-            throw PrimitiveError.converting(self, to: T.self)
+            throw PrimitiveError.matching(variant: self, as: T.self)
         }
+    }
+    @_spi(experimental) @inlinable public 
+    func `as`(_:Void.Type) throws 
+    {
+        try self.apply(pattern: Self.as(_:)) as Void
     }
     @_spi(experimental) @inlinable public 
     func `as`(_:Bool.Type) throws -> Bool
@@ -210,7 +234,7 @@ extension JSON
         }
         else 
         {
-            throw PrimitiveError.converting(self, to: T?.self)
+            throw PrimitiveError.matching(variant: self, as: T?.self)
         }
     }
     @_spi(experimental) @inlinable public 
