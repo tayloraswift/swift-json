@@ -4,7 +4,7 @@ extension JSON
     func `case`<T>(of _:T.Type) throws -> T 
         where T:RawRepresentable, T.RawValue == String
     {
-        if let value:T = .init(rawValue: try self.as(String.self))
+        if let value:T = T.init(rawValue: try self.as(String.self))
         {
             return value
         }
