@@ -9,14 +9,18 @@ extension JSON
     func lint<S, T>(_ ignored:S, _ body:(inout LintingDictionary) throws -> T) throws -> T
         where S:Sequence, S.Element == String
     {
-        #if swift(>=5.5)
-        let items:[String: Self]            = try self.as([String: Self].self) { $1 }
-        var dictionary:LintingDictionary    = .init(_move(items))
-        #else 
-        var items:[String: Self]            = try self.as([String: Self].self) { $1 }
-        var dictionary:LintingDictionary    = .init(items)
-        items = [:]
-        #endif
+        var dictionary:LintingDictionary 
+        do 
+        {
+            // this `do` block is not for error catching, it is for ending 
+            // the lifetime of `items` before passing a copy of it to `body`
+            var items:[String: Self] = try self.as([String: Self].self) { $1 }
+            for key:String in ignored 
+            {
+                items.removeValue(forKey: key)
+            }
+            dictionary = .init(items)
+        }
         let value:T = try body(&dictionary)
         guard dictionary.items.isEmpty 
         else 
