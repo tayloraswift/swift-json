@@ -133,7 +133,7 @@ extension JSON
             switch self 
             {
             case .array(underlying: _): 
-                return ["while decoding array element"]
+                return ["while decoding array element at index (unknown)"]
             case .dictionary(underlying: _, in: let key): 
                 return ["while decoding dictionary value for key '\(key)'"]
             }
