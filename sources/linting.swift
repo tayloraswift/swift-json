@@ -1,64 +1,11 @@
 extension JSON 
 {
-    @_spi(experimental) public 
-    enum RecursiveError:TraceableError 
+    @inlinable public 
+    func lint<T>(_ body:(inout LintingDictionary) throws -> T) throws -> T
     {
-        public static 
-        var namespace:String 
-        {
-            "nested decoding error"
-        }
-        
-        case array(underlying:Error)
-        case dictionary(underlying:Error, in:String)
-        
-        public 
-        var context:[String] 
-        {
-            switch self 
-            {
-            case .array(underlying: _): 
-                return ["while decoding array element"]
-            case .dictionary(underlying: _, in: let key): 
-                return ["while decoding dictionary value for key '\(key)'"]
-            }
-        }
-        public 
-        var next:Error?
-        {
-            switch self 
-            {
-            case    .array     (underlying: let error), 
-                    .dictionary(underlying: let error, in: _): 
-                return error
-            }
-        }
+        try self.lint([], body)
     }
-    @_spi(experimental) public 
-    struct LintingError:TraceableErrorRoot 
-    {
-        public static 
-        var namespace:String 
-        {
-            "linting error"
-        }
-
-        public 
-        var message:String
-        {
-            "unused object items \(self.unused)"
-        }
-        
-        public 
-        let unused:[String: JSON]
-        public 
-        init(unused:[String: JSON])
-        {
-            self.unused = unused
-        }
-    }
-    
-    @_spi(experimental) @inlinable public 
+    @inlinable public 
     func lint<S, T>(_ ignored:S, _ body:(inout LintingDictionary) throws -> T) throws -> T
         where S:Sequence, S.Element == String
     {
@@ -73,7 +20,7 @@ extension JSON
         return value
     }
     
-    @_spi(experimental) @frozen public 
+    @frozen public 
     struct LintingDictionary
     {
         public 
@@ -122,7 +69,7 @@ extension JSON
         
         // arrays 
         @inlinable public mutating 
-        func remove<T>(_ key:String, as _:[JSON].Type, _ body:([JSON]) throws -> T) throws -> T
+        func remove<T>(_ key:String, as _:[JSON].Type = [JSON].self, _ body:([JSON]) throws -> T) throws -> T
         {
             try self.remove(key)
             {
@@ -138,7 +85,7 @@ extension JSON
             }
         }
         @inlinable public mutating 
-        func remove<T>(_ key:String, as _:[JSON]?.Type, _ body:([JSON]) throws -> T) throws -> T?
+        func remove<T>(_ key:String, as _:[JSON]?.Type = [JSON]?.self, _ body:([JSON]) throws -> T) throws -> T?
         {
             try self.remove(key)
             {
@@ -207,12 +154,12 @@ extension JSON
         }
         // booleans
         @inlinable public mutating 
-        func remove(_ key:String, as type:Bool.Type) throws -> Bool
+        func remove(_ key:String, as type:Bool.Type = Bool.self) throws -> Bool
         {
             try self.remove(key) { try $0.as(type) }
         }
         @inlinable public mutating 
-        func remove(_ key:String, as type:Bool?.Type) throws -> Bool?
+        func remove(_ key:String, as type:Bool?.Type = Bool?.self) throws -> Bool?
         {
             try self.remove(key) { try $0.as(type) }
         }
@@ -228,13 +175,13 @@ extension JSON
         }
         // signed integers 
         @inlinable public mutating 
-        func remove<T>(_ key:String, as type:T.Type) throws -> T
+        func remove<T>(_ key:String, as type:T.Type = T.self) throws -> T
             where T:FixedWidthInteger & SignedInteger
         {
             try self.remove(key) { try $0.as(type) }
         }
         @inlinable public mutating 
-        func remove<T>(_ key:String, as type:T?.Type) throws -> T?
+        func remove<T>(_ key:String, as type:T?.Type = T?.self) throws -> T?
             where T:FixedWidthInteger & SignedInteger
         {
             try self.remove(key) { try $0.as(type) }
@@ -253,13 +200,13 @@ extension JSON
         }
         // unsigned integers 
         @inlinable public mutating 
-        func remove<T>(_ key:String, as type:T.Type) throws -> T
+        func remove<T>(_ key:String, as type:T.Type = T.self) throws -> T
             where T:FixedWidthInteger & UnsignedInteger
         {
             try self.remove(key) { try $0.as(type) }
         }
         @inlinable public mutating 
-        func remove<T>(_ key:String, as type:T?.Type) throws -> T?
+        func remove<T>(_ key:String, as type:T?.Type = T?.self) throws -> T?
             where T:FixedWidthInteger & UnsignedInteger
         {
             try self.remove(key) { try $0.as(type) }
@@ -278,13 +225,13 @@ extension JSON
         }
         // floating point 
         @inlinable public mutating 
-        func remove<T>(_ key:String, as type:T.Type) throws -> T
+        func remove<T>(_ key:String, as type:T.Type = T.self) throws -> T
             where T:BinaryFloatingPoint
         {
             try self.remove(key) { try $0.as(type) }
         }
         @inlinable public mutating 
-        func remove<T>(_ key:String, as type:T?.Type) throws -> T?
+        func remove<T>(_ key:String, as type:T?.Type = T?.self) throws -> T?
             where T:BinaryFloatingPoint
         {
             try self.remove(key) { try $0.as(type) }
@@ -303,12 +250,12 @@ extension JSON
         }
         // strings
         @inlinable public mutating 
-        func remove(_ key:String, as type:String.Type) throws -> String
+        func remove(_ key:String, as type:String.Type = String.self) throws -> String
         {
             try self.remove(key) { try $0.as(type) }
         }
         @inlinable public mutating 
-        func remove(_ key:String, as type:String?.Type) throws -> String?
+        func remove(_ key:String, as type:String?.Type = String?.self) throws -> String?
         {
             try self.remove(key) { try $0.as(type) }
         }

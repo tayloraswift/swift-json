@@ -3,8 +3,6 @@
 #if swift(>=5.5)
 extension JSON:Sendable {}
 extension JSON.Number:Sendable {}
-extension JSON.IntegerOverflowError:Sendable {}
-extension JSON.InvalidUnicodeScalarError:Sendable {}
 #endif 
 @frozen public
 enum JSON
@@ -21,64 +19,6 @@ enum JSON
             start = input.index
         }
         return indices 
-    }
-    
-    public 
-    struct InvalidUnicodeScalarError:Error
-    {
-        public
-        let value:UInt16  
-        @inlinable public 
-        init(value:UInt16)
-        {
-            self.value = value
-        }
-    }
-    // this is distinct from `Grammar.IntegerOverflowError<T>`, and only thrown
-    // by the conversions on `Number`. this is the error thrown by the `Decoder`
-    // implementation.
-    public
-    struct IntegerOverflowError:Error, CustomStringConvertible 
-    {
-        public
-        let number:Number
-        
-        #if swift(<5.6)
-        public
-        let type:Any.Type
-        
-        public 
-        init(number:Number, overflows:Any.Type)
-        {
-            self.number = number 
-            self.type   = overflows 
-        }
-        #else 
-        @available(swift, deprecated: 5.6, message: "use the more strongly-typed `overflows` property")
-        public
-        var type:Any.Type { self.overflows }
-        
-        @available(swift, introduced: 5.6)
-        public
-        let overflows:any FixedWidthInteger.Type
-        
-        public 
-        init(number:Number, overflows:any FixedWidthInteger.Type)
-        {
-            self.number = number 
-            self.overflows = overflows 
-        }
-        #endif
-        
-        public
-        var description:String 
-        {
-            #if swift(<5.6)
-            return "integer literal '\(number)' overflows decoded type '\(self.type)'"
-            #else 
-            "integer literal '\(number)' overflows decoded type '\(self.overflows)'"
-            #endif
-        }
     }
     
     // this layout should allow instances of `Number` to fit in 2 words
