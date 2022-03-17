@@ -9,8 +9,14 @@ extension JSON
     func lint<S, T>(_ ignored:S, _ body:(inout LintingDictionary) throws -> T) throws -> T
         where S:Sequence, S.Element == String
     {
-        let items:[String: Self] = try self.as([String: Self].self) { $1 }
-        var dictionary:LintingDictionary = .init(_move(items))
+        #if swift(>=5.5)
+        let items:[String: Self]            = try self.as([String: Self].self) { $1 }
+        var dictionary:LintingDictionary    = .init(_move(items))
+        #else 
+        var items:[String: Self]            = try self.as([String: Self].self) { $1 }
+        var dictionary:LintingDictionary    = .init(items)
+        items = [:]
+        #endif
         let value:T = try body(&dictionary)
         guard dictionary.items.isEmpty 
         else 
@@ -42,7 +48,11 @@ extension JSON
             }
             do 
             {
+                #if swift(>=5.5)
                 return try body(_move(value))
+                #else 
+                return try body(      value )
+                #endif 
             }
             catch let error 
             {
