@@ -52,7 +52,7 @@ extension JSON
             }
             do 
             {
-                #if swift(>=5.5)
+                #if swift(>=5.7)
                 return try body(_move(value))
                 #else 
                 return try body(      value )
@@ -73,7 +73,11 @@ extension JSON
             }
             do 
             {
+                #if swift(>=5.7)
                 return try body(_move(value))
+                #else 
+                return try body(      value )
+                #endif 
             }
             catch let error 
             {
@@ -90,7 +94,11 @@ extension JSON
                 let array:[JSON] = try $0.as([JSON].self)
                 do 
                 {
-                    return try body(array)
+                    #if swift(>=5.7)
+                    return try body(_move(array))
+                    #else 
+                    return try body(      array )
+                    #endif 
                 }
                 catch let error 
                 {
@@ -110,7 +118,11 @@ extension JSON
                 }
                 do 
                 {
-                    return try body(array)
+                    #if swift(>=5.7)
+                    return try body(_move(array))
+                    #else 
+                    return try body(      array )
+                    #endif 
                 }
                 catch let error 
                 {
@@ -126,7 +138,11 @@ extension JSON
                 let array:[JSON] = try $0.as([JSON].self)
                 do 
                 {
-                    return try body(array)
+                    #if swift(>=5.7)
+                    return try body(_move(array))
+                    #else 
+                    return try body(      array )
+                    #endif 
                 }
                 catch let error 
                 {
@@ -146,7 +162,11 @@ extension JSON
                 }
                 do 
                 {
-                    return try body(array)
+                    #if swift(>=5.7)
+                    return try body(_move(array))
+                    #else 
+                    return try body(      array )
+                    #endif 
                 }
                 catch let error 
                 {
