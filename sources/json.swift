@@ -68,8 +68,34 @@ enum JSON
             case .minus:    return "-\(string.dropLast(places)).\(string.suffix(places))"
             }
         }
+        @available(*, deprecated, renamed: "JS")
         public
         func callAsFunction<T>(as _:T?.Type) -> T? where T:FixedWidthInteger & UnsignedInteger 
+        {
+            self.as(T.self)
+        }
+        @available(*, deprecated, renamed: "JSON.Number.as(_:)")
+        public
+        func callAsFunction<T>(as _:T?.Type) -> T? where T:FixedWidthInteger & SignedInteger 
+        {
+            self.as(T.self)
+        }
+        @available(*, deprecated, renamed: "JSON.Number.as(_:)")
+        public
+        func callAsFunction<T>(as _:(units:T, places:T)?.Type) -> (units:T, places:T)? 
+            where T:FixedWidthInteger & SignedInteger 
+        {
+            self.as((units:T, places:T).self)
+        }
+        @available(*, deprecated, renamed: "JSON.Number.as(_:)")
+        public
+        func callAsFunction<T>(as _:T.Type) -> T where T:BinaryFloatingPoint
+        {
+            self.as(T.self)
+        }
+        
+        @inlinable public
+        func `as`<T>(_:T.Type) -> T? where T:FixedWidthInteger & UnsignedInteger 
         {
             guard self.places == 0
             else 
@@ -84,8 +110,8 @@ enum JSON
                 return T.init(exactly: self.units)
             }
         }
-        public
-        func callAsFunction<T>(as _:T?.Type) -> T? where T:FixedWidthInteger & SignedInteger 
+        @inlinable public
+        func `as`<T>(_:T.Type) -> T? where T:FixedWidthInteger & SignedInteger 
         {
             guard self.places == 0
             else 
@@ -101,8 +127,8 @@ enum JSON
                 return                    T.init(exactly: self.units)
             }
         }
-        public
-        func callAsFunction<T>(as _:(units:T, places:T)?.Type) -> (units:T, places:T)? 
+        @inlinable public
+        func `as`<T>(_:(units:T, places:T).Type) -> (units:T, places:T)? 
             where T:FixedWidthInteger & SignedInteger 
         {
             guard let places:T      = T.init(exactly: self.places)
@@ -130,8 +156,8 @@ enum JSON
                 return (units: units, places: places)
             }
         }
-        public
-        func callAsFunction<T>(as _:T.Type) -> T where T:BinaryFloatingPoint 
+        @inlinable public
+        func `as`<T>(_:T.Type) -> T where T:BinaryFloatingPoint 
         {
             var places:Int      = .init(self.places), 
                 units:UInt64    =       self.units 

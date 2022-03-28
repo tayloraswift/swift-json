@@ -40,7 +40,7 @@ extension JSON
         {
             return nil
         }
-        guard let integer:T = number(as: T?.self)
+        guard let integer:T = number.as(T.self)
         else 
         {
             throw IntegerOverflowError.init(number: number, overflows: T.self)
@@ -56,7 +56,7 @@ extension JSON
         {
             return nil
         }
-        guard let integer:T = number(as: T?.self)
+        guard let integer:T = number.as(T.self)
         else 
         {
             throw IntegerOverflowError.init(number: number, overflows: T.self)
@@ -69,7 +69,7 @@ extension JSON
     {
         switch self 
         {
-        case .number(let number):   return number(as: T.self)
+        case .number(let number):   return number.as(T.self)
         default:                    return nil 
         }
     }
