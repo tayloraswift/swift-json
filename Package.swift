@@ -4,7 +4,7 @@ import PackageDescription
 var executable:(products:[Product], targets:[Target]) 
 executable.products = 
 [
-    .executable (name: "examples",      targets: ["JSONExamples"]),
+    .executable (name: "examples", targets: ["JSONExamples"]),
 ]
 executable.targets =
 [
@@ -49,7 +49,7 @@ let package:Package = .init(
     ],
     dependencies: future +
     [
-        .package(url: "https://github.com/kelvin13/swift-grammar", from: "0.1.2"),
+        .package(url: "https://github.com/kelvin13/swift-grammar", from: "0.1.3"),
     ],
     targets: executable.targets +
     [
