@@ -1,5 +1,9 @@
 .build
 .swift-version
+
+catalog.json
+swift-grammar.json
+
 Package.resolved
 FlameGraph/
 *.folded
