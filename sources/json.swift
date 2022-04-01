@@ -4,8 +4,14 @@
 extension JSON:Sendable {}
 extension JSON.Number:Sendable {}
 #endif 
-/// A JSON variant value. This value may contain a fragment, or an entire 
-/// array or object.
+/// A JSON variant value. This value may contain a fragment, an array, or an object.
+/// 
+/// All instances of this type, including ``number(_:)`` instances, can be round-tripped 
+/// losslessly, as long as the initial encoding is performed by ``/swift-json``. 
+/// 
+/// Re-encoding arbitrary JSON is not guaranteed to produce the exact same result, 
+/// although the implementation makes a reasonable effort to preserve features of 
+/// the original input.
 @frozen public
 enum JSON
 {
@@ -250,9 +256,14 @@ enum JSON
             }
         }
     }
+    /// A namespace for decimal-related functionality.
+    /// 
+    /// This API is used by library functions that are emitted into the client. 
+    /// Most users of ``/swift-json`` should not have to call it directly.
     public 
     enum Base10
     {
+        /// Positive powers of 10, up to [`10_000_000_000_000_000_000`]().
         public static
         let Exp:[UInt64] = 
         [
@@ -285,9 +296,15 @@ enum JSON
             //  UInt64.max: 
             //  18_446_744_073_709_551_615
         ]
+        /// Negative powers of 10, down to [`1e-19`]().
         public 
         enum Inverse 
         {
+            /// Returns the inverse of the given power of 10.
+            /// -   Parameters:
+            ///     - x: A positive exponent. If `x` is [`2`](), this subscript 
+            ///         will return [`1e-2`]().
+            ///     - _: A ``BinaryFloatingPoint`` type.
             @inlinable public static 
             subscript<T>(x:Int, as _:T.Type) -> T 
                 where T:BinaryFloatingPoint
@@ -326,7 +343,17 @@ enum JSON
         }
     }
     
-    // includes quotes!
+    /// Escapes and formats a string as a JSON string literal, including the 
+    /// beginning and ending quote characters.
+    /// -   Parameters:
+    ///     - string: A string to escape.
+    /// -   Returns: A string literal, which includes the [`""`]() delimiters.
+    ///
+    /// This function escapes the following characters: `"`, `\`, `\b`, `\t`, `\n`, 
+    /// `\f`, and `\r`. It does not escape forward slashes (`/`).
+    /// 
+    /// JSON string literals may contain unicode characters, even after escaping. 
+    /// Do not assume the output of this function is ASCII.
     public static 
     func escape<S>(_ string:S) -> String where S:StringProtocol
     {
@@ -351,16 +378,39 @@ enum JSON
         return escaped
     }
     
+    /// A null value. 
+    /// 
+    /// This is conceptually equivalent to ``Void``, and should 
+    /// not be confused with [`nil`]() in Swift.
     case null 
+    /// A boolean value. 
     case bool(Bool)
+    /// A numerical value.
     case number(Number)
+    /// A string value.
     case string(String)
+    /// An array, which can recursively contain instances of [`Self`]().
     case array([Self])
+    /// A ``String``-keyed object, which can recursively contain instances of [`Self`]().
+    /// 
+    /// This is more closely-related to ``KeyValuePairs`` than to ``Dictionary``, 
+    /// since object keys can occur more than once in the same object. However, 
+    /// most JSON APIs allow clients to safely treat objects as ``Dictionary``-like 
+    /// containers.
+    /// 
+    /// The order of the items in the payload reflects the order in which they 
+    /// appear in the source object.
+    /// 
+    /// >   Warning: 
+    ///     Many JSON APIs do not encode object items in a stable order. Only 
+    ///     assume a particular ordering based on careful observation or official 
+    ///     documentation.
     case object([(key:String, value:Self)])
 }
 
 extension JSON 
 {
+    /// A generic context for ``Grammar/ParsingRule``s.
     public 
     enum Rule<Location> 
     {
