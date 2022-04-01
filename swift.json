@@ -1,5 +1,6 @@
 [
     {
+        "format": "docc",
         "package": "swift", 
         "modules": ["Swift"],
         "include": 
