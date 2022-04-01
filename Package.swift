@@ -32,15 +32,24 @@ executable.targets.append(.executableTarget(name: "JSONBenchmarks",
     ]))
 #endif
 
+#if swift(>=5.6)
+let future:[Package.Dependency] = 
+[
+    .package(url: "https://github.com/swift-biome/swift-documentation-extract", from: "0.1.0")
+]
+#else 
+let future:[Package.Dependency] = []
+#endif
+
 let package:Package = .init(
     name: "swift-json",
     products: executable.products +
     [
         .library(name: "JSON", targets: ["JSON"]),
     ],
-    dependencies: 
+    dependencies: future +
     [
-        .package(url: "https://github.com/kelvin13/swift-grammar", from: "0.1.2")
+        .package(url: "https://github.com/kelvin13/swift-grammar", from: "0.1.2"),
     ],
     targets: executable.targets +
     [
