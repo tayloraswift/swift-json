@@ -1,0 +1,10 @@
+[
+    {
+        "package": "swift", 
+        "modules": ["Swift"],
+        "include": 
+        [
+            ".biome/swift"
+        ]
+    }
+]

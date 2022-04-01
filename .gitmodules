@@ -1,0 +1,3 @@
+[submodule ".biome"]
+	path = .biome
+	url = git@github.com:swift-biome/swift-biome-index.git
