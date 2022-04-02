@@ -153,8 +153,10 @@ let package = Package(
 Run the `catalog` plugin command, and store its output in a JSON file.
 
 ```
-swift package catalog > catalog.json
+swift package catalog JSON Grammar > catalog.json
 ```
+
+The arguments `JSON` and `Grammar` tell `swift package catalog` to gather documentation only from the `JSON` module in this package, and the `Grammar` module in [`swift-grammar`](https://github.com/kelvin13/swift-grammar).
 
 ### 2. checkout the ecosystem
 
@@ -165,20 +167,6 @@ git submodule update --recursive
 This checks out the `.biome` submodule, which tracks [`swift-biome-index`](https://github.com/swift-biome/swift-biome-index) and contains a copy of the Swift standard library’s symbolgraph.
 
 This repository already contains an indexfile called `swift.json`, which references the relevant modules in the ecosystem index. It’s just like the `catalog.json` file you generated in the previous step.
-
-### 3. checkout [`swift-grammar`](https://github.com/kelvin13/swift-grammar)
-
-[`swift-grammar`](https://github.com/kelvin13/swift-grammar) isn’t part of [`swift-biome-index`](https://github.com/swift-biome/swift-biome-index) yet. So for now, you have to collect its documentation and symbolgraph separately. 
-
-There’s lots of ways to do this, but the most reliable way is probably to use the copy of [`swift-grammar`](https://github.com/kelvin13/swift-grammar) that the SPM checks out for itself:
-
-```bash 
-$ swift package --package-path .build/checkouts/swift-grammar/ catalog > swift-grammar.json
-```
-
-> Note: the `--package-path` option must come before all other arguments, including `catalog` itself.
-
-Don’t skip this step. The docs won’t build, and even if they did, they wouldn’t be very useful since a large portion of `swift-json` simply consists of [`swift-grammar`](https://github.com/kelvin13/swift-grammar) rules.
 
 ### 3. build [`swift-biome`](https://github.com/kelvin13/swift-biome) 
 
@@ -193,10 +181,10 @@ cd ..
 
 ### 4. run the `preview` server
 
-[`swift-biome`](https://github.com/kelvin13/swift-biome) includes an executable target called **`preview`**. Pass it the three indexfiles, and it will start up a server on `localhost:8080`.
+[`swift-biome`](https://github.com/kelvin13/swift-biome) includes an executable target called **`preview`**. Pass it the two indexfiles, and it will start up a server on `localhost:8080`.
 
 ```bash
-swift-biome/.build/release/preview swift.json swift-grammar.json catalog.json
+swift-biome/.build/release/preview swift.json catalog.json
 ```
 
 > Note: The `swift.json` indexfile contains relative paths, so you should run `preview` from the `swift-json` repository root.

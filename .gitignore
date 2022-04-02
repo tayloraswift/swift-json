@@ -2,9 +2,10 @@
 .swift-version
 
 catalog.json
-swift-grammar.json
 
 Package.resolved
+Packages/
+
 FlameGraph/
 *.folded
 *.svg 
