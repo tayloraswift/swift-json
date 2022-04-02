@@ -410,55 +410,85 @@ enum JSON
 
 extension JSON 
 {
-    /// A generic context for ``Grammar/ParsingRule``s.
+    /// @import(Grammar)
+    /// A generic context for grammatical parsing rules.
+    /// 
+    /// All of the ``Grammar/ParsingRule``s in this namespace are defined at the 
+    /// UTF-8 level. The generic [`Location`]() parameter allows you to parse JSON 
+    /// expressions from any ``Collection`` with an ``Collection//Element`` type 
+    /// of ``UInt8``.
     public 
     enum Rule<Location> 
     {
+        /// ASCII terminals.
         public 
         typealias ASCII     = Grammar.Encoding<Location, UInt8>.ASCII
+        /// ASCII digit terminals.
         public 
         typealias Digit<T>  = Grammar.Digit<Location, UInt8, T>.ASCII where T:BinaryInteger
     }
 }
 extension JSON.Rule 
 {
+    /// A literal `null` expression.
+    public 
+    enum Null:Grammar.TerminalSequence 
+    {
+        public 
+        typealias Terminal = UInt8 
+        /// The ASCII string [`"null"`]().
+        @inlinable public static 
+        var literal:[UInt8] 
+        { 
+            [0x6e, 0x75, 0x6c, 0x6c]
+        }
+    }
+    /// A literal `true` expression.
+    public 
+    enum True:Grammar.TerminalSequence 
+    {
+        public 
+        typealias Terminal = UInt8 
+        /// The ASCII string [`"true"`]().
+        @inlinable public static 
+        var literal:[UInt8] 
+        { 
+            [0x74, 0x72, 0x75, 0x65]
+        }
+    }
+    /// A literal `false` expression.
+    public 
+    enum False:Grammar.TerminalSequence 
+    {
+        public 
+        typealias Terminal = UInt8 
+        /// The ASCII string [`"false"`]().
+        @inlinable public static 
+        var literal:[UInt8] 
+        { 
+            [0x66, 0x61, 0x6c, 0x73, 0x65]
+        }
+    }
+    
+    @available(*, deprecated, message: "nested types have been moved into the outer `JSON` namespace.")
     public 
     enum Keyword
     {
+        @available(*, deprecated, renamed: "JSON.Null")
         public 
-        enum Null:Grammar.TerminalSequence 
-        {
-            public 
-            typealias Terminal = UInt8 
-            @inlinable public static 
-            var literal:[UInt8] 
-            { 
-                [0x6e, 0x75, 0x6c, 0x6c]
-            }
-        }
+        typealias Null = JSON.Rule<Location>.Null
+        @available(*, deprecated, renamed: "JSON.True")
         public 
-        enum True:Grammar.TerminalSequence 
-        {
-            public 
-            typealias Terminal = UInt8 
-            @inlinable public static 
-            var literal:[UInt8] 
-            { 
-                [0x74, 0x72, 0x75, 0x65]
-            }
-        }
+        typealias True = JSON.Rule<Location>.True
+        @available(*, deprecated, renamed: "JSON.False")
         public 
-        enum False:Grammar.TerminalSequence 
-        {
-            public 
-            typealias Terminal = UInt8 
-            @inlinable public static 
-            var literal:[UInt8] 
-            { 
-                [0x66, 0x61, 0x6c, 0x73, 0x65]
-            }
-        }
+        typealias False = JSON.Rule<Location>.False
     }
+    
+    /// Matches a complete message; either an ``JSON/Rule//Array`` or an ``JSON/Rule//Object``.
+    /// 
+    /// To parse *any* JSON value, including fragment values, use the ``JSON/Rule//Value`` 
+    /// rule instead.
     public 
     enum Root:ParsingRule 
     {
@@ -480,6 +510,10 @@ extension JSON.Rule
             }
         }
     }
+    /// Matches any value, including fragment values.
+    /// 
+    /// Only use this if you are doing manual JSON parsing. Most web services 
+    /// should send complete ``JSON/Rule//Root`` messages through their public APIs.
     public 
     enum Value:ParsingRule
     {
@@ -507,25 +541,42 @@ extension JSON.Rule
             {
                 return .object(items)
             }
-            else if let _:Void = input.parse(as: Keyword.True?.self)
+            else if let _:Void = input.parse(as: True?.self)
             {
                 return .bool(true)
             }
-            else if let _:Void = input.parse(as: Keyword.False?.self)
+            else if let _:Void = input.parse(as: False?.self)
             {
                 return .bool(false)
             }
             else
             {
-                try input.parse(as: Keyword.Null.self)
+                try input.parse(as: Null.self)
                 return .null 
             }
         }
     }
-    
+    /// Matches a numeric literal. 
+    /// 
+    /// Numeric literals are always written in decimal.
+    /// 
+    /// The following examples are all valid literals:
+    /** 
+    ```swift 
+    "5"
+    "5.5"
+    "-5.5"
+    "-55e-2"
+    "-55e2"
+    "-55e+2"
+    ```
+    */
+    /// Numeric literals may not begin with a prefix `+` sign, although the 
+    /// exponent field can use a prefix `+`.
     public 
     enum NumberLiteral:ParsingRule
     {
+        /// Matches an ASCII `+` or `-` sign.
         public 
         enum PlusOrMinus:Grammar.TerminalClass 
         {
@@ -624,56 +675,71 @@ extension JSON.Rule
             return .init(sign: sign, units: units, places: places)
         }
     }
+    /// Matches a string literal. 
+    /// 
+    /// String literals always begin and end with an ASCII double quote character (`"`).
     public 
     enum StringLiteral:ParsingRule 
     {
+        /// Matches a UTF-8 code unit that is allowed to appear inline in a string literal. 
         public 
-        enum CodeUnit 
+        enum CodeUnit:Grammar.TerminalClass
+        {
+            @available(*, deprecated, renamed: "JSON.Rule.CodeUnit")
+            public 
+            typealias Unescaped = Self
+            @available(*, deprecated, renamed: "JSON.Rule.EscapedCodeUnit")
+            public 
+            typealias Escaped = EscapedCodeUnit
+            
+            public 
+            typealias Terminal      = UInt8
+            public 
+            typealias Construction  = Void 
+            @inlinable public static 
+            func parse(terminal:UInt8) -> Void? 
+            {
+                switch terminal 
+                {
+                case 0x20 ... 0x21, 0x23 ... 0x5b, 0x5d ... 0xff:
+                    return () 
+                default:
+                    return nil
+                }
+            }
+        } 
+        /// Matches an ASCII character (besides [`"u"`]()) that is allowed to 
+        /// appear immediately after a backslash (`\`) in a string literal.
+        /// 
+        /// The following are valid escape characters: `\`, `"`, `/`, `b`, `f`, `n`, `r`, `t`.
+        public 
+        enum EscapedCodeUnit:Grammar.TerminalClass 
         {
             public 
-            enum Unescaped:Grammar.TerminalClass
-            {
-                public 
-                typealias Terminal      = UInt8
-                public 
-                typealias Construction  = Void 
-                @inlinable public static 
-                func parse(terminal:UInt8) -> Void? 
-                {
-                    switch terminal 
-                    {
-                    case 0x20 ... 0x21, 0x23 ... 0x5b, 0x5d ... 0xff:
-                        return () 
-                    default:
-                        return nil
-                    }
-                }
-            } 
+            typealias Terminal      = UInt8
             public 
-            enum Escaped:Grammar.TerminalClass 
+            typealias Construction  = Unicode.Scalar 
+            @inlinable public static 
+            func parse(terminal:UInt8) -> Unicode.Scalar? 
             {
-                public 
-                typealias Terminal      = UInt8
-                public 
-                typealias Construction  = Unicode.Scalar 
-                @inlinable public static 
-                func parse(terminal:UInt8) -> Unicode.Scalar? 
+                switch terminal
                 {
-                    switch terminal
-                    {
-                    // '\\', '\"', '\/'
-                    case 0x5c, 0x22, 0x2f:
-                                return .init(terminal) 
-                    case 0x62:  return "\u{08}" // '\b'
-                    case 0x66:  return "\u{0C}" // '\f'
-                    case 0x6e:  return "\u{0A}" // '\n'
-                    case 0x72:  return "\u{0D}" // '\r'
-                    case 0x74:  return "\u{09}" // '\t'
-                    default:    return nil 
-                    }
+                // '\\', '\"', '\/'
+                case 0x5c, 0x22, 0x2f:
+                            return .init(terminal) 
+                case 0x62:  return "\u{08}" // '\b'
+                case 0x66:  return "\u{0C}" // '\f'
+                case 0x6e:  return "\u{0A}" // '\n'
+                case 0x72:  return "\u{0D}" // '\r'
+                case 0x74:  return "\u{09}" // '\t'
+                default:    return nil 
                 }
             }
         }
+        /// Matches a sequence of escaped UTF-16 code units.
+        /// 
+        /// A UTF-16 escape sequence consists of [`"\u"`](), followed by four 
+        /// hexadecimal digits.
         public 
         enum EscapeSequence:ParsingRule 
         {
@@ -689,7 +755,7 @@ extension JSON.Rule
                 var unescaped:String = ""
                 while true  
                 {
-                    if let scalar:Unicode.Scalar = input.parse(as: CodeUnit.Escaped?.self)
+                    if let scalar:Unicode.Scalar = input.parse(as: EscapedCodeUnit?.self)
                     {
                         unescaped.append(Character.init(scalar))
                     }
@@ -731,7 +797,7 @@ extension JSON.Rule
             try                 input.parse(as: ASCII.Quote.self)
             
             let start:Location      = input.index 
-            input.parse(as: CodeUnit.Unescaped.self, in: Void.self)
+            input.parse(as: CodeUnit.self, in: Void.self)
             let end:Location        = input.index 
             var string:String       = .init(decoding: input[start ..< end], as: Unicode.UTF8.self)
             
@@ -739,7 +805,7 @@ extension JSON.Rule
             {
                 string             += next 
                 let start:Location  = input.index 
-                input.parse(as: CodeUnit.Unescaped.self, in: Void.self)
+                input.parse(as: CodeUnit.self, in: Void.self)
                 let end:Location    = input.index 
                 string             += .init(decoding: input[start ..< end], as: Unicode.UTF8.self)
             }
@@ -748,6 +814,23 @@ extension JSON.Rule
             return string 
         }
     }
+    /// @import(Grammar)
+    /// Matches the whitespace characters [`" "`](), [`"\t"`](), 
+    /// [`"\n"`](), and [`"\r"`]().
+    /// 
+    /// This rule matches a *single* ASCII whitespace character.
+    /// To match a sequence of whitespace characters (including the empty sequence), 
+    /// use one of ``/swift-grammar``’s vector parsing APIs, like ``ParsingInput.parse(as:in:)``.
+    /// 
+    /// For example, the following is equivalent to the regex [`/[\ \t\n\r]+/`]():
+    /**
+    ```swift 
+    try input.parse(as: JSON.Rule<Location>.Whitespace.self)
+        input.parse(as: JSON.Rule<Location>.Whitespace.self, in: Void.self)
+    ```
+    */
+    /// >   Note: Unicode space characters, like [`"\u{2009}"`](), are not 
+    ///     considered whitespace characters in the context of JSON parsing.
     public 
     enum Whitespace:Grammar.TerminalClass 
     {
@@ -770,11 +853,18 @@ extension JSON.Rule
             }
         }
     }
-    
+    /// A helper rule, which accepts an input sequence that matches [`Rule`](), 
+    /// with optional leading and trailing ``Whitespace`` characters.
     public 
     typealias Padded<Rule> = Grammar.Pad<Rule, Whitespace> 
         where Rule:ParsingRule, Rule.Location == Location, Rule.Terminal == UInt8
     
+    /// @import(Grammar)
+    /// Matches an array literal.
+    /// 
+    /// Array literals begin and end with square brackets (`[` and `]`), and 
+    /// recursively contain instances of ``JSON/Rule//Value`` separated by ``JSON/Rule//Padded`` 
+    /// ``Grammar/Encoding//ASCII/Comma``s. Trailing commas are not allowed.
     public  
     enum Array:ParsingRule 
     {
@@ -804,9 +894,21 @@ extension JSON.Rule
             return elements
         }
     }
+    /// @import(Grammar)
+    /// Matches an object literal.
+    /// 
+    /// Object literals begin and end with curly braces (`{` and `}`), and 
+    /// contain instances of ``Item`` separated by ``JSON/Rule//Padded`` 
+    /// ``Grammar/Encoding//ASCII/Comma``s. Trailing commas are not allowed.
     public 
     enum Object:ParsingRule 
     {
+        /// @import(Grammar)
+        /// Matches an key-value expression.
+        /// 
+        /// A key-value expression consists of a ``JSON/Rule//StringLiteral``, 
+        /// a ``JSON/Rule//Padded`` ``Grammar/Encoding//ASCII/Colon``, and 
+        /// a recursive instance of ``JSON/Rule//Value``.
         public 
         enum Item:ParsingRule 
         {
@@ -854,6 +956,10 @@ extension JSON.Rule
 
 extension JSON:CustomStringConvertible 
 {
+    /// Returns this value serialized as a minified string.
+    /// 
+    /// Reparsing and reserializing this string is guaranteed to return the 
+    /// same string.
     public
     var description:String
     {
