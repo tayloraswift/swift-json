@@ -49,7 +49,7 @@ let package:Package = .init(
     ],
     dependencies: future +
     [
-        .package(url: "https://github.com/kelvin13/swift-grammar", from: "0.1.3"),
+        .package(url: "https://github.com/kelvin13/swift-grammar", from: "0.1.4"),
     ],
     targets: executable.targets +
     [
