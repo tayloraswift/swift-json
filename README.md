@@ -23,8 +23,16 @@
 * `protocol TraceableErrorRoot`
 * `struct ParsingError<Index>`
 * `struct ParsingInput<Diagnostics>`
-* `protocol ParsingRule`
 * `protocol ParsingDiagnostics`
+* `protocol ParsingRule`
+* `protocol TerminalRule`
+* `protocol LiteralRule`
+* `protocol DigitRule`
+* `protocol ASCIITerminal`
+* `protocol UTF8Terminal`
+* `protocol UTF16Terminal`
+* `protocol UnicodeTerminal`
+* `protocol CharacterTerminal`
 
 **This module has library interfaces:**
 

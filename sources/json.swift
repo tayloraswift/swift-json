@@ -31,9 +31,9 @@ enum JSON
     
     /// A lossless representation of a numeric literal.
     ///
-    /// This type can store fixed-point numbers with up to 64 bits of precision.
-    /// It uses all 64 bits to encode its magnitude, which enables it to round-trip
-    /// integers of width up to ``UInt64``.
+    /// This type is memory-efficient, and can store fixed-point numbers with 
+    /// up to 64 bits of precision. It uses all 64 bits to encode its magnitude, 
+    /// which enables it to round-trip integers of width up to ``UInt64``.
     @frozen public 
     struct Number:CustomStringConvertible
     {
@@ -112,7 +112,7 @@ enum JSON
             case .minus:    return "-\(string.dropLast(places)).\(string.suffix(places))"
             }
         }
-        @available(*, deprecated, renamed: "JS")
+        @available(*, deprecated, renamed: "JSON.Number.as(_:)")
         public
         func callAsFunction<T>(as _:T?.Type) -> T? where T:FixedWidthInteger & UnsignedInteger 
         {
@@ -144,6 +144,11 @@ enum JSON
         /// -   Returns: 
         ///     The value of this numeric literal as an instance of [`T`](), or 
         ///     [`nil`]() if it is negative, fractional, or would overflow [`T`]().
+        /// >   Note:
+        ///     This type conversion will fail if ``places`` is non-zero, even if 
+        ///     the fractional part is zero. For example, you can convert 
+        ///     [`5`]() to an integer, but not [`5.0`](). This matches the behavior 
+        ///     of ``ExpressibleByIntegerLiteral``.
         @inlinable public
         func `as`<T>(_:T.Type) -> T? where T:FixedWidthInteger & UnsignedInteger 
         {
@@ -167,6 +172,11 @@ enum JSON
         /// -   Returns: 
         ///     The value of this numeric literal as an instance of [`T`](), or 
         ///     [`nil`]() if it is fractional or would overflow [`T`]().
+        /// >   Note:
+        ///     This type conversion will fail if ``places`` is non-zero, even if 
+        ///     the fractional part is zero. For example, you can convert 
+        ///     [`5`]() to an integer, but not [`5.0`](). This matches the behavior 
+        ///     of ``ExpressibleByIntegerLiteral``.
         @inlinable public
         func `as`<T>(_:T.Type) -> T? where T:FixedWidthInteger & SignedInteger 
         {
@@ -193,6 +203,9 @@ enum JSON
         ///     The value of this numeric literal as an instance of 
         ///     [`(units:T, places:T)`](), or [`nil`]() if the value of either 
         ///     field would overflow [`T`]().
+        /// >   Note: 
+        ///     It’s possible for the `places` field to overflow before `units` does.
+        ///     For example, this will happen for the literal [`"0.0e-9999999999999999999"`].
         @inlinable public
         func `as`<T>(_:(units:T, places:T).Type) -> (units:T, places:T)? 
             where T:FixedWidthInteger & SignedInteger 
@@ -381,13 +394,18 @@ enum JSON
     /// A null value. 
     /// 
     /// This is conceptually equivalent to ``Void``, and should 
-    /// not be confused with [`nil`]() in Swift.
+    /// not be confused with [`nil`]() in Swift. It represents an empty value, 
+    /// *not* the absence of a value.
     case null 
     /// A boolean value. 
     case bool(Bool)
     /// A numerical value.
     case number(Number)
     /// A string value.
+    /// 
+    /// The contents of this string are *not* escaped. If you are creating an 
+    /// instance of [`Self`]() for serialization with this case-constructor, 
+    /// do not escape the input.
     case string(String)
     /// An array, which can recursively contain instances of [`Self`]().
     case array([Self])
@@ -405,34 +423,75 @@ enum JSON
     ///     Many JSON APIs do not encode object items in a stable order. Only 
     ///     assume a particular ordering based on careful observation or official 
     ///     documentation.
+    /// 
+    /// The keys in the payload are *not* escaped.
+    /// 
+    /// >   Warning: 
+    ///     Object keys can contain arbitrary unicode text. Don’t assume the 
+    ///     keys are ASCII.
     case object([(key:String, value:Self)])
 }
 
 extension JSON 
 {
     /// @import(Grammar)
-    /// A generic context for grammatical parsing rules.
+    /// A generic context for structured parsing rules.
     /// 
-    /// All of the ``Grammar/ParsingRule``s in this namespace are defined at the 
-    /// UTF-8 level. The generic [`Location`]() parameter allows you to parse JSON 
-    /// expressions from any ``Collection`` with an ``Collection//Element`` type 
-    /// of ``UInt8``.
+    /// All of the parsing rules in this library are defined at the UTF-8 level. 
+    /// 
+    /// You can parse JSON expressions from any ``Collection`` with an 
+    /// ``Collection//Element`` type of ``UInt8``. For example, you can parse 
+    /// a ``String`` through its ``String//UTF8View``.
+    /**
+    ```swift 
+    let string:String = 
+    """
+    {"success":true,"value":0.1}
+    """
+    try Grammar.parse(string.utf8, as: JSON.Rule<String.Index>.Root.self)
+    ```
+    */
+    /// However, you could also parse a UTF-8 buffer directly, without 
+    /// having to convert it to a ``String``.
+    /**
+    ```swift 
+    let utf8:[UInt8] = 
+    [
+        123,  34, 115, 117,  99,  99, 101, 115, 
+        115,  34,  58, 116, 114, 117, 101,  44, 
+         34, 118,  97, 108, 117, 101,  34,  58, 
+         48,  46,  49, 125
+    ]
+    try Grammar.parse(utf8, as: JSON.Rule<Array<UInt8>.Index>.Root.self)
+    ```
+    */
+    /// The generic [`Location`]() 
+    /// parameter provides this flexibility as a zero-cost abstraction.
+    /// 
+    /// >   Tip: 
+    ///     The ``/swift-grammar`` and ``/swift-json`` libraries are transparent!
+    ///     This means that its parsing rules are always zero-cost abstractions, 
+    ///     even when applied to third-party collection types, like 
+    ///     ``/swift-nio/NIOCore/ByteBufferView``.
     public 
     enum Rule<Location> 
     {
         /// ASCII terminals.
         public 
-        typealias ASCII     = Grammar.Encoding<Location, UInt8>.ASCII
-        /// ASCII digit terminals.
+        typealias ASCII = Grammar.Encoding<Location, UInt8>
+        /// ASCII hexadecimal digit terminals.
         public 
-        typealias Digit<T>  = Grammar.Digit<Location, UInt8, T>.ASCII where T:BinaryInteger
+        typealias HexDigit<T> = Grammar.HexDigit<Location, UInt8, T> where T:BinaryInteger
+        /// ASCII decimal digit terminals.
+        public 
+        typealias DecimalDigit<T> = Grammar.DecimalDigit<Location, UInt8, T> where T:BinaryInteger
     }
 }
 extension JSON.Rule 
 {
     /// A literal `null` expression.
     public 
-    enum Null:Grammar.TerminalSequence 
+    enum Null:LiteralRule 
     {
         public 
         typealias Terminal = UInt8 
@@ -445,7 +504,7 @@ extension JSON.Rule
     }
     /// A literal `true` expression.
     public 
-    enum True:Grammar.TerminalSequence 
+    enum True:LiteralRule 
     {
         public 
         typealias Terminal = UInt8 
@@ -458,7 +517,7 @@ extension JSON.Rule
     }
     /// A literal `false` expression.
     public 
-    enum False:Grammar.TerminalSequence 
+    enum False:LiteralRule 
     {
         public 
         typealias Terminal = UInt8 
@@ -578,7 +637,7 @@ extension JSON.Rule
     {
         /// Matches an ASCII `+` or `-` sign.
         public 
-        enum PlusOrMinus:Grammar.TerminalClass 
+        enum PlusOrMinus:TerminalRule 
         {
             public 
             typealias Terminal      = UInt8
@@ -613,10 +672,10 @@ extension JSON.Rule
             }
             
             var units:UInt64    = 
-                try  input.parse(as: Grammar.UnsignedIntegerLiteral<Digit<UInt64>.Decimal>.self)
+                try  input.parse(as: Grammar.UnsignedIntegerLiteral<DecimalDigit<UInt64>>.self)
             var places:UInt32   = 0
             if  var (_, remainder):(Void, UInt64) = 
-                try? input.parse(as: (ASCII.Period, Digit<UInt64>.Decimal).self)
+                try? input.parse(as: (ASCII.Period, DecimalDigit<UInt64>).self)
             {
                 while true 
                 {
@@ -629,7 +688,7 @@ extension JSON.Rule
                     places += 1
                     units   = refined
                     
-                    guard let next:UInt64 = input.parse(as: Digit<UInt64>.Decimal?.self)
+                    guard let next:UInt64 = input.parse(as: DecimalDigit<UInt64>?.self)
                     else 
                     {
                         break 
@@ -637,10 +696,10 @@ extension JSON.Rule
                     remainder = next
                 }
             }
-            if  let _:Void                  =     input.parse(as: ASCII.E.Anycase?.self) 
+            if  let _:Void                  =     input.parse(as: ASCII.E?.self) 
             {
                 let sign:FloatingPointSign? =     input.parse(as: PlusOrMinus?.self)
-                let exponent:UInt32         = try input.parse(as: Grammar.UnsignedIntegerLiteral<Digit<UInt32>.Decimal>.self)
+                let exponent:UInt32         = try input.parse(as: Grammar.UnsignedIntegerLiteral<DecimalDigit<UInt32>>.self)
                 // you too, can exploit the vulnerabilities below
                 switch sign
                 {
@@ -683,7 +742,7 @@ extension JSON.Rule
     {
         /// Matches a UTF-8 code unit that is allowed to appear inline in a string literal. 
         public 
-        enum CodeUnit:Grammar.TerminalClass
+        enum CodeUnit:TerminalRule
         {
             @available(*, deprecated, renamed: "JSON.Rule.CodeUnit")
             public 
@@ -713,7 +772,7 @@ extension JSON.Rule
         /// 
         /// The following are valid escape characters: `\`, `"`, `/`, `b`, `f`, `n`, `r`, `t`.
         public 
-        enum EscapedCodeUnit:Grammar.TerminalClass 
+        enum EscapedCodeUnit:TerminalRule 
         {
             public 
             typealias Terminal      = UInt8
@@ -763,10 +822,10 @@ extension JSON.Rule
                     {
                         try input.parse(as: ASCII.U.Lowercase.self) 
                         let value:UInt16 = 
-                            (try input.parse(as: Digit<UInt16>.Hex.Anycase.self) << 12) |
-                            (try input.parse(as: Digit<UInt16>.Hex.Anycase.self) <<  8) |
-                            (try input.parse(as: Digit<UInt16>.Hex.Anycase.self) <<  4) |
-                            (try input.parse(as: Digit<UInt16>.Hex.Anycase.self)) 
+                            (try input.parse(as: HexDigit<UInt16>.self) << 12) |
+                            (try input.parse(as: HexDigit<UInt16>.self) <<  8) |
+                            (try input.parse(as: HexDigit<UInt16>.self) <<  4) |
+                            (try input.parse(as: HexDigit<UInt16>.self)) 
                         if let scalar:Unicode.Scalar = Unicode.Scalar.init(value)
                         {
                             unescaped.append(Character.init(scalar))
@@ -818,7 +877,7 @@ extension JSON.Rule
     /// Matches the whitespace characters [`" "`](), [`"\t"`](), 
     /// [`"\n"`](), and [`"\r"`]().
     /// 
-    /// This rule matches a *single* ASCII whitespace character.
+    /// This rule matches a *single* whitespace character.
     /// To match a sequence of whitespace characters (including the empty sequence), 
     /// use one of ``/swift-grammar``’s vector parsing APIs, like ``ParsingInput.parse(as:in:)``.
     /// 
@@ -832,7 +891,7 @@ extension JSON.Rule
     /// >   Note: Unicode space characters, like [`"\u{2009}"`](), are not 
     ///     considered whitespace characters in the context of JSON parsing.
     public 
-    enum Whitespace:Grammar.TerminalClass 
+    enum Whitespace:TerminalRule 
     {
         public 
         typealias Terminal      = UInt8
@@ -864,7 +923,7 @@ extension JSON.Rule
     /// 
     /// Array literals begin and end with square brackets (`[` and `]`), and 
     /// recursively contain instances of ``JSON/Rule//Value`` separated by ``JSON/Rule//Padded`` 
-    /// ``Grammar/Encoding//ASCII/Comma``s. Trailing commas are not allowed.
+    /// ``Grammar/Encoding//Comma``s. Trailing commas are not allowed.
     public  
     enum Array:ParsingRule 
     {
@@ -899,7 +958,7 @@ extension JSON.Rule
     /// 
     /// Object literals begin and end with curly braces (`{` and `}`), and 
     /// contain instances of ``Item`` separated by ``JSON/Rule//Padded`` 
-    /// ``Grammar/Encoding//ASCII/Comma``s. Trailing commas are not allowed.
+    /// ``Grammar/Encoding//Comma``s. Trailing commas are not allowed.
     public 
     enum Object:ParsingRule 
     {
@@ -907,7 +966,7 @@ extension JSON.Rule
         /// Matches an key-value expression.
         /// 
         /// A key-value expression consists of a ``JSON/Rule//StringLiteral``, 
-        /// a ``JSON/Rule//Padded`` ``Grammar/Encoding//ASCII/Colon``, and 
+        /// a ``JSON/Rule//Padded`` ``Grammar/Encoding//Colon``, and 
         /// a recursive instance of ``JSON/Rule//Value``.
         public 
         enum Item:ParsingRule 
