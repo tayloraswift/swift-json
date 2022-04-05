@@ -29,7 +29,7 @@ extension JSON
         public
         let number:Number
         
-        #if swift(<5.6)
+        #if swift(<5.7)
         public
         let type:Any.Type
         
@@ -40,11 +40,11 @@ extension JSON
             self.type   = overflows 
         }
         #else 
-        @available(swift, deprecated: 5.6, message: "use the more strongly-typed `overflows` property")
+        @available(swift, deprecated: 5.7, message: "use the more strongly-typed `overflows` property")
         public
         var type:Any.Type { self.overflows }
         
-        @available(swift, introduced: 5.6)
+        @available(swift, introduced: 5.7)
         public
         let overflows:any FixedWidthInteger.Type
         
@@ -59,7 +59,7 @@ extension JSON
         public
         var description:String 
         {
-            #if swift(<5.6)
+            #if swift(<5.7)
             return "integer literal '\(number)' overflows decoded type '\(self.type)'"
             #else 
             "integer literal '\(number)' overflows decoded type '\(self.overflows)'"
