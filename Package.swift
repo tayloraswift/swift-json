@@ -34,7 +34,9 @@ executable.targets.append(.executableTarget(name: "JSONBenchmarks",
 
 // cannot build the documentation plugin on these platforms due to 
 // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1299#issuecomment-1089950219
-#if swift(>=5.6) && !os(iOS) && !os(tvOS) && !os(watchOS)
+// cannot build the documentation plugin on windows since apparently 
+// the PackagePlugin module is not available
+#if swift(>=5.6) && !os(iOS) && !os(tvOS) && !os(watchOS) && !os(Windows)
 let future:[Package.Dependency] = 
 [
     .package(url: "https://github.com/swift-biome/swift-documentation-extract", from: "0.1.1")
