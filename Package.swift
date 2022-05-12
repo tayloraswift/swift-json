@@ -39,7 +39,7 @@ executable.targets.append(.executableTarget(name: "JSONBenchmarks",
 #if swift(>=5.6) && !os(iOS) && !os(tvOS) && !os(watchOS) && !os(Windows)
 let future:[Package.Dependency] = 
 [
-    .package(url: "https://github.com/swift-biome/swift-documentation-extract", from: "0.1.1")
+    .package(url: "https://github.com/swift-biome/swift-documentation-extract", from: "0.2.0")
 ]
 #else 
 let future:[Package.Dependency] = []
@@ -53,7 +53,7 @@ let package:Package = .init(
     ],
     dependencies: future +
     [
-        .package(url: "https://github.com/kelvin13/swift-grammar", from: "0.1.4"),
+        .package(url: "https://github.com/kelvin13/swift-grammar", from: "0.1.5"),
     ],
     targets: executable.targets +
     [
