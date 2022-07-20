@@ -1,6 +1,6 @@
 <div align="center">
   
-***`json`***<br>`0.2.2`
+***`json`***<br>`0.3.0`
   
 [![ci build status](https://github.com/kelvin13/swift-json/actions/workflows/build.yml/badge.svg)](https://github.com/kelvin13/swift-json/actions/workflows/build.yml)
 [![ci windows build status](https://github.com/kelvin13/swift-json/actions/workflows/build-windows.yml/badge.svg)](https://github.com/kelvin13/swift-json/actions/workflows/build-windows.yml)
@@ -10,7 +10,7 @@
 
 </div>
 
-`swift-json` is a pure-Swift JSON parsing library designed for high-performance, high-throughput server-side applications. When compared using the test data [`captured.json`](cases/), `swift-json` is nearly 7 times faster than `Foundation.JSONDecoder` ([see benchmark source code](benchmarks/)).
+`swift-json` is a pure-Swift JSON parsing library designed for high-performance, high-throughput server-side applications. When compared using the test data [`captured.json`](Tests/data.json), `swift-json` is nearly 7 times faster than `Foundation.JSONDecoder` ([see benchmark source code](Sources/Benchmarks)).
 
 **Importing this module will expose the following top-level symbol(s)**:
 
@@ -34,94 +34,102 @@
 * `protocol UnicodeTerminal`
 * `protocol CharacterTerminal`
 
-**This module has library interfaces:**
-
-* `@_spi(experimental)`
-
 ## example usage
 
 The `JSON` module in `swift-json` enables you to express JSON parsing tasks as **constructive parsers**. This makes the `JSON` module very flexible without requiring much configuration from users who simply want to parse a JSON message from a remote peer.
 
-To parse a complete JSON message, use the `JSON.Rule<Location>.Root` parsing rule:
+To parse a complete JSON message, use the [`JSON.Rule<Location>.Root`](https://swiftinit.org/reference/swift-json/json/json/rule/root) parsing rule:
+
+> [`basic-decoding.swift`](Snippets/basic-decoding.swift)
 
 ```swift
 import JSON 
 
-@main 
-enum Main 
+struct Decimal:Codable  
 {
-    struct Decimal:Codable  
-    {
-        let units:Int 
-        let places:Int 
-    }
-    struct Response:Codable 
-    {
-        let success:Bool 
-        let value:Decimal
-    }
-    static 
-    func main() throws
-    {
-        let string:String = 
-        """
-        {"success":true,"value":0.1}
-        """
-        let decoder:JSON        = try Grammar.parse(string.utf8, 
-            as: JSON.Rule<String.Index>.Root.self)
-        let response:Response   = try .init(from: decoder)
-        
-        print(response)
-        
-        let invalid:String = 
-        """
-        {"success":true,value:0.1}
-        """
-        do 
-        {
-            let _:JSON = try Grammar.parse(diagnosing: invalid.utf8, 
-                as: JSON.Rule<String.Index>.Root.self)
-        }
-        catch let error as ParsingError<String.Index> 
-        {
-            let debug:String = error.annotate(source: invalid, 
-                line: String.init(_:), newline: \.isNewline)
-            print(debug)
-        }
-    }
+    let units:Int 
+    let places:Int 
+}
+struct Response:Codable 
+{
+    let success:Bool 
+    let value:Decimal
+}
+
+let string:String = 
+"""
+{"success":true,"value":0.1}
+"""
+let decoder:JSON        = try Grammar.parse(string.utf8, 
+    as: JSON.Rule<String.Index>.Root.self)
+let response:Response   = try .init(from: decoder)
+
+print(response)
+```
+
+```text
+$ .build/release/basic-decoding
+Response(success: true, value: Decimal(units: 1, places: 1))
+```
+
+The rule is called “[`Root`](https://swiftinit.org/reference/swift-json/json/json/rule/root)” because it will match only complete JSON messages (objects or arrays). 
+Like most `swift-grammar`-based [parsers](https://swiftinit.org/reference/swift-grammar/grammar/parsingrule), [`JSON.Rule`](https://swiftinit.org/reference/swift-json/json/json/rule) is generic over its input, which means you can parse directly from some [`Collection`](https://swiftinit.org/reference/swift/collection) of [`UInt8`](https://swiftinit.org/reference/swift/uint8).
+
+`swift-json`’s constructive parsing engine also allows you to get diagnostics for invalid JSON messages:
+
+```swift
+let invalid:String = 
+"""
+{"success":true,value:0.1}
+"""
+do 
+{
+    let _:JSON = try Grammar.parse(diagnosing: invalid.utf8, 
+        as: JSON.Rule<String.Index>.Root.self)
+}
+catch let error as ParsingError<String.Index> 
+{
+    let debug:String = error.annotate(source: invalid, 
+        line: String.init(_:), newline: \.isNewline)
+    print(debug)
 }
 ```
 ```text
-$ .build/release/basic-decoding
-Response(success: true, value: 
-    JSONExamples.Main.Decimal(units: 1, places: 1))
-
-Grammar.Expected<Grammar.Encoding.ASCII.Quote>: 
-    expected construction by rule 'Quote'
+Grammar.Expected<Grammar.Encoding<String.Index, UInt8>.Quote>: expected construction by rule 'Quote'
 {"success":true,value:0.1}
                 ^
-note: expected pattern 'Grammar.Encoding.ASCII.Quote'
+note: expected pattern 'Grammar.Encoding<String.Index, UInt8>.Quote'
 {"success":true,value:0.1}
                 ^
-note: while parsing value of type 'String' by rule 
-    'JSON.Rule.StringLiteral'
+note: while parsing value of type 'String' by rule 'JSON.Rule<String.Index>.StringLiteral'
 {"success":true,value:0.1}
                 ^
 note: while parsing value of type '((), (key: String, value: JSON))' 
-    by rule '(Grammar.Pad<Grammar.Encoding.ASCII.Comma, 
-    JSON.Rule.Whitespace>, JSON.Rule.Object.Item)'
+by rule '(Grammar.Pad<Grammar.Encoding<String.Index, UInt8>.Comma, 
+JSON.Rule<String.Index>.Whitespace>, JSON.Rule<String.Index>.Object.Item)'
 {"success":true,value:0.1}
                ^~
-note: while parsing value of type '[String: JSON]' by rule 
-    'JSON.Rule.Object'
+note: while parsing value of type 'Array<(key: String, value: JSON)>' by rule 'JSON.Rule<String.Index>.Object'
 {"success":true,value:0.1}
 ^~~~~~~~~~~~~~~~~
-note: while parsing value of type 'JSON' by rule 'JSON.Rule.Root'
+note: while parsing value of type 'JSON' by rule 'JSON.Rule<String.Index>.Root'
 {"success":true,value:0.1}
 ^~~~~~~~~~~~~~~~~
 ```
 
-The `JSON` module supports parsing JSON fragments using the `JSON.Rule<Location>.Value` rule. 
+You can be more selective about the form of the JSON you expect to receive by using one of the library’s subrules:
+
+
+*   [`Null`](https://swiftinit.org/reference/swift-json/json/json/rule/null)
+*   [`True`](https://swiftinit.org/reference/swift-json/json/json/rule/true)
+*   [`False`](https://swiftinit.org/reference/swift-json/json/json/rule/false)
+*   [`NumberLiteral`](https://swiftinit.org/reference/swift-json/json/json/rule/numberliteral)
+*   [`StringLiteral`](https://swiftinit.org/reference/swift-json/json/json/rule/stringliteral)
+*   [`Object`](https://swiftinit.org/reference/swift-json/json/json/rule/object)
+*   [`Array`](https://swiftinit.org/reference/swift-json/json/json/rule/array)
+
+
+The [`JSON`](https://swiftinit.org/reference/swift-json/json) module supports parsing arbitrary JSON fragments using the [`JSON.Rule<Location>.Value`](https://swiftinit.org/reference/swift-json/json/json/rule/value) rule. 
 
 The nature of constructive parsing also means it is straightforward to parse *multiple* concatenated JSON messages, as is commonly encountered when interfacing with streaming JSON APIs.
 
@@ -156,45 +164,42 @@ let package = Package(
 
 ### 1. gather the documentation files
 
-`swift-json` uses the [`swift-documentation-extract`](https://github.com/swift-biome/swift-documentation-extract) plugin to gather its documentation. 
+`swift-json` uses the [`swift-package-catalog`](https://github.com/kelvin13/swift-package-catalog) plugin to gather its documentation. 
 
-Run the `catalog` plugin command, and store its output in a JSON file.
+Run the `catalog` plugin command, and store its output in a file named `Package.catalog`.
 
 ```
-swift package catalog JSON Grammar > catalog.json
+$ swift package catalog > Package.catalog
 ```
 
-The arguments `JSON` and `Grammar` tell `swift package catalog` to gather documentation only from the `JSON` module in this package, and the `Grammar` module in [`swift-grammar`](https://github.com/kelvin13/swift-grammar).
+The catalog file must be named `Package.catalog`; Biome parses it (and the `Package.resolved` file generated by the Swift Package Manager) in order to find `swift-json`’s symbolgraphs and DocC archives.
 
-### 2. checkout the ecosystem
-
-```bash
-git submodule update --recursive 
-```
-
-This checks out the `.biome` submodule, which tracks [`swift-biome-index`](https://github.com/swift-biome/swift-biome-index) and contains a copy of the Swift standard library’s symbolgraph.
-
-This repository already contains an indexfile called `swift.json`, which references the relevant modules in the ecosystem index. It’s just like the `catalog.json` file you generated in the previous step.
-
-### 3. build [`swift-biome`](https://github.com/kelvin13/swift-biome) 
+### 2. build [`swift-biome`](https://github.com/kelvin13/swift-biome) 
 
 [`swift-biome`](https://github.com/kelvin13/swift-biome) is a normal SPM package. There’s lots of ways to build it. 
 
 ```bash
-git clone git@github.com:kelvin13/swift-biome.git
-cd swift-biome 
-swift build -c release 
-cd ..
+$ git clone git@github.com:kelvin13/swift-biome.git
+$ git submodule update --init --recursive
+
+$ cd swift-biome 
+$ swift build -c release 
+$ cd ..
 ```
 
-### 4. run the `preview` server
+Don’t forget the `git submodule update`!
 
-[`swift-biome`](https://github.com/kelvin13/swift-biome) includes an executable target called **`preview`**. Pass it the two indexfiles, and it will start up a server on `localhost:8080`.
+### 3. run the `preview` server
+
+[`swift-biome`](https://github.com/kelvin13/swift-biome) includes an executable target called **`preview`**. Pass it the path to the `swift-json` repository (in this example, `..`), and it will start up a server on `localhost:8080`.
 
 ```bash
-swift-biome/.build/release/preview swift.json catalog.json
+$ cd swift-biome 
+$ .build/release/preview --swift 5.6.2 ..
 ```
 
-> Note: The `swift.json` indexfile contains relative paths, so you should run `preview` from the `swift-json` repository root.
+The `--swift 5.6.2` option specifies the version of the standard library that the Biome compiler should link against.
+
+> Note: if you run the `preview` tool from outside the `swift-biome` repository, you will need to specify the path to the [`resources`](https://github.com/swift-biome/swift-biome-resources) (sub)module. For example, if you did not `cd` into `swift-biome`, you would have to add the option `--resources swift-biome/resources`.
 
 Navigate to [`http://127.0.0.1:8080/reference/swift-json`](http://127.0.0.1:8080/reference/swift-json) in a browser to view the documentation. Make sure the scheme is `http://` and not `https://`.
