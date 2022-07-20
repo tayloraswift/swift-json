@@ -2,8 +2,8 @@ version: 1
 builder:
     configs:
     -   platform: ios
-        scheme: JSON 
+        scheme: swift-json 
     -   platform: tvos
-        scheme: JSON 
+        scheme: swift-json 
     -   platform: watchos
-        scheme: JSON 
+        scheme: swift-json 
