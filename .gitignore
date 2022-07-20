@@ -1,4 +1,5 @@
 .build
+.vscode
 .swift-version
 
 Package.catalog
@@ -8,6 +9,4 @@ Packages/
 FlameGraph/
 *.folded
 *.svg 
-perf.data
-perf.data.old
-perf.txt
+*.data

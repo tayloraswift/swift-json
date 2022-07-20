@@ -92,7 +92,7 @@ enum Main
 }
 ```
 ```text
-$ .build/release/examples
+$ .build/release/basic-decoding
 Response(success: true, value: 
     JSONExamples.Main.Decimal(units: 1, places: 1))
 

@@ -26,10 +26,6 @@ let package:Package = .init(
             dependencies: 
             [
                 .product(name: "Grammar", package: "swift-grammar"),
-            ],
-            path: "sources/", 
-            exclude: 
-            [
             ]),
     ]
 )
