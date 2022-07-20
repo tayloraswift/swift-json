@@ -18,4 +18,4 @@ jobs:
             -   name: build 
                 run: |
                     swift --version
-                    xcrun xcodebuild build -scheme "swift-json" -destination "generic/platform=${{ matrix.device }}"
+                    xcrun xcodebuild build -destination "generic/platform=${{ matrix.device }}"
