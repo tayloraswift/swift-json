@@ -4,31 +4,26 @@ import PackageDescription
 var executable:(products:[Product], targets:[Target]) 
 executable.products = 
 [
-    .executable (name: "examples", targets: ["JSONExamples"]),
+    .executable (name: "examples", targets: ["Examples"]),
 ]
 executable.targets =
 [
-    .executableTarget(name: "JSONExamples",
+    .executableTarget(name: "Examples",
         dependencies: 
         [
             .target(name: "JSON"),
         ],
-        path: "examples/",
+        path: "Examples/",
         exclude: 
         [
         ]),
 ]
 #if os(Linux)
-executable.products.append(.executable(name: "benchmarks", targets: ["JSONBenchmarks"]))
-executable.targets.append(.executableTarget(name: "JSONBenchmarks",
+executable.products.append(.executable(name: "benchmarks", targets: ["Benchmarks"]))
+executable.targets.append(.executableTarget(name: "Benchmarks",
     dependencies: 
     [
         .target(name: "JSON"),
-    ],
-    path: "benchmarks/",
-    exclude: 
-    [
-        "script",
     ]))
 #endif
 
@@ -36,13 +31,13 @@ executable.targets.append(.executableTarget(name: "JSONBenchmarks",
 // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1299#issuecomment-1089950219
 // cannot build the documentation plugin on windows since apparently 
 // the PackagePlugin module is not available
-#if swift(>=5.6) && !os(iOS) && !os(tvOS) && !os(watchOS) && !os(Windows)
-let future:[Package.Dependency] = 
+#if swift(>=5.6) && (os(Linux) || os(macOS))
+let plugins:[Package.Dependency] = 
 [
-    .package(url: "https://github.com/swift-biome/swift-documentation-extract", from: "0.2.0")
+    .package(url: "https://github.com/kelvin13/swift-package-catalog", from: "0.2.1")
 ]
 #else 
-let future:[Package.Dependency] = []
+let plugins:[Package.Dependency] = []
 #endif
 
 let package:Package = .init(
@@ -51,7 +46,7 @@ let package:Package = .init(
     [
         .library(name: "JSON", targets: ["JSON"]),
     ],
-    dependencies: future +
+    dependencies: plugins +
     [
         .package(url: "https://github.com/kelvin13/swift-grammar", from: "0.1.5"),
     ],
@@ -61,10 +56,6 @@ let package:Package = .init(
             dependencies: 
             [
                 .product(name: "Grammar", package: "swift-grammar"),
-            ],
-            path: "sources/", 
-            exclude: 
-            [
             ]),
     ]
 )

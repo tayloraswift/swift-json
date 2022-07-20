@@ -25,7 +25,7 @@ enum Main
     static 
     func setup() throws -> (data:[UInt8], boundaries:[Range<Int>])
     {
-        let data:[UInt8] = try File.read(from: "cases/captured.json")
+        let data:[UInt8] = try File.read(from: "Benchmarks/data.json")
         return (data, try JSON._break(data))
     }
     
