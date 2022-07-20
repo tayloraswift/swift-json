@@ -1,30 +1,25 @@
 // swift-tools-version:5.5
 import PackageDescription
 
-var executable:(products:[Product], targets:[Target]) 
-executable.products = 
+let executable:(products:[Product], targets:[Target]) 
+
+
+#if os(Linux)
+executable.products =
 [
-    .executable (name: "examples", targets: ["Examples"]),
+    .executable(name: "benchmarks", targets: ["Benchmarks"]),
 ]
-executable.targets =
+executable.targets = 
 [
-    .executableTarget(name: "Examples",
+    .executableTarget(name: "Benchmarks",
         dependencies: 
         [
             .target(name: "JSON"),
-        ],
-        path: "Examples/",
-        exclude: 
-        [
         ]),
 ]
-#if os(Linux)
-executable.products.append(.executable(name: "benchmarks", targets: ["Benchmarks"]))
-executable.targets.append(.executableTarget(name: "Benchmarks",
-    dependencies: 
-    [
-        .target(name: "JSON"),
-    ]))
+#else 
+executable.products = []
+executable.targets  = []
 #endif
 
 // cannot build the documentation plugin on these platforms due to 
