@@ -2,9 +2,9 @@ name: build-devices
 
 on:
     push:
-        branches: [ master ]
+        branches: [ master, release/0.2 ]
     pull_request:
-        branches: [ master ]
+        branches: [ master, release/0.2 ]
 
 jobs:
     build-macos:
@@ -18,4 +18,4 @@ jobs:
             -   name: build 
                 run: |
                     swift --version
-                    xcrun xcodebuild build -destination "generic/platform=${{ matrix.device }}"
+                    xcrun xcodebuild build -scheme "JSON" -destination "generic/platform=${{ matrix.device }}"
