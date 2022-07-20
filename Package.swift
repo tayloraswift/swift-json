@@ -3,7 +3,6 @@ import PackageDescription
 
 let executable:(products:[Product], targets:[Target]) 
 
-
 #if os(Linux)
 executable.products =
 [

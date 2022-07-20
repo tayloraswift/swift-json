@@ -1,0 +1,21 @@
+name: build-devices
+
+on:
+    push:
+        branches: [ master ]
+    pull_request:
+        branches: [ master ]
+
+jobs:
+    build-macos:
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                os: [macos-12, macos-11]
+                device: [ios, tvos, watchos]
+        steps:
+            -   uses: actions/checkout@v2
+            -   name: build 
+                run: |
+                    swift --version
+                    xcrun xcodebuild build -scheme "JSON" -destination "generic/platform=${{ matrix.device }}"

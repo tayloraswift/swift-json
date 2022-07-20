@@ -1,0 +1,9 @@
+version: 1
+builder:
+    configs:
+    -   platform: ios
+        scheme: JSON 
+    -   platform: tvos
+        scheme: JSON 
+    -   platform: watchos
+        scheme: JSON 
