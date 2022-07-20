@@ -1,9 +1,0 @@
-version: 1
-builder:
-    configs:
-    -   platform: ios
-        scheme: swift-json 
-    -   platform: tvos
-        scheme: swift-json 
-    -   platform: watchos
-        scheme: swift-json 
