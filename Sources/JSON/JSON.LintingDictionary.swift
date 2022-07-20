@@ -1,33 +1,50 @@
 extension JSON 
 {
+    @available(*, unavailable, message: "use one of lint(discarding:_:) or lint(whitelisting:_:)")
+    public 
+    func lint<S, T>(_:S, _:(inout LintingDictionary) throws -> T) throws -> T
+        where S:Sequence, S.Element == String
+    {
+        preconditionFailure()
+    }
+
     @inlinable public 
     func lint<T>(_ body:(inout LintingDictionary) throws -> T) throws -> T
     {
-        try self.lint([], body)
+        try self.lint(whitelisting: EmptyCollection<String>.init(), body)
     }
     @inlinable public 
-    func lint<S, T>(_ ignored:S, _ body:(inout LintingDictionary) throws -> T) throws -> T
-        where S:Sequence, S.Element == String
+    func lint<Discards, T>(discarding discards:Discards, 
+        _ body:(inout LintingDictionary) throws -> T) throws -> T
+        where Discards:Sequence, Discards.Element == String
     {
-        var dictionary:LintingDictionary 
-        do 
+        try self.lint(whitelisting: EmptyCollection<String>.init()) 
         {
-            // this `do` block is not for error catching, it is for ending 
-            // the lifetime of `items` before passing a copy of it to `body`
-            var items:[String: Self] = try self.as([String: Self].self) { $1 }
-            for key:String in ignored 
+            for key:String in discards 
             {
-                items.removeValue(forKey: key)
+                let _:JSON = try $0.remove(key)
             }
-            dictionary = .init(items)
+            return try body(&$0)
         }
-        let value:T = try body(&dictionary)
+    }
+    @inlinable public 
+    func lint<Whitelist, T>(whitelisting whitelist:Whitelist, 
+        _ body:(inout LintingDictionary) throws -> T) throws -> T
+        where Whitelist:Sequence, Whitelist.Element == String
+    {
+        var dictionary:LintingDictionary = 
+            .init(try self.as([String: Self].self) { $1 })
+        let result:T = try body(&dictionary)
+        for key:String in whitelist
+        {
+            let _:JSON? = dictionary.pop(key)
+        }
         guard dictionary.items.isEmpty 
         else 
         {
             throw LintingError.init(unused: dictionary.items)
         }
-        return value
+        return result
     }
     
     @frozen public 
@@ -42,31 +59,47 @@ extension JSON
             self.items = items
         }
         
+        /// Returns the variant value for the given key if it exists, or [`nil`]() 
+        /// otherwise.
+        /// 
+        /// Use the ``pop(_:_:)`` method to generate a more-detailed error trace
+        /// if decoding fails later.
         @inlinable public mutating 
-        func remove<T>(_ key:String, _ body:(JSON) throws -> T) throws -> T
+        func pop(_ key:String) -> JSON?
         {
-            guard let value:JSON = self.items.removeValue(forKey: key)
+            self.items.removeValue(forKey: key)
+        }
+        /// Returns the variant value for the given key.
+        /// 
+        /// Use the ``remove(_:_:)`` method to generate a more-detailed error trace
+        /// if decoding fails later.
+        /// 
+        /// >   Throws:
+        ///     A ``JSON//PrimitiveError.undefined(key:in:)`` if the key does 
+        ///     not exist.
+        @inlinable public mutating 
+        func remove(_ key:String) throws -> JSON
+        {
+            if let value:JSON = self.pop(key)
+            {
+                return value 
+            }
             else 
             {
                 throw PrimitiveError.undefined(key: key, in: self.items)
             }
-            do 
-            {
-                #if swift(>=5.7)
-                return try body(_move(value))
-                #else 
-                return try body(      value )
-                #endif 
-            }
-            catch let error 
-            {
-                throw RecursiveError.dictionary(underlying: error, in: key)
-            }
         }
+        /// Finds the variant value for the given key if it exists, and passes 
+        /// it to the given closure for further decoding. Returns the result of 
+        /// the closure, or [`nil`]() if the key does not exist.
+        /// 
+        /// >   Throws:
+        ///     A ``JSON//RecursiveError.dictionary(underlying:in:)`` if an error 
+        ///     was thrown from within the given closure.
         @inlinable public mutating 
-        func pop<T>(_ key:String, _ body:(JSON) throws -> T) throws -> T?
+        func pop<T>(_ key:String, _ body:(JSON) throws -> T) rethrows -> T?
         {
-            guard let value:JSON = self.items.removeValue(forKey: key)
+            guard let value:JSON = self.pop(key)
             else 
             {
                 return nil
@@ -84,52 +117,56 @@ extension JSON
                 throw RecursiveError.dictionary(underlying: error, in: key)
             }
         }
+        /// Finds the variant value for the given key and passes 
+        /// it to the given closure for further decoding, returning its result.
+        /// 
+        /// >   Throws:
+        ///     A ``JSON//PrimitiveError.undefined(key:in:)`` if the key does 
+        ///     not exist, or a ``JSON//RecursiveError.dictionary(underlying:in:)`` 
+        ///     if an error was thrown from within the given closure.
+        @inlinable public mutating 
+        func remove<T>(_ key:String, _ body:(JSON) throws -> T) throws -> T
+        {
+            // we cannot *quite* shove this into the `do` block, because we 
+            // do not want to throw a ``RecursiveError`` just because the key 
+            // was not found.
+            let value:JSON = try self.remove(key)
+            do 
+            {
+                #if swift(>=5.7)
+                return try body(_move(value))
+                #else 
+                return try body(      value )
+                #endif 
+            }
+            catch let error 
+            {
+                throw RecursiveError.dictionary(underlying: error, in: key)
+            }
+        }
         
         // arrays 
         @inlinable public mutating 
-        func remove<T>(_ key:String, as _:[JSON].Type = [JSON].self, _ body:([JSON]) throws -> T) throws -> T
+        func pop(_ key:String, as _:[JSON].Type = [JSON].self) throws -> [JSON]?
         {
-            try self.remove(key)
-            {
-                let array:[JSON] = try $0.as([JSON].self)
-                do 
-                {
-                    #if swift(>=5.7)
-                    return try body(_move(array))
-                    #else 
-                    return try body(      array )
-                    #endif 
-                }
-                catch let error 
-                {
-                    throw RecursiveError.array(underlying: error)
-                }
-            }
+            try self.pop(key, as: [JSON].self) { $0 }
         }
         @inlinable public mutating 
-        func remove<T>(_ key:String, as _:[JSON]?.Type = [JSON]?.self, _ body:([JSON]) throws -> T) throws -> T?
+        func pop(_ key:String, as _:[JSON]?.Type = [JSON]?.self) throws -> [JSON]?
         {
-            try self.remove(key)
-            {
-                guard let array:[JSON] = try $0.as([JSON]?.self)
-                else 
-                {
-                    return nil
-                }
-                do 
-                {
-                    #if swift(>=5.7)
-                    return try body(_move(array))
-                    #else 
-                    return try body(      array )
-                    #endif 
-                }
-                catch let error 
-                {
-                    throw RecursiveError.array(underlying: error)
-                }
-            }
+            try self.pop(key, as: [JSON]?.self) { $0 }
         }
+        @inlinable public mutating 
+        func remove(_ key:String, as _:[JSON].Type = [JSON].self) throws -> [JSON]
+        {
+            try self.remove(key, as: [JSON].self) { $0 }
+        }
+        @inlinable public mutating 
+        func remove(_ key:String, as _:[JSON]?.Type = [JSON]?.self) throws -> [JSON]?
+        {
+            try self.remove(key, as: [JSON]?.self) { $0 }
+        }
+
         @inlinable public mutating 
         func pop<T>(_ key:String, as _:[JSON].Type, _ body:([JSON]) throws -> T) throws -> T?
         {
@@ -173,6 +210,50 @@ extension JSON
                     throw RecursiveError.array(underlying: error)
                 }
             } ?? nil
+        }
+        @inlinable public mutating 
+        func remove<T>(_ key:String, as _:[JSON].Type = [JSON].self, _ body:([JSON]) throws -> T) throws -> T
+        {
+            try self.remove(key)
+            {
+                let array:[JSON] = try $0.as([JSON].self)
+                do 
+                {
+                    #if swift(>=5.7)
+                    return try body(_move(array))
+                    #else 
+                    return try body(      array )
+                    #endif 
+                }
+                catch let error 
+                {
+                    throw RecursiveError.array(underlying: error)
+                }
+            }
+        }
+        @inlinable public mutating 
+        func remove<T>(_ key:String, as _:[JSON]?.Type = [JSON]?.self, _ body:([JSON]) throws -> T) throws -> T?
+        {
+            try self.remove(key)
+            {
+                guard let array:[JSON] = try $0.as([JSON]?.self)
+                else 
+                {
+                    return nil
+                }
+                do 
+                {
+                    #if swift(>=5.7)
+                    return try body(_move(array))
+                    #else 
+                    return try body(      array )
+                    #endif 
+                }
+                catch let error 
+                {
+                    throw RecursiveError.array(underlying: error)
+                }
+            }
         }
         
         // null
