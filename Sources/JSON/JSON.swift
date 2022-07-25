@@ -12,6 +12,8 @@ extension JSON:Sendable {}
 @frozen public
 enum JSON
 {
+    // TODO: optimize this, it should operate at the utf8 level, and be @inlinable 
+
     /// Escapes and formats a string as a JSON string literal, including the 
     /// beginning and ending quote characters.
     /// -   Parameters:
@@ -86,6 +88,17 @@ enum JSON
     ///     Object keys can contain arbitrary unicode text. Don’t assume the 
     ///     keys are ASCII.
     case object([(key:String, value:Self)])
+
+    @inlinable public static 
+    func number<T>(_ signed:T) -> Self where T:SignedInteger 
+    {
+        .number(.init(signed))
+    }
+    @inlinable public static 
+    func number<T>(_ unsigned:T) -> Self where T:UnsignedInteger 
+    {
+        .number(.init(unsigned))
+    }
 }
 
 extension JSON:CustomStringConvertible 
@@ -114,5 +127,37 @@ extension JSON:CustomStringConvertible
         case .object(let items):
             return "{\(items.map{ "\(Self.escape($0.key)):\($0.value)" }.joined(separator: ","))}"
         }
+    }
+}
+extension JSON:ExpressibleByDictionaryLiteral 
+{
+    @inlinable public 
+    init(dictionaryLiteral:(String, Self)...) 
+    {
+        self = .object(dictionaryLiteral)
+    }
+}
+extension JSON:ExpressibleByArrayLiteral 
+{
+    @inlinable public 
+    init(arrayLiteral:Self...) 
+    {
+        self = .array(arrayLiteral)
+    }
+}
+extension JSON:ExpressibleByStringLiteral 
+{
+    @inlinable public 
+    init(stringLiteral:String) 
+    {
+        self = .string(stringLiteral)
+    }
+}
+extension JSON:ExpressibleByBooleanLiteral
+{
+    @inlinable public 
+    init(booleanLiteral:Bool) 
+    {
+        self = .bool(booleanLiteral)
     }
 }
