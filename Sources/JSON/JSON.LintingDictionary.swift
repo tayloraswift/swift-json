@@ -90,12 +90,18 @@ extension JSON
             }
         }
         /// Finds the variant value for the given key if it exists, and passes 
-        /// it to the given closure for further decoding. Returns the result of 
-        /// the closure, or [`nil`]() if the key does not exist.
+        /// it to the given closure for further decoding. Records the key being decoded if the 
+        /// closure throws an error, and propogates it up the call chain.
+        /// 
+        /// -   Returns: The result of the closure, if the key exists and the closure succeeds,
+        ///     [`nil`]() if the key does not exist.
         /// 
         /// >   Throws:
         ///     A ``JSON//RecursiveError.dictionary(underlying:in:)`` if an error 
-        ///     was thrown from within the given closure.
+        ///     was thrown from within the closure.
+        /// 
+        /// >   Note: 
+        ///     A key exists even if its associated value is an explicit ``JSON/.null``.
         @inlinable public mutating 
         func pop<T>(_ key:String, _ body:(JSON) throws -> T) rethrows -> T?
         {
@@ -118,12 +124,18 @@ extension JSON
             }
         }
         /// Finds the variant value for the given key and passes 
-        /// it to the given closure for further decoding, returning its result.
+        /// it to the given closure for further decoding. Records the key being decoded if the 
+        /// closure throws an error, and propogates it up the call chain.
+        /// 
+        /// -   Returns: The result of the closure, if the key exists and the closure succeeds.
         /// 
         /// >   Throws:
         ///     A ``JSON//PrimitiveError.undefined(key:in:)`` if the key does 
         ///     not exist, or a ``JSON//RecursiveError.dictionary(underlying:in:)`` 
         ///     if an error was thrown from within the given closure.
+        /// 
+        /// >   Note: 
+        ///     A key exists even if its associated value is an explicit ``JSON/.null``.
         @inlinable public mutating 
         func remove<T>(_ key:String, _ body:(JSON) throws -> T) throws -> T
         {
@@ -166,25 +178,35 @@ extension JSON
         {
             try self.remove(key, as: [JSON]?.self) { $0 }
         }
-
+        /// Finds the variant value for the given key if it exists, attempts to unwrap it 
+        /// as a variant array, and passes the array to the given closure for further decoding. 
+        /// Records the key being decoded if the closure throws an error, and propogates it up the 
+        /// call chain.
+        /// 
+        /// -   Returns: The result of the closure, if the key exists and the closure succeeds.
+        /// 
+        /// Calling this method is equivalent to the following:
+        /* 
+        ```swift 
+        try self.pop(key)
+        {
+            try body(try $0.as([JSON].self))
+        }
+        ```
+        */
+        /// 
+        /// >   Throws:
+        ///     A ``JSON//RecursiveError.dictionary(underlying:in:)`` if an error 
+        ///     was thrown from within the given closure.
+        /// 
+        /// >   Note: 
+        ///     A key exists even if its associated value is an explicit ``JSON/.null``.
         @inlinable public mutating 
         func pop<T>(_ key:String, as _:[JSON].Type, _ body:([JSON]) throws -> T) throws -> T?
         {
             try self.pop(key)
             {
-                let array:[JSON] = try $0.as([JSON].self)
-                do 
-                {
-                    #if swift(>=5.7)
-                    return try body(_move(array))
-                    #else 
-                    return try body(      array )
-                    #endif 
-                }
-                catch let error 
-                {
-                    throw RecursiveError.array(underlying: error)
-                }
+                try body(try $0.as([JSON].self))
             }
         }
         @inlinable public mutating 
@@ -192,43 +214,38 @@ extension JSON
         {
             try self.pop(key)
             {
-                guard let array:[JSON] = try $0.as([JSON]?.self)
-                else 
-                {
-                    return nil
-                }
-                do 
-                {
-                    #if swift(>=5.7)
-                    return try body(_move(array))
-                    #else 
-                    return try body(      array )
-                    #endif 
-                }
-                catch let error 
-                {
-                    throw RecursiveError.array(underlying: error)
-                }
+                try $0.as([JSON]?.self).map(body)
             } ?? nil
         }
+        /// Finds the variant value for the given key, attempts to unwrap it 
+        /// as a variant array, and passes the array to the given closure for further decoding. 
+        /// Records the key being decoded if the closure throws an error, and propogates it up the 
+        /// call chain.
+        /// 
+        /// -   Returns: The result of the closure, if the key exists and the closure succeeds.
+        /// 
+        /// Calling this method is equivalent to the following:
+        /* 
+        ```swift 
+        try self.remove(key)
+        {
+            try body(try $0.as([JSON].self))
+        }
+        ```
+        */
+        /// 
+        /// >   Throws:
+        ///     A ``JSON//RecursiveError.dictionary(underlying:in:)`` if an error 
+        ///     was thrown from within the given closure.
+        /// 
+        /// >   Note: 
+        ///     A key exists even if its associated value is an explicit ``JSON/.null``.
         @inlinable public mutating 
         func remove<T>(_ key:String, as _:[JSON].Type = [JSON].self, _ body:([JSON]) throws -> T) throws -> T
         {
             try self.remove(key)
             {
-                let array:[JSON] = try $0.as([JSON].self)
-                do 
-                {
-                    #if swift(>=5.7)
-                    return try body(_move(array))
-                    #else 
-                    return try body(      array )
-                    #endif 
-                }
-                catch let error 
-                {
-                    throw RecursiveError.array(underlying: error)
-                }
+                try body(try $0.as([JSON].self))
             }
         }
         @inlinable public mutating 
@@ -236,23 +253,7 @@ extension JSON
         {
             try self.remove(key)
             {
-                guard let array:[JSON] = try $0.as([JSON]?.self)
-                else 
-                {
-                    return nil
-                }
-                do 
-                {
-                    #if swift(>=5.7)
-                    return try body(_move(array))
-                    #else 
-                    return try body(      array )
-                    #endif 
-                }
-                catch let error 
-                {
-                    throw RecursiveError.array(underlying: error)
-                }
+                try $0.as([JSON]?.self).map(body)
             }
         }
         
