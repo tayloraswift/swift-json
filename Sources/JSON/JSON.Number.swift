@@ -45,11 +45,22 @@ extension JSON
         ///     - units: The magnitude, in units of `places`.
         ///     - places: The number of decimal places.
         @inlinable public
-        init(sign:FloatingPointSign, units:UInt64, places:UInt32)
+        init(sign:FloatingPointSign, units:UInt64, places:UInt32 = 0)
         {
             self.sign       = sign 
             self.units      = units 
             self._places    = places
+        }
+
+        @inlinable public 
+        init<T>(_ signed:T) where T:SignedInteger 
+        {
+            self.init(sign: signed < 0 ? .minus : .plus, units: UInt64.init(signed.magnitude))
+        }
+        @inlinable public 
+        init<T>(_ unsigned:T) where T:UnsignedInteger 
+        {
+            self.init(sign: .plus, units: UInt64.init(unsigned))
         }
         /// Returns a zero-padded string representation of this numeric literal. 
         /// 

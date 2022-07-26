@@ -27,7 +27,7 @@ extension JSON
             self.value = value
         }
     }
-    enum Key:String, CodingKey 
+    enum ObjectKey:String, CodingKey 
     {
         case `super` = "super"
     }
@@ -369,7 +369,7 @@ extension JSON.Dictionary:KeyedDecodingContainerProtocol
     func superDecoder() 
         throws -> Swift.Decoder
     {
-        try self.singleValueContainer(forKey: JSON.Key.super, typed: JSON.Key.self)
+        try self.singleValueContainer(forKey: JSON.ObjectKey.super, typed: JSON.ObjectKey.self)
     }
     public 
     func superDecoder(forKey key:Key) 
