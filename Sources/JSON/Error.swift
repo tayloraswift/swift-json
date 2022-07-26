@@ -100,6 +100,7 @@ extension JSON
             "primitive decoding error"
         }
         
+        case shaping(aggregate:[JSON], count:Int? = nil)
         case matching(variant:JSON, as:Any.Type)
         case undefined(key:String, in:[String: JSON])
         
@@ -108,8 +109,12 @@ extension JSON
         {
             switch self 
             {
+            case .shaping(aggregate: let aggregate, count: let count?):
+                return "could not unwrap aggregate from variant array '\(aggregate)' (expected \(count) elements)"
+            case .shaping(aggregate: let aggregate, count: nil):
+                return "could not unwrap aggregate from variant array '\(aggregate)'"
             case .matching(variant: let json, as: let type):
-                return "expected type '\(type)' does not match json value '\(json)'"
+                return "could not unwrap type '\(type)' from variant '\(json)'"
             case .undefined(key: let key, in: let items):
                 return "undefined key '\(key)'; valid items are: \(items)"
             }
@@ -124,16 +129,23 @@ extension JSON
             "nested decoding error"
         }
         
-        case array(underlying:Error)
+        case array(underlying:Error, at:Int)
         case dictionary(underlying:Error, in:String)
-        
+
+        @available(*, deprecated, message: "Specify an explicit index with ``array(underlying:at:)``.")
+        public static 
+        func array(underlying:Error) -> Self 
+        {
+            .array(underlying: underlying, at: 0)
+        }
+
         public 
         var context:[String] 
         {
             switch self 
             {
-            case .array(underlying: _): 
-                return ["while decoding array element at index (unknown)"]
+            case .array(underlying: _, at: let index): 
+                return ["while decoding array element at index \(index)"]
             case .dictionary(underlying: _, in: let key): 
                 return ["while decoding dictionary value for key '\(key)'"]
             }
@@ -143,7 +155,7 @@ extension JSON
         {
             switch self 
             {
-            case    .array     (underlying: let error), 
+            case    .array     (underlying: let error, at: _), 
                     .dictionary(underlying: let error, in: _): 
                 return error
             }
