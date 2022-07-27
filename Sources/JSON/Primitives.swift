@@ -135,8 +135,8 @@ extension JSON
     ///     [`5`]() to an integer, but not [`5.0`](). This matches the behavior 
     ///     of ``ExpressibleByIntegerLiteral``.
     @inlinable public 
-    func `as`<T>(_:T.Type) throws -> T? 
-        where T:FixedWidthInteger & SignedInteger
+    func `as`<Integer>(_:Integer.Type) throws -> Integer? 
+        where Integer:FixedWidthInteger & SignedInteger
     {
         // do not use init(exactly:) with decimal value directly, as this 
         // will also accept values like 1.0, which we want to reject
@@ -145,10 +145,10 @@ extension JSON
         {
             return nil
         }
-        guard let integer:T = number.as(T.self)
+        guard let integer:Integer = number.as(Integer.self)
         else 
         {
-            throw IntegerOverflowError.init(number: number, overflows: T.self)
+            throw IntegerOverflowError.init(number: number, overflows: Integer.self)
         }
         return integer 
     }
@@ -167,18 +167,18 @@ extension JSON
     ///     [`5`]() to an integer, but not [`5.0`](). This matches the behavior 
     ///     of ``ExpressibleByIntegerLiteral``.
     @inlinable public 
-    func `as`<T>(_:T.Type) throws -> T?
-        where T:FixedWidthInteger & UnsignedInteger
+    func `as`<Integer>(_:Integer.Type) throws -> Integer?
+        where Integer:FixedWidthInteger & UnsignedInteger
     {
         guard case .number(let number) = self 
         else 
         {
             return nil
         }
-        guard let integer:T = number.as(T.self)
+        guard let integer:Integer = number.as(Integer.self)
         else 
         {
-            throw IntegerOverflowError.init(number: number, overflows: T.self)
+            throw IntegerOverflowError.init(number: number, overflows: Integer.self)
         }
         return integer 
     }
@@ -190,12 +190,12 @@ extension JSON
     /// Calling this method is equivalent to matching the ``number(_:)`` enumeration 
     /// case, and calling ``Number.as(_:)`` on its payload.
     @inlinable public 
-    func `as`<T>(_:T.Type) -> T?
-        where T:BinaryFloatingPoint
+    func `as`<Binary>(_:Binary.Type) -> Binary?
+        where Binary:BinaryFloatingPoint
     {
         switch self 
         {
-        case .number(let number):   return number.as(T.self)
+        case .number(let number):   return number.as(Binary.self)
         default:                    return nil 
         }
     }
@@ -319,7 +319,7 @@ extension JSON
 {    
     @inline(__always)
     @inlinable public 
-    func apply<T>(pattern:(Self) -> (T.Type) throws -> T?) throws -> T
+    func unwrap<T>(pattern:(Self) -> (T.Type) throws -> T?) throws -> T
     {
         if let value:T = try pattern(self)(T.self)
         {
@@ -333,46 +333,74 @@ extension JSON
     @inlinable public 
     func `as`(_:Void.Type) throws 
     {
-        try self.apply(pattern: Self.as(_:)) as Void
+        try self.unwrap(pattern: Self.as(_:)) as Void
     }
     @inlinable public 
     func `as`(_:Bool.Type) throws -> Bool
     {
-        try self.apply(pattern: Self.as(_:))
+        try self.unwrap(pattern: Self.as(_:))
     }
     @inlinable public 
-    func `as`<T>(_:T.Type) throws -> T
-        where T:FixedWidthInteger & SignedInteger
+    func `as`<Integer>(_:Integer.Type) throws -> Integer
+        where Integer:FixedWidthInteger & SignedInteger
     {
-        try self.apply(pattern: Self.as(_:))
+        try self.unwrap(pattern: Self.as(_:))
     }
     @inlinable public 
-    func `as`<T>(_:T.Type) throws -> T
-        where T:FixedWidthInteger & UnsignedInteger
+    func `as`<Integer>(_:Integer.Type) throws -> Integer
+        where Integer:FixedWidthInteger & UnsignedInteger
     {
-        try self.apply(pattern: Self.as(_:))
+        try self.unwrap(pattern: Self.as(_:))
     }
     @inlinable public 
-    func `as`<T>(_:T.Type) throws -> T
-        where T:BinaryFloatingPoint
+    func `as`<Binary>(_:Binary.Type) throws -> Binary
+        where Binary:BinaryFloatingPoint
     {
-        try self.apply(pattern: Self.as(_:))
+        try self.unwrap(pattern: Self.as(_:))
     }
+
     @inlinable public 
     func `as`(_:String.Type) throws -> String
     {
-        try self.apply(pattern: Self.as(_:))
+        try self.unwrap(pattern: Self.as(_:))
     }
     @inlinable public 
     func `as`(_:[Self].Type) throws -> [Self]
     {
-        try self.apply(pattern: Self.as(_:))
+        try self.unwrap(pattern: Self.as(_:))
     }
+    @inlinable public 
+    func `as`(_:[Self].Type, count:Int) throws -> [Self]
+    {
+        let aggregate:[Self] = try self.unwrap(pattern: Self.as(_:))
+        if  aggregate.count == count 
+        {
+            return aggregate
+        }
+        else 
+        {
+            throw PrimitiveError.shaping(aggregate: aggregate, count: count)
+        }
+    }
+    @inlinable public 
+    func `as`(_:[Self].Type, where predicate:(_ count:Int) throws -> Bool) throws -> [Self]
+    {
+        let aggregate:[Self] = try self.unwrap(pattern: Self.as(_:))
+        if try predicate(aggregate.count)
+        {
+            return aggregate
+        }
+        else 
+        {
+            throw PrimitiveError.shaping(aggregate: aggregate)
+        }
+    }
+    
 
     @inlinable public 
     func `as`(_:[(key:String, value:Self)].Type) throws -> [(key:String, value:Self)]
     {
-        try self.apply(pattern: Self.as(_:))
+        try self.unwrap(pattern: Self.as(_:))
     }
     @inlinable public 
     func `as`(_:[String: Self].Type, 
@@ -408,20 +436,20 @@ extension JSON
         try self.apply(pattern: Self.as(_:))
     }
     @inlinable public 
-    func `as`<T>(_:T?.Type) throws -> T? 
-        where T:FixedWidthInteger & SignedInteger
+    func `as`<Integer>(_:Integer?.Type) throws -> Integer? 
+        where Integer:FixedWidthInteger & SignedInteger
     {
         try self.apply(pattern: Self.as(_:))
     }
     @inlinable public 
-    func `as`<T>(_:T?.Type) throws -> T?
-        where T:FixedWidthInteger & UnsignedInteger
+    func `as`<Integer>(_:Integer?.Type) throws -> Integer?
+        where Integer:FixedWidthInteger & UnsignedInteger
     {
         try self.apply(pattern: Self.as(_:))
     }
     @inlinable public 
-    func `as`<T>(_:T?.Type) throws -> T?
-        where T:BinaryFloatingPoint
+    func `as`<Binary>(_:Binary?.Type) throws -> Binary?
+        where Binary:BinaryFloatingPoint
     {
         try self.apply(pattern: Self.as(_:))
     }
@@ -434,6 +462,40 @@ extension JSON
     func `as`(_:[Self]?.Type) throws -> [Self]?
     {
         try self.apply(pattern: Self.as(_:))
+    }
+    @inlinable public 
+    func `as`(_:[Self]?.Type, count:Int) throws -> [Self]?
+    {
+        guard let aggregate:[Self] = try self.apply(pattern: Self.as(_:))
+        else 
+        {
+            return nil
+        }
+        if  aggregate.count == count 
+        {
+            return aggregate
+        }
+        else 
+        {
+            throw PrimitiveError.shaping(aggregate: aggregate, count: count)
+        }
+    }
+    @inlinable public 
+    func `as`(_:[Self]?.Type, where predicate:(_ count:Int) throws -> Bool) throws -> [Self]?
+    {
+        guard let aggregate:[Self] = try self.apply(pattern: Self.as(_:))
+        else 
+        {
+            return nil
+        }
+        if try predicate(aggregate.count)
+        {
+            return aggregate
+        }
+        else 
+        {
+            throw PrimitiveError.shaping(aggregate: aggregate)
+        }
     }
 
     @inlinable public 

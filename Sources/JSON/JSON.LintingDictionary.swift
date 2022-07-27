@@ -204,21 +204,36 @@ extension JSON
         @inlinable public mutating 
         func pop<T>(_ key:String, as _:[JSON].Type, _ body:([JSON]) throws -> T) throws -> T?
         {
-            try self.pop(key)
-            {
-                try body(try $0.as([JSON].self))
-            }
+            try self.pop(key) { try body(try $0.as([JSON].self)) }
         }
+        /// Finds the variant value for the given key, attempts to unwrap it as either a variant 
+        /// array or an explicit ``JSON/.null`` value, and passes the array to the given closure for 
+        /// further decoding if it is not ``JSON/.null``. Records the key being decoded if the 
+        /// closure throws an error, and propogates it up the call chain.
+        /// 
+        /// -   Returns: The result of the closure, if the key exists and the closure succeeds, 
+        ///     or [`nil`]() if the key exists but its value is an explicit ``JSON/.null``.
+        /// 
+        /// Calling this method is equivalent to the following:
+        /* 
+        ```swift 
+        try self.pop(key)
+        {
+            try $0.as([JSON]?.self).map(body)
+        } ?? nil
+        ```
+        */
+        /// 
+        /// >   Throws:
+        ///     A ``JSON//RecursiveError.dictionary(underlying:in:)`` if an error 
+        ///     was thrown from within the given closure.
         @inlinable public mutating 
         func pop<T>(_ key:String, as _:[JSON]?.Type, _ body:([JSON]) throws -> T) throws -> T?
         {
-            try self.pop(key)
-            {
-                try $0.as([JSON]?.self).map(body)
-            } ?? nil
+            try self.pop(key) { try $0.as([JSON]?.self).map(body) } ?? nil
         }
-        /// Finds the variant value for the given key, attempts to unwrap it 
-        /// as a variant array, and passes the array to the given closure for further decoding. 
+        /// Finds the variant value for the given key, attempts to unwrap it as a variant array, 
+        /// and passes the array to the given closure for further decoding. 
         /// Records the key being decoded if the closure throws an error, and propogates it up the 
         /// call chain.
         /// 
@@ -241,149 +256,287 @@ extension JSON
         /// >   Note: 
         ///     A key exists even if its associated value is an explicit ``JSON/.null``.
         @inlinable public mutating 
-        func remove<T>(_ key:String, as _:[JSON].Type = [JSON].self, _ body:([JSON]) throws -> T) throws -> T
+        func remove<T>(_ key:String, as _:[JSON].Type, _ body:([JSON]) throws -> T) throws -> T
         {
-            try self.remove(key)
-            {
-                try body(try $0.as([JSON].self))
-            }
+            try self.remove(key) { try body(try $0.as([JSON].self)) }
         }
-        @inlinable public mutating 
-        func remove<T>(_ key:String, as _:[JSON]?.Type = [JSON]?.self, _ body:([JSON]) throws -> T) throws -> T?
+        /// Finds the variant value for the given key, attempts to unwrap it as either a variant 
+        /// array or an explicit ``JSON/.null`` value, and passes the array to the given closure for 
+        /// further decoding if it is not ``JSON/.null``.
+        /// Records the key being decoded if the closure throws an error, and propogates it up the 
+        /// call chain.
+        /// 
+        /// -   Returns: The result of the closure, if the key exists and the closure succeeds, 
+        ///     or [`nil`]() if the key exists but its value is an explicit ``JSON/.null``.
+        /// 
+        /// Calling this method is equivalent to the following:
+        /* 
+        ```swift 
+        try self.remove(key)
         {
-            try self.remove(key)
-            {
-                try $0.as([JSON]?.self).map(body)
-            }
+            try $0.as([JSON]?.self).map(body)
+        }
+        ```
+        */
+        /// 
+        /// >   Throws:
+        ///     A ``JSON//RecursiveError.dictionary(underlying:in:)`` if an error 
+        ///     was thrown from within the given closure.
+        @inlinable public mutating 
+        func remove<T>(_ key:String, as _:[JSON]?.Type, _ body:([JSON]) throws -> T) throws -> T?
+        {
+            try self.remove(key) { try $0.as([JSON]?.self).map(body) }
         }
         
         // null
         @inlinable public mutating 
-        func remove(_ key:String, as type:Void.Type) throws 
+        func remove(_ key:String, as _:Void.Type) throws 
         {
             try self.remove(key) { try $0.as(Void.self) }
         }
         @inlinable public mutating 
-        func pop(_ key:String, as type:Void.Type) throws -> Void?
+        func pop(_ key:String, as _:Void.Type) throws -> Void?
         {
             try self.pop(key) { try $0.as(Void.self) }
         }
+
         // booleans
         @inlinable public mutating 
-        func remove(_ key:String, as type:Bool.Type = Bool.self) throws -> Bool
+        func remove(_ key:String, as _:Bool.Type = Bool.self) throws -> Bool
         {
-            try self.remove(key) { try $0.as(type) }
+            try self.remove(key) { try $0.as(Bool.self) }
         }
         @inlinable public mutating 
-        func remove(_ key:String, as type:Bool?.Type = Bool?.self) throws -> Bool?
+        func remove(_ key:String, as _:Bool?.Type = Bool?.self) throws -> Bool?
         {
-            try self.remove(key) { try $0.as(type) }
+            try self.remove(key) { try $0.as(Bool?.self) }
         }
         @inlinable public mutating 
-        func pop(_ key:String, as type:Bool.Type) throws -> Bool?
+        func remove<T>(_ key:String, as _:Bool.Type, _ body:(Bool) throws -> T) throws -> T
         {
-            try self.pop(key) { try $0.as(type) }
+            try self.remove(key) { try body(try $0.as(Bool.self)) }
         }
         @inlinable public mutating 
-        func pop(_ key:String, as type:Bool?.Type) throws -> Bool?
+        func remove<T>(_ key:String, as _:Bool?.Type, _ body:(Bool) throws -> T) throws -> T?
         {
-            try self.pop(key) { try $0.as(type) } ?? nil
+            try self.remove(key) { try $0.as(Bool?.self).map(body) }
         }
-        // signed integers 
+
         @inlinable public mutating 
-        func remove<T>(_ key:String, as type:T.Type = T.self) throws -> T
-            where T:FixedWidthInteger & SignedInteger
+        func pop(_ key:String, as _:Bool.Type = Bool.self) throws -> Bool?
         {
-            try self.remove(key) { try $0.as(type) }
-        }
-        @inlinable public mutating 
-        func remove<T>(_ key:String, as type:T?.Type = T?.self) throws -> T?
-            where T:FixedWidthInteger & SignedInteger
-        {
-            try self.remove(key) { try $0.as(type) }
+            try self.pop(key) { try $0.as(Bool.self) }
         }
         @inlinable public mutating 
-        func pop<T>(_ key:String, as type:T.Type) throws -> T?
-            where T:FixedWidthInteger & SignedInteger
+        func pop(_ key:String, as _:Bool?.Type = Bool?.self) throws -> Bool?
         {
-            try self.pop(key) { try $0.as(type) }
+            try self.pop(key) { try $0.as(Bool?.self) } ?? nil
         }
         @inlinable public mutating 
-        func pop<T>(_ key:String, as type:T?.Type) throws -> T?
-            where T:FixedWidthInteger & SignedInteger
+        func pop<T>(_ key:String, as _:Bool.Type, _ body:(Bool) throws -> T) throws -> T?
         {
-            try self.pop(key) { try $0.as(type) } ?? nil
-        }
-        // unsigned integers 
-        @inlinable public mutating 
-        func remove<T>(_ key:String, as type:T.Type = T.self) throws -> T
-            where T:FixedWidthInteger & UnsignedInteger
-        {
-            try self.remove(key) { try $0.as(type) }
+            try self.pop(key) { try body(try $0.as(Bool.self)) }
         }
         @inlinable public mutating 
-        func remove<T>(_ key:String, as type:T?.Type = T?.self) throws -> T?
-            where T:FixedWidthInteger & UnsignedInteger
+        func pop<T>(_ key:String, as _:Bool?.Type, _ body:(Bool) throws -> T) throws -> T?
         {
-            try self.remove(key) { try $0.as(type) }
+            try self.pop(key) { try $0.as(Bool?.self).map(body) } ?? nil
         }
-        @inlinable public mutating 
-        func pop<T>(_ key:String, as type:T.Type) throws -> T?
-            where T:FixedWidthInteger & UnsignedInteger
-        {
-            try self.pop(key) { try $0.as(type) }
-        }
-        @inlinable public mutating 
-        func pop<T>(_ key:String, as type:T?.Type) throws -> T?
-            where T:FixedWidthInteger & UnsignedInteger
-        {
-            try self.pop(key) { try $0.as(type) } ?? nil
-        }
-        // floating point 
-        @inlinable public mutating 
-        func remove<T>(_ key:String, as type:T.Type = T.self) throws -> T
-            where T:BinaryFloatingPoint
-        {
-            try self.remove(key) { try $0.as(type) }
-        }
-        @inlinable public mutating 
-        func remove<T>(_ key:String, as type:T?.Type = T?.self) throws -> T?
-            where T:BinaryFloatingPoint
-        {
-            try self.remove(key) { try $0.as(type) }
-        }
-        @inlinable public mutating 
-        func pop<T>(_ key:String, as type:T.Type) throws -> T?
-            where T:BinaryFloatingPoint
-        {
-            try self.pop(key) { try $0.as(type) }
-        }
-        @inlinable public mutating 
-        func pop<T>(_ key:String, as type:T?.Type) throws -> T?
-            where T:BinaryFloatingPoint
-        {
-            try self.pop(key) { try $0.as(type) } ?? nil
-        }
+
         // strings
         @inlinable public mutating 
-        func remove(_ key:String, as type:String.Type = String.self) throws -> String
+        func remove(_ key:String, as _:String.Type = String.self) throws -> String
         {
-            try self.remove(key) { try $0.as(type) }
+            try self.remove(key) { try $0.as(String.self) }
         }
         @inlinable public mutating 
-        func remove(_ key:String, as type:String?.Type = String?.self) throws -> String?
+        func remove(_ key:String, as _:String?.Type = String?.self) throws -> String?
         {
-            try self.remove(key) { try $0.as(type) }
+            try self.remove(key) { try $0.as(String?.self) }
         }
         @inlinable public mutating 
-        func pop(_ key:String, as type:String.Type) throws -> String?
+        func remove<T>(_ key:String, as _:String.Type, _ body:(String) throws -> T) throws -> T
         {
-            try self.pop(key) { try $0.as(type) }
+            try self.remove(key) { try body(try $0.as(String.self)) }
         }
         @inlinable public mutating 
-        func pop(_ key:String, as type:String?.Type) throws -> String?
+        func remove<T>(_ key:String, as _:String?.Type, _ body:(String) throws -> T) throws -> T?
         {
-            try self.pop(key) { try $0.as(type) } ?? nil
+            try self.remove(key) { try $0.as(String?.self).map(body) }
+        }
+
+        @inlinable public mutating 
+        func pop(_ key:String, as _:String.Type = String.self) throws -> String?
+        {
+            try self.pop(key) { try $0.as(String.self) }
+        }
+        @inlinable public mutating 
+        func pop(_ key:String, as _:String?.Type = String?.self) throws -> String?
+        {
+            try self.pop(key) { try $0.as(String?.self) } ?? nil
+        }
+        @inlinable public mutating 
+        func pop<T>(_ key:String, as _:String.Type, _ body:(String) throws -> T) throws -> T?
+        {
+            try self.pop(key) { try body(try $0.as(String.self)) }
+        }
+        @inlinable public mutating 
+        func pop<T>(_ key:String, as _:String?.Type, _ body:(String) throws -> T) throws -> T?
+        {
+            try self.pop(key) { try $0.as(String?.self).map(body) } ?? nil
+        }
+
+        // signed integers 
+        @inlinable public mutating 
+        func remove<Integer>(_ key:String, as _:Integer.Type = Integer.self) throws -> Integer
+            where Integer:FixedWidthInteger & SignedInteger
+        {
+            try self.remove(key) { try $0.as(Integer.self) }
+        }
+        @inlinable public mutating 
+        func remove<Integer>(_ key:String, as _:Integer?.Type = Integer?.self) throws -> Integer?
+            where Integer:FixedWidthInteger & SignedInteger
+        {
+            try self.remove(key) { try $0.as(Integer?.self) }
+        }
+        @inlinable public mutating 
+        func remove<Integer, T>(_ key:String, as _:Integer.Type, _ body:(Integer) throws -> T) throws -> T
+            where Integer:FixedWidthInteger & SignedInteger
+        {
+            try self.remove(key) { try body(try $0.as(Integer.self)) }
+        }
+        @inlinable public mutating 
+        func remove<Integer, T>(_ key:String, as _:Integer?.Type, _ body:(Integer) throws -> T) throws -> T?
+            where Integer:FixedWidthInteger & SignedInteger
+        {
+            try self.remove(key) { try $0.as(Integer?.self).map(body) }
+        }
+
+        @inlinable public mutating 
+        func pop<Integer>(_ key:String, as type:Integer.Type = Integer.self) throws -> Integer?
+            where Integer:FixedWidthInteger & SignedInteger
+        {
+            try self.pop(key) { try $0.as(Integer.self) }
+        }
+        @inlinable public mutating 
+        func pop<Integer>(_ key:String, as type:Integer?.Type = Integer?.self) throws -> Integer?
+            where Integer:FixedWidthInteger & SignedInteger
+        {
+            try self.pop(key) { try $0.as(Integer?.self) } ?? nil
+        }
+        @inlinable public mutating 
+        func pop<Integer, T>(_ key:String, as type:Integer.Type, _ body:(Integer) throws -> T) throws -> T?
+            where Integer:FixedWidthInteger & SignedInteger
+        {
+            try self.pop(key) { try body(try $0.as(Integer.self)) }
+        }
+        @inlinable public mutating 
+        func pop<Integer, T>(_ key:String, as type:Integer?.Type, _ body:(Integer) throws -> T) throws -> T?
+            where Integer:FixedWidthInteger & SignedInteger
+        {
+            try self.pop(key) { try $0.as(Integer?.self).map(body) } ?? nil
+        }
+
+        // unsigned integers 
+        @inlinable public mutating 
+        func remove<Integer>(_ key:String, as _:Integer.Type = Integer.self) throws -> Integer
+            where Integer:FixedWidthInteger & UnsignedInteger
+        {
+            try self.remove(key) { try $0.as(Integer.self) }
+        }
+        @inlinable public mutating 
+        func remove<Integer>(_ key:String, as _:Integer?.Type = Integer?.self) throws -> Integer?
+            where Integer:FixedWidthInteger & UnsignedInteger
+        {
+            try self.remove(key) { try $0.as(Integer?.self) }
+        }
+        @inlinable public mutating 
+        func remove<Integer, T>(_ key:String, as _:Integer.Type, _ body:(Integer) throws -> T) throws -> T
+            where Integer:FixedWidthInteger & UnsignedInteger
+        {
+            try self.remove(key) { try body(try $0.as(Integer.self)) }
+        }
+        @inlinable public mutating 
+        func remove<Integer, T>(_ key:String, as _:Integer?.Type, _ body:(Integer) throws -> T) throws -> T?
+            where Integer:FixedWidthInteger & UnsignedInteger
+        {
+            try self.remove(key) { try $0.as(Integer?.self).map(body) }
+        }
+
+        @inlinable public mutating 
+        func pop<Integer>(_ key:String, as _:Integer.Type = Integer.self) throws -> Integer?
+            where Integer:FixedWidthInteger & UnsignedInteger
+        {
+            try self.pop(key) { try $0.as(Integer.self) }
+        }
+        @inlinable public mutating 
+        func pop<Integer>(_ key:String, as _:Integer?.Type = Integer?.self) throws -> Integer?
+            where Integer:FixedWidthInteger & UnsignedInteger
+        {
+            try self.pop(key) { try $0.as(Integer?.self) } ?? nil
+        }
+        @inlinable public mutating 
+        func pop<Integer, T>(_ key:String, as _:Integer.Type, _ body:(Integer) throws -> T) throws -> T?
+            where Integer:FixedWidthInteger & UnsignedInteger
+        {
+            try self.pop(key) { try body(try $0.as(Integer.self)) }
+        }
+        @inlinable public mutating 
+        func pop<Integer, T>(_ key:String, as _:Integer?.Type, _ body:(Integer) throws -> T) throws -> T?
+            where Integer:FixedWidthInteger & UnsignedInteger
+        {
+            try self.pop(key) { try $0.as(Integer?.self).map(body) } ?? nil
+        }
+
+        // floating point 
+        @inlinable public mutating 
+        func remove<Binary>(_ key:String, as _:Binary.Type = Binary.self) throws -> Binary
+            where Binary:BinaryFloatingPoint
+        {
+            try self.remove(key) { try $0.as(Binary.self) }
+        }
+        @inlinable public mutating 
+        func remove<Binary>(_ key:String, as _:Binary?.Type = Binary?.self) throws -> Binary?
+            where Binary:BinaryFloatingPoint
+        {
+            try self.remove(key) { try $0.as(Binary?.self) }
+        }
+        @inlinable public mutating 
+        func remove<Binary, T>(_ key:String, as _:Binary.Type, _ body:(Binary) throws -> T) throws -> T
+            where Binary:BinaryFloatingPoint
+        {
+            try self.remove(key) { try body(try $0.as(Binary.self)) }
+        }
+        @inlinable public mutating 
+        func remove<Binary, T>(_ key:String, as _:Binary?.Type, _ body:(Binary) throws -> T) throws -> T?
+            where Binary:BinaryFloatingPoint
+        {
+            try self.remove(key) { try $0.as(Binary?.self).map(body) }
+        }
+
+        @inlinable public mutating 
+        func pop<Binary>(_ key:String, as _:Binary.Type = Binary.self) throws -> Binary?
+            where Binary:BinaryFloatingPoint
+        {
+            try self.pop(key) { try $0.as(Binary.self) }
+        }
+        @inlinable public mutating 
+        func pop<Binary>(_ key:String, as _:Binary?.Type = Binary?.self) throws -> Binary?
+            where Binary:BinaryFloatingPoint
+        {
+            try self.pop(key) { try $0.as(Binary?.self) } ?? nil
+        }
+        @inlinable public mutating 
+        func pop<Binary, T>(_ key:String, as _:Binary.Type, _ body:(Binary) throws -> T) throws -> T?
+            where Binary:BinaryFloatingPoint
+        {
+            try self.pop(key) { try body(try $0.as(Binary.self)) }
+        }
+        @inlinable public mutating 
+        func pop<Binary, T>(_ key:String, as _:Binary?.Type, _ body:(Binary) throws -> T) throws -> T?
+            where Binary:BinaryFloatingPoint
+        {
+            try self.pop(key) { try $0.as(Binary?.self).map(body) } ?? nil
         }
     }
 } 
