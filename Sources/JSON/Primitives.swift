@@ -39,6 +39,22 @@ extension JSON
         }
     }
     @inlinable public
+    func `as`<ScalarCoded>(cases _:ScalarCoded.Type) throws -> ScalarCoded 
+        where ScalarCoded:RawRepresentable, ScalarCoded.RawValue == Unicode.Scalar
+    {
+        let scalars:String.UnicodeScalarView = try self.as(String.self).unicodeScalars
+
+        if  let scalar:Unicode.Scalar = scalars.first, scalars.dropFirst().isEmpty,
+            let value:ScalarCoded = ScalarCoded.init(rawValue: scalar)
+        {
+            return value
+        }
+        else 
+        {
+            throw PrimitiveError.matching(variant: self, as: ScalarCoded.self)
+        }
+    }
+    @inlinable public
     func `as`<IntegerCoded>(cases _:IntegerCoded.Type) throws -> IntegerCoded 
         where   IntegerCoded:RawRepresentable, 
                 IntegerCoded.RawValue:FixedWidthInteger & SignedInteger
