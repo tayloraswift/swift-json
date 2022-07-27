@@ -241,7 +241,7 @@ extension JSON
         /// >   Note: 
         ///     A key exists even if its associated value is an explicit ``JSON/.null``.
         @inlinable public mutating 
-        func remove<T>(_ key:String, as _:[JSON].Type = [JSON].self, _ body:([JSON]) throws -> T) throws -> T
+        func remove<T>(_ key:String, as _:[JSON].Type, _ body:([JSON]) throws -> T) throws -> T
         {
             try self.remove(key)
             {
@@ -249,7 +249,7 @@ extension JSON
             }
         }
         @inlinable public mutating 
-        func remove<T>(_ key:String, as _:[JSON]?.Type = [JSON]?.self, _ body:([JSON]) throws -> T) throws -> T?
+        func remove<T>(_ key:String, as _:[JSON]?.Type, _ body:([JSON]) throws -> T) throws -> T?
         {
             try self.remove(key)
             {
