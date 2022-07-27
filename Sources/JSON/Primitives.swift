@@ -1,17 +1,71 @@
 // primitive decoding hooks (optional, does not include null)
 extension JSON
 {
+    @available(*, deprecated, renamed: "as(cases:)")
     @inlinable public
     func `case`<T>(of _:T.Type) throws -> T 
         where T:RawRepresentable, T.RawValue == String
     {
-        if let value:T = T.init(rawValue: try self.as(String.self))
+        try self.as(cases: T.self)
+    }
+
+    @inlinable public
+    func `as`<StringCoded>(cases _:StringCoded.Type) throws -> StringCoded 
+        where StringCoded:RawRepresentable, StringCoded.RawValue == String
+    {
+        if let value:StringCoded = StringCoded.init(rawValue: try self.as(String.self))
         {
             return value
         }
         else 
         {
-            throw PrimitiveError.matching(variant: self, as: T.self)
+            throw PrimitiveError.matching(variant: self, as: StringCoded.self)
+        }
+    }
+    @inlinable public
+    func `as`<CharacterCoded>(cases _:CharacterCoded.Type) throws -> CharacterCoded 
+        where CharacterCoded:RawRepresentable, CharacterCoded.RawValue == Character
+    {
+        let string:String = try self.as(String.self)
+
+        if  let character:Character = string.first, string.dropFirst().isEmpty,
+            let value:CharacterCoded = CharacterCoded.init(rawValue: character)
+        {
+            return value
+        }
+        else 
+        {
+            throw PrimitiveError.matching(variant: self, as: CharacterCoded.self)
+        }
+    }
+    @inlinable public
+    func `as`<IntegerCoded>(cases _:IntegerCoded.Type) throws -> IntegerCoded 
+        where   IntegerCoded:RawRepresentable, 
+                IntegerCoded.RawValue:FixedWidthInteger & SignedInteger
+    {
+        if  let value:IntegerCoded = IntegerCoded.init(
+                rawValue: try self.as(IntegerCoded.RawValue.self))
+        {
+            return value
+        }
+        else 
+        {
+            throw PrimitiveError.matching(variant: self, as: IntegerCoded.self)
+        }
+    }
+    @inlinable public
+    func `as`<UnsignedIntegerCoded>(cases _:UnsignedIntegerCoded.Type) throws -> UnsignedIntegerCoded 
+        where   UnsignedIntegerCoded:RawRepresentable, 
+                UnsignedIntegerCoded.RawValue:FixedWidthInteger & UnsignedInteger
+    {
+        if  let value:UnsignedIntegerCoded = UnsignedIntegerCoded.init(
+                rawValue: try self.as(UnsignedIntegerCoded.RawValue.self))
+        {
+            return value
+        }
+        else 
+        {
+            throw PrimitiveError.matching(variant: self, as: UnsignedIntegerCoded.self)
         }
     }
 
