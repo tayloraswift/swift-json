@@ -7,26 +7,26 @@ on:
         branches: [ master ]
 
 jobs:
-    benchmark-macos:
-        runs-on: ${{ matrix.os }}
-        strategy:
-            matrix:
-                os: [macos-12]
-        steps:
-            -   uses: actions/checkout@v2
-            -   name: run-benchmarks 
-                run: |
-                    cd Benchmarks
-                    mkdir .data && tar -xf data.tar.xz -C .data
-                    swift --version
-                    swift run -c release benchmark .data/ftx.json
-                    swift run -c release benchmark-aws-ipam .data/aws-ipamd.jsonl
+    # benchmark-macos:
+    #     runs-on: ${{ matrix.os }}
+    #     strategy:
+    #         matrix:
+    #             os: [macos-12]
+    #     steps:
+    #         -   uses: actions/checkout@v2
+    #         -   name: run-benchmarks 
+    #             run: |
+    #                 cd Benchmarks
+    #                 mkdir .data && tar -xf data.tar.xz -C .data
+    #                 swift --version
+    #                 swift run -c release benchmark .data/ftx.json
+    #                 swift run -c release benchmark-aws-ipam .data/aws-ipamd.jsonl
     benchmark-linux:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
                 os: [ubuntu-20.04]
-                swift: [5.6.2]
+                swift: [DEVELOPMENT-SNAPSHOT-2022-07-25-a]
         steps:
             -   uses: actions/checkout@v2
             
@@ -44,7 +44,7 @@ jobs:
             
             -   name: download swift toolchain 
                 if: steps.cache_status.outputs.files_exists == 'false'
-                run: curl https://download.swift.org/swift-${{ matrix.swift }}-release/$(echo ${{ matrix.os }} | sed 's/[^a-zA-Z0-9]//g')/swift-${{ matrix.swift }}-RELEASE/swift-${{ matrix.swift }}-RELEASE-$(echo ${{ matrix.os }} | sed 's/[^a-zA-Z0-9\.]//g').tar.gz --output swift-${{ matrix.swift }}.tar.gz
+                run: curl https://download.swift.org/development/swift-${{ matrix.swift }}/swift-${{ matrix.swift }}-$(echo ${{ matrix.os }} | sed 's/[^a-zA-Z0-9]//g').tar.gz --output swift-${{ matrix.swift }}.tar.gz
             
             -   name: set up swift
                 run: |
