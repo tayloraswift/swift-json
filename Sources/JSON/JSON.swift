@@ -3,12 +3,22 @@ extension JSON:Sendable {}
 #endif 
 /// A JSON variant value. This value may contain a fragment, an array, or an object.
 /// 
-/// All instances of this type, including ``number(_:)`` instances, can be round-tripped 
-/// losslessly, as long as the initial encoding is performed by ``/swift-json``. 
+/// All instances of this type, including ``JSON/.number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF`` 
+/// instances, can be round-tripped losslessly, as long as the initial encoding is performed by 
+/// ``/swift-json``. 
 /// 
-/// Re-encoding arbitrary JSON is not guaranteed to produce the exact same result, 
-/// although the implementation makes a reasonable effort to preserve features of 
-/// the original input.
+/// As of version 0.3.0, re-encoding a ``/swift-json``-encoded message is guaranteed to produce
+/// bytewise-identical output.
+/// 
+/// When re-encoding arbitrary JSON, the implementation makes a reasonable effort to preserve 
+/// features of the original input. It will not re-order object fields, strip explicit ``JSON/.null`` 
+/// values, or convert decimals to floating point. The parser does *not* preserve structural 
+/// whitespace.
+/// 
+/// The implementation guarantees *canonical equivalence* when re-encoding values, but it may not 
+/// preserve the exact expressions used to represent them. For example, it will normalize the escape 
+/// sequences in [`"6\\/14\\/1946"`]() to [`"6/14/1946"`](), because the escaped forward-slashes 
+/// (`/`) are non-canonical.
 @frozen public
 enum JSON
 {
@@ -25,6 +35,10 @@ enum JSON
     /// 
     /// JSON string literals may contain unicode characters, even after escaping. 
     /// Do not assume the output of this function is ASCII.
+    /// 
+    /// >   Important: This function should *not* be called on an input to the ``string(_:)`` case 
+    ///     constructor. The library performs string escaping lazily; calling this function 
+    ///     explicitly will double-escape the input. 
     public static 
     func escape<S>(_ string:S) -> String where S:StringProtocol
     {
@@ -89,11 +103,25 @@ enum JSON
     ///     keys are ASCII.
     case object([(key:String, value:Self)])
 
+    /// Wraps a signed integer as a numeric value.
+    /// 
+    /// Calling this function is equivalent to the following:
+    ///
+    /// ```swift 
+    /// let json:JSON = .number(JSON.Number.init(signed))
+    /// ```
     @inlinable public static 
     func number<T>(_ signed:T) -> Self where T:SignedInteger 
     {
         .number(.init(signed))
     }
+    /// Wraps an usigned integer as a numeric value.
+    /// 
+    /// Calling this function is equivalent to the following:
+    ///
+    /// ```swift 
+    /// let json:JSON = .number(JSON.Number.init(signed))
+    /// ```
     @inlinable public static 
     func number<T>(_ unsigned:T) -> Self where T:UnsignedInteger 
     {

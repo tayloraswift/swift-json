@@ -123,12 +123,14 @@ extension JSON
     /// Attempts to cast this variant to an instance of a ``SignedInteger`` type.
     /// 
     /// - Returns: A signed integer derived from the payload of this variant
-    ///     if it matches ``number(_:)``, and it can be represented exactly by [`T`]();
-    ///     [`nil`]() otherwise.
+    ///     if it matches ``number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF``, 
+    ///     and it can be represented exactly by [`T`](); [`nil`]() otherwise.
     ///
     /// This method reports failure in two ways — it returns [`nil`]() on a type 
     /// mismatch, and it [`throws`]() an ``IntegerOverflowError`` if this variant 
-    /// matches ``number(_:)``, but it could not be represented exactly by [`T`]().
+    /// matches ``number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF``, but it 
+    /// could not be represented exactly by [`T`]().
+    /// 
     /// >   Note:
     ///     This type conversion will fail if ``Number.places`` is non-zero, even if 
     ///     the fractional part is zero. For example, you can convert 
@@ -155,12 +157,14 @@ extension JSON
     /// Attempts to cast this variant to an instance of an ``UnsignedInteger`` type.
     /// 
     /// - Returns: An unsigned integer derived from the payload of this variant
-    ///     if it matches ``number(_:)``, and it can be represented exactly by [`T`]();
-    ///     [`nil`]() otherwise.
+    ///     if it matches ``number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF``, 
+    ///     and it can be represented exactly by [`T`](); [`nil`]() otherwise.
     ///
     /// This method reports failure in two ways — it returns [`nil`]() on a type 
     /// mismatch, and it [`throws`]() an ``IntegerOverflowError`` if this variant 
-    /// matches ``number(_:)``, but it could not be represented exactly by [`T`]().
+    /// matches ``number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF``, but it could 
+    /// not be represented exactly by [`T`]().
+    /// 
     /// >   Note:
     ///     This type conversion will fail if ``Number.places`` is non-zero, even if 
     ///     the fractional part is zero. For example, you can convert 
@@ -185,9 +189,11 @@ extension JSON
     /// Attempts to cast this variant to an instance of a ``BinaryFloatingPoint`` type.
     /// 
     /// - Returns: The closest value of [`T`]() to the payload of this 
-    ///     variant if it matches ``number(_:)``, [`nil`]() otherwise.
+    ///     variant if it matches ``number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF``, 
+    ///     [`nil`]() otherwise.
     ///
-    /// Calling this method is equivalent to matching the ``number(_:)`` enumeration 
+    /// Calling this method is equivalent to matching the 
+    /// ``number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF`` enumeration 
     /// case, and calling ``Number.as(_:)`` on its payload.
     @inlinable public 
     func `as`<Binary>(_:Binary.Type) -> Binary?
@@ -233,7 +239,8 @@ extension JSON
     /// Attempts to cast this variant to an ``Array`` of key-value pairs.
     /// 
     /// - Returns: The payload of this variant if it matches ``object(_:)``, 
-    ///     the fields of the payload of this variant if it matches ``number(_:)``, or
+    ///     the fields of the payload of this variant if it matches 
+    ///     ``number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF``, or
     ///     [`nil`]() otherwise.
     /// 
     /// The order of the items reflects the order in which they appear in the 
@@ -242,13 +249,15 @@ extension JSON
     /// 
     /// To facilitate interoperability with decimal types, this method will also 
     /// return a pseudo-object containing the values of ``Number.units`` and ``Number.places``, 
-    /// if this variant is a ``number(_:)``. Specifically, it contains integral 
-    /// ``Number`` values keyed by [`"units"`]() and [`"places"`]() and wrapped 
-    /// in containers of type [`Self`]().
+    /// if this variant is a ``number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF``. 
+    /// Specifically, it contains integral ``Number`` values keyed by [`"units"`]() and 
+    /// [`"places"`]() and wrapped in containers of type [`Self`]().
     ///
     /// This pseudo-object is intended for consumption by compiler-generated 
     /// ``Codable`` implementations. Decoding it incurs a small but non-zero 
-    /// overhead when compared with calling ``Number.as(_:)`` directly.
+    /// overhead when compared with calling 
+    /// ``Number.as(_:)?overload=s4JSONAAO6NumberV2asyx5units_x6placestSgxAF_xAGtms17FixedWidthIntegerRzSZRzlF`` 
+    /// directly.
     /// 
     /// >   Complexity: 
     ///     O(1). This method does *not* perform any elementwise work.
@@ -271,16 +280,17 @@ extension JSON
     /// 
     /// - Returns: A dictionary derived from the payload of this variant if it 
     ///     matches ``object(_:)``, the fields of the payload of this variant if 
-    ///     it matches ``number(_:)``, or [`nil`]() otherwise.
+    ///     it matches ``number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF``, 
+    ///     or [`nil`]() otherwise.
     /// 
     /// Although it is uncommon in real-world JSON APIs, object keys can occur 
     /// more than once in the same object. To handle this, an API consumer might 
     /// elect to keep only the last occurrence of a particular key.
-    /**
-    ```swift 
-    let dictionary:[String: JSON]? = json.as([String: JSON].self) { $1 }
-    ```
-    */
+    ///
+    /// ```swift 
+    /// let dictionary:[String: JSON]? = json.as([String: JSON].self) { $1 }
+    /// ```
+    ///
     /// Key duplication can interact with unicode normalization in unexpected 
     /// ways. Because JSON is defined in UTF-8, other JSON encoders may not align 
     /// with the behavior of ``String.==(_:_:)``, since that operator 
@@ -369,6 +379,16 @@ extension JSON
     {
         try self.unwrap(pattern: Self.as(_:))
     }
+    /// Attempts to cast this variant to a fixed-length ``Array`` of [`Self`]().
+    /// 
+    /// - Returns: The payload of this variant if it matches ``array(_:)``, and 
+    ///     contains the expected number of elements.
+    /// 
+    /// >   Complexity: O(1). This method does *not* perform any elementwise work.
+    ///
+    /// >   Throws: A ``PrimitiveError.shaping(aggregate:count:)`` if an array was 
+    ///     successfully unwrapped, but it did not contain the expected number of 
+    ///     elements.
     @inlinable public 
     func `as`(_:[Self].Type, count:Int) throws -> [Self]
     {
@@ -382,6 +402,17 @@ extension JSON
             throw PrimitiveError.shaping(aggregate: aggregate, count: count)
         }
     }
+    /// Attempts to cast this variant to an ``Array`` of [`Self`](), whose length 
+    /// satifies the given criteria.
+    /// 
+    /// - Returns: The payload of this variant if it matches ``array(_:)``, and 
+    ///     contains the expected number of elements.
+    /// 
+    /// >   Complexity: O(1). This method does *not* perform any elementwise work.
+    ///
+    /// >   Throws: A ``PrimitiveError.shaping(aggregate:count:)`` if an array was 
+    ///     successfully unwrapped, but it did not contain the expected number of 
+    ///     elements.
     @inlinable public 
     func `as`(_:[Self].Type, where predicate:(_ count:Int) throws -> Bool) throws -> [Self]
     {
