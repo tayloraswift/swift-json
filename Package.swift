@@ -1,26 +1,6 @@
 // swift-tools-version:5.5
 import PackageDescription
 
-let executable:(products:[Product], targets:[Target]) 
-
-#if os(Linux)
-executable.products =
-[
-    .executable(name: "benchmarks", targets: ["Benchmarks"]),
-]
-executable.targets = 
-[
-    .executableTarget(name: "Benchmarks",
-        dependencies: 
-        [
-            .target(name: "JSON"),
-        ]),
-]
-#else 
-executable.products = []
-executable.targets  = []
-#endif
-
 // cannot build the documentation plugin on these platforms due to 
 // https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server/issues/1299#issuecomment-1089950219
 // cannot build the documentation plugin on windows since apparently 
@@ -36,7 +16,7 @@ let plugins:[Package.Dependency] = []
 
 let package:Package = .init(
     name: "swift-json",
-    products: executable.products +
+    products:
     [
         .library(name: "JSON", targets: ["JSON"]),
     ],
@@ -44,7 +24,7 @@ let package:Package = .init(
     [
         .package(url: "https://github.com/kelvin13/swift-grammar", from: "0.1.5"),
     ],
-    targets: executable.targets +
+    targets:
     [
         .target(name: "JSON", 
             dependencies: 

@@ -1,0 +1,43 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "swift-argument-parser",
+        "repositoryURL": "https://github.com/apple/swift-argument-parser",
+        "state": {
+          "branch": null,
+          "revision": "df9ee6676cd5b3bf5b330ec7568a5644f547201b",
+          "version": "1.1.3"
+        }
+      },
+      {
+        "package": "swift-grammar",
+        "repositoryURL": "https://github.com/kelvin13/swift-grammar",
+        "state": {
+          "branch": null,
+          "revision": "272964fcecfff8b4181251bc9ff8bf76ecacbf57",
+          "version": "0.1.5"
+        }
+      },
+      {
+        "package": "swift-system",
+        "repositoryURL": "https://github.com/apple/swift-system.git",
+        "state": {
+          "branch": null,
+          "revision": "025bcb1165deab2e20d4eaba79967ce73013f496",
+          "version": "1.2.1"
+        }
+      },
+      {
+        "package": "swift-system-extras",
+        "repositoryURL": "https://github.com/kelvin13/swift-system-extras",
+        "state": {
+          "branch": null,
+          "revision": "5a67c69d99d4dd7ea33ca5ddb2973f7d80cbdcdd",
+          "version": "0.1.0"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

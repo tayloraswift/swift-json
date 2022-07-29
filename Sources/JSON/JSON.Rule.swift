@@ -2,20 +2,6 @@
 
 extension JSON 
 {
-    public static
-    func _break(_ json:[UInt8]) throws -> [Range<Int>]
-    {
-        var input:ParsingInput<Grammar.NoDiagnostics<[UInt8]>> = .init(json)
-        var indices:[Range<Int>]    = []
-        var start:Int               = input.index 
-        while let _:Self = input.parse(as: Rule<Int>.Root?.self)
-        {
-            indices.append(start ..< input.index)
-            start = input.index
-        }
-        return indices 
-    }
-
     /// @import(Grammar)
     /// A generic context for structured parsing rules.
     /// 

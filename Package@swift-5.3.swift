@@ -1,14 +1,9 @@
 // swift-tools-version:5.3
 import PackageDescription
 
-let executable:(products:[Product], targets:[Target]) 
-
-executable.products = []
-executable.targets  = []
-
 let package:Package = .init(
     name: "swift-json",
-    products: executable.products +
+    products:
     [
         .library(name: "JSON", targets: ["JSON"]),
     ],
@@ -16,7 +11,7 @@ let package:Package = .init(
     [
         .package(url: "https://github.com/kelvin13/swift-grammar", from: "0.1.5")
     ],
-    targets: executable.targets +
+    targets:
     [
         .target(name: "JSON", 
             dependencies: 

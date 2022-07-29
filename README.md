@@ -4,13 +4,14 @@
   
 [![ci build status](https://github.com/kelvin13/swift-json/actions/workflows/build.yml/badge.svg)](https://github.com/kelvin13/swift-json/actions/workflows/build.yml)
 [![ci windows build status](https://github.com/kelvin13/swift-json/actions/workflows/build-windows.yml/badge.svg)](https://github.com/kelvin13/swift-json/actions/workflows/build-windows.yml)
+[![ci benchmarks status](https://github.com/kelvin13/swift-json/actions/workflows/benchmarks.yml/badge.svg)](https://github.com/kelvin13/swift-json/actions/workflows/benchmarks.yml)
 
 [![swift package index versions](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fkelvin13%2Fswift-json%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/kelvin13/swift-json)
 [![swift package index platforms](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fkelvin13%2Fswift-json%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/kelvin13/swift-json)
 
 </div>
 
-`swift-json` is a pure-Swift JSON parsing library designed for high-performance, high-throughput server-side applications. When compared using the test data [`captured.json`](Tests/data.json), `swift-json` is nearly 7 times faster than `Foundation.JSONDecoder` ([see benchmark source code](Sources/Benchmarks)).
+`swift-json` is a pure-Swift JSON parsing library designed for high-performance, high-throughput server-side applications. When compared using the test data [`captured.json`](Benchmarks/), `swift-json` is nearly 7 times faster than `Foundation.JSONDecoder` ([see benchmark source code](Benchmarks/Sources/GeneralDecoding)).
 
 **Importing this module will expose the following top-level symbol(s)**:
 
