@@ -44,7 +44,7 @@ jobs:
             
             -   name: download swift toolchain 
                 if: steps.cache_status.outputs.files_exists == 'false'
-                run: curl https://download.swift.org/development/swift-${{ matrix.swift }}/swift-${{ matrix.swift }}-$(echo ${{ matrix.os }} | sed 's/[^a-zA-Z0-9]//g').tar.gz --output swift-${{ matrix.swift }}.tar.gz
+                run: curl https://download.swift.org/development/$(echo ${{ matrix.os }} | sed 's/[^a-zA-Z0-9]//g')/swift-${{ matrix.swift }}/swift-${{ matrix.swift }}-$(echo ${{ matrix.os }} | sed 's/[^a-zA-Z0-9]//g').tar.gz --output swift-${{ matrix.swift }}.tar.gz
             
             -   name: set up swift
                 run: |
