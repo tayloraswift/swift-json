@@ -8,6 +8,9 @@
 /*.ss
 /swift-biome
 
+/Benchmarks/.build
+/Benchmarks/.data
+
 /FlameGraph
 *.folded
 *.svg 
