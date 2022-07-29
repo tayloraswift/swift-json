@@ -166,7 +166,7 @@ extension JSON
         ///     field would overflow [`T`]().
         /// >   Note: 
         ///     It’s possible for the `places` field to overflow before `units` does.
-        ///     For example, this will happen for the literal [`"0.0e-9999999999999999999"`].
+        ///     For example, this will happen for the literal [`"0.0e-9999999999999999999"`]().
         @inlinable public
         func `as`<T>(_:(units:T, places:T).Type) -> (units:T, places:T)? 
             where T:FixedWidthInteger & SignedInteger 

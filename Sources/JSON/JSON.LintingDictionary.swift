@@ -186,14 +186,13 @@ extension JSON
         /// -   Returns: The result of the closure, if the key exists and the closure succeeds.
         /// 
         /// Calling this method is equivalent to the following:
-        /* 
-        ```swift 
-        try self.pop(key)
-        {
-            try body(try $0.as([JSON].self))
-        }
-        ```
-        */
+        ///
+        /// ```swift 
+        /// try self.pop(key)
+        /// {
+        ///     try body(try $0.as([JSON].self))
+        /// }
+        /// ```
         /// 
         /// >   Throws:
         ///     A ``JSON//RecursiveError.dictionary(underlying:in:)`` if an error 
@@ -215,14 +214,13 @@ extension JSON
         ///     or [`nil`]() if the key exists but its value is an explicit ``JSON/.null``.
         /// 
         /// Calling this method is equivalent to the following:
-        /* 
-        ```swift 
-        try self.pop(key)
-        {
-            try $0.as([JSON]?.self).map(body)
-        } ?? nil
-        ```
-        */
+        ///
+        /// ```swift 
+        /// try self.pop(key)
+        /// {
+        ///     try $0.as([JSON]?.self).map(body)
+        /// } ?? nil
+        /// ```
         /// 
         /// >   Throws:
         ///     A ``JSON//RecursiveError.dictionary(underlying:in:)`` if an error 
@@ -240,14 +238,13 @@ extension JSON
         /// -   Returns: The result of the closure, if the key exists and the closure succeeds.
         /// 
         /// Calling this method is equivalent to the following:
-        /* 
-        ```swift 
-        try self.remove(key)
-        {
-            try body(try $0.as([JSON].self))
-        }
-        ```
-        */
+        ///
+        /// ```swift 
+        /// try self.remove(key)
+        /// {
+        ///     try body(try $0.as([JSON].self))
+        /// }
+        /// ```
         /// 
         /// >   Throws:
         ///     A ``JSON//RecursiveError.dictionary(underlying:in:)`` if an error 
@@ -270,14 +267,13 @@ extension JSON
         ///     or [`nil`]() if the key exists but its value is an explicit ``JSON/.null``.
         /// 
         /// Calling this method is equivalent to the following:
-        /* 
-        ```swift 
-        try self.remove(key)
-        {
-            try $0.as([JSON]?.self).map(body)
-        }
-        ```
-        */
+        ///
+        /// ```swift 
+        /// try self.remove(key)
+        /// {
+        ///     try $0.as([JSON]?.self).map(body)
+        /// }
+        /// ```
         /// 
         /// >   Throws:
         ///     A ``JSON//RecursiveError.dictionary(underlying:in:)`` if an error 
