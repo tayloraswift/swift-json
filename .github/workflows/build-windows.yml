@@ -18,7 +18,7 @@ jobs:
                 uses: actions/checkout@v2
             
             -   name: toolchain 
-                uses: compnerd/gha-setup-swift@main
+                uses: compnerd/gha-setup-swift@v0.0.1
                 with:
                     branch: swift-${{ matrix.swift }}-release
                     tag: ${{ matrix.swift }}-RELEASE
