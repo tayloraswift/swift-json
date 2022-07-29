@@ -1,12 +1,14 @@
-.build
-.vscode
-.swift-version
+/.build
+/.vscode
+/.swift-version
 
-Package.catalog
-Package.resolved
-Packages/
+/Package.catalog
+/Package.resolved
+/Packages
+/*.ss
+/swift-biome
 
-FlameGraph/
+/FlameGraph
 *.folded
 *.svg 
 *.data
