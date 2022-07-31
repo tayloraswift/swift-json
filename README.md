@@ -41,7 +41,7 @@ The `JSON` module in `swift-json` enables you to express JSON parsing tasks as *
 
 To parse a complete JSON message, use the [`JSON.Rule<Location>.Root`](https://swiftinit.org/reference/swift-json/json/json/rule/root) parsing rule:
 
-> [`basic-decoding.swift`](Snippets/basic-decoding.swift)
+> [`BasicDecoding.swift`](Snippets/BasicDecoding.swift)
 
 ```swift
 import JSON 
@@ -69,7 +69,7 @@ print(response)
 ```
 
 ```text
-$ .build/release/basic-decoding
+$ .build/release/BasicDecoding
 Response(success: true, value: Decimal(units: 1, places: 1))
 ```
 

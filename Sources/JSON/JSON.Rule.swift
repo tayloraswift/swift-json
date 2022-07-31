@@ -3,9 +3,12 @@
 extension JSON 
 {
     /// @import(Grammar)
-    /// A generic context for structured parsing rules.
+    /// Matches a complete message; either an ``JSON/Rule//Array`` or an ``JSON/Rule//Object``.
     /// 
     /// All of the parsing rules in this library are defined at the UTF-8 level. 
+    /// 
+    /// To parse *any* JSON value, including fragment values, use the ``JSON/Rule//Value`` 
+    /// rule instead.
     /// 
     /// You can parse JSON expressions from any ``Collection`` with an 
     /// ``Collection//Element`` type of ``UInt8``. For example, you can parse 
@@ -42,7 +45,7 @@ extension JSON
     ///     even when applied to third-party collection types, like 
     ///     ``/swift-nio/NIOCore/ByteBufferView``.
     public 
-    enum Rule<Location> 
+    enum Rule<Location>
     {
         /// ASCII terminals.
         public 
@@ -55,7 +58,7 @@ extension JSON
         typealias DecimalDigit<T> = Grammar.DecimalDigit<Location, UInt8, T> where T:BinaryInteger
     }
 }
-extension JSON.Rule 
+extension JSON.Rule:ParsingRule
 {
     /// A literal `null` expression.
     public 
@@ -111,32 +114,7 @@ extension JSON.Rule
         public 
         typealias False = JSON.Rule<Location>.False
     }
-    
-    /// Matches a complete message; either an ``JSON/Rule//Array`` or an ``JSON/Rule//Object``.
-    /// 
-    /// To parse *any* JSON value, including fragment values, use the ``JSON/Rule//Value`` 
-    /// rule instead.
-    public 
-    enum Root:ParsingRule 
-    {
-        public 
-        typealias Terminal = UInt8
-        @inlinable public static 
-        func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> JSON
-            where   Diagnostics:ParsingDiagnostics,
-                    Diagnostics.Source.Index == Location,
-                    Diagnostics.Source.Element == Terminal
-        {
-            if let items:[(key:String, value:JSON)] = input.parse(as: Object?.self)
-            {
-                return .object(items)
-            }
-            else 
-            {
-                return .array(try input.parse(as: Array.self))
-            }
-        }
-    }
+
     /// Matches any value, including fragment values.
     /// 
     /// Only use this if you are doing manual JSON parsing. Most web services 
@@ -577,6 +555,29 @@ extension JSON.Rule
             }
             try input.parse(as: Padded<ASCII.BraceRight>.self)
             return items
+        }
+    }
+
+    @available(*, deprecated, renamed: "JSON.Rule")
+    public 
+    typealias Root = JSON.Rule<Location> 
+    
+    public 
+    typealias Terminal = UInt8
+
+    @inlinable public static 
+    func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> JSON
+        where   Diagnostics:ParsingDiagnostics,
+                Diagnostics.Source.Index == Location,
+                Diagnostics.Source.Element == Terminal
+    {
+        if let items:[(key:String, value:JSON)] = input.parse(as: Object?.self)
+        {
+            return .object(items)
+        }
+        else 
+        {
+            return .array(try input.parse(as: Array.self))
         }
     }
 }

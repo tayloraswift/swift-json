@@ -16,7 +16,7 @@ let string:String =
 {"success":true,"value":0.1}
 """
 let decoder:JSON        = try Grammar.parse(string.utf8, 
-    as: JSON.Rule<String.Index>.Root.self)
+    as: JSON.Rule<String.Index>.self)
 let response:Response   = try .init(from: decoder)
 
 print(response)
@@ -28,7 +28,7 @@ let invalid:String =
 do 
 {
     let _:JSON = try Grammar.parse(diagnosing: invalid.utf8, 
-        as: JSON.Rule<String.Index>.Root.self)
+        as: JSON.Rule<String.Index>.self)
 }
 catch let error as ParsingError<String.Index> 
 {
