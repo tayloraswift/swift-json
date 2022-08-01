@@ -3,8 +3,6 @@
 extension JSON 
 {
     /// @import(Grammar)
-    /// Matches a complete message; either an ``JSON/Rule//Array`` or an ``JSON/Rule//Object``.
-    /// 
     /// All of the parsing rules in this library are defined at the UTF-8 level. 
     /// 
     /// To parse *any* JSON value, including fragment values, use the ``JSON/Rule//Value`` 
@@ -60,6 +58,8 @@ extension JSON
         // @available(*, deprecated, renamed: "JSON.Rule")
         // public 
         // typealias Root = JSON.Rule<Location> 
+
+        /// Matches a complete message; either an ``JSON/Rule//Array`` or an ``JSON/Rule//Object``.
         public 
         enum Root:ParsingRule
         {
