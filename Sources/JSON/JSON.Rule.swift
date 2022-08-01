@@ -45,7 +45,7 @@ extension JSON
     ///     even when applied to third-party collection types, like 
     ///     ``/swift-nio/NIOCore/ByteBufferView``.
     public 
-    enum Rule<Location>
+    enum Rule<Location>:ParsingRule
     {
         /// ASCII terminals.
         public 
@@ -56,9 +56,35 @@ extension JSON
         /// ASCII decimal digit terminals.
         public 
         typealias DecimalDigit<T> = Grammar.DecimalDigit<Location, UInt8, T> where T:BinaryInteger
+        
+        // @available(*, deprecated, renamed: "JSON.Rule")
+        // public 
+        // typealias Root = JSON.Rule<Location> 
+        // public 
+        // enum Root:ParsingRule
+        // {
+            public 
+            typealias Terminal = UInt8
+
+            @inlinable public static 
+            func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> JSON
+                where   Diagnostics:ParsingDiagnostics,
+                        Diagnostics.Source.Index == Location,
+                        Diagnostics.Source.Element == Terminal
+            {
+                if let items:[(key:String, value:JSON)] = input.parse(as: Object?.self)
+                {
+                    return .object(items)
+                }
+                else 
+                {
+                    return .array(try input.parse(as: Array.self))
+                }
+            }
+        // }
     }
 }
-extension JSON.Rule:ParsingRule
+extension JSON.Rule
 {
     /// A literal `null` expression.
     public 
@@ -555,29 +581,6 @@ extension JSON.Rule:ParsingRule
             }
             try input.parse(as: Padded<ASCII.BraceRight>.self)
             return items
-        }
-    }
-
-    @available(*, deprecated, renamed: "JSON.Rule")
-    public 
-    typealias Root = JSON.Rule<Location> 
-    
-    public 
-    typealias Terminal = UInt8
-
-    @inlinable public static 
-    func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> JSON
-        where   Diagnostics:ParsingDiagnostics,
-                Diagnostics.Source.Index == Location,
-                Diagnostics.Source.Element == Terminal
-    {
-        if let items:[(key:String, value:JSON)] = input.parse(as: Object?.self)
-        {
-            return .object(items)
-        }
-        else 
-        {
-            return .array(try input.parse(as: Array.self))
         }
     }
 }
