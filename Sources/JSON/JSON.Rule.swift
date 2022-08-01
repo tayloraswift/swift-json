@@ -45,7 +45,7 @@ extension JSON
     ///     even when applied to third-party collection types, like 
     ///     ``/swift-nio/NIOCore/ByteBufferView``.
     public 
-    enum Rule<Location>:ParsingRule
+    enum Rule<Location>
     {
         /// ASCII terminals.
         public 
@@ -60,9 +60,9 @@ extension JSON
         // @available(*, deprecated, renamed: "JSON.Rule")
         // public 
         // typealias Root = JSON.Rule<Location> 
-        // public 
-        // enum Root:ParsingRule
-        // {
+        public 
+        enum Root:ParsingRule
+        {
             public 
             typealias Terminal = UInt8
 
@@ -81,7 +81,7 @@ extension JSON
                     return .array(try input.parse(as: Array.self))
                 }
             }
-        // }
+        }
     }
 }
 extension JSON.Rule

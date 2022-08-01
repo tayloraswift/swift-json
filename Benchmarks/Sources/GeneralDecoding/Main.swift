@@ -18,7 +18,7 @@ struct Main:ParsableCommand
         var input:ParsingInput<Grammar.NoDiagnostics<[UInt8]>> = .init(data)
         var boundaries:[Range<Int>] = []
         var start:Int = input.index 
-        while let _:JSON = input.parse(as: JSON.Rule<Int>?.self)
+        while let _:JSON = input.parse(as: JSON.Rule<Int>.Root?.self)
         {
             boundaries.append(start ..< input.index)
             start = input.index
@@ -44,7 +44,7 @@ struct Main:ParsableCommand
     static 
     func benchmarkSwiftJSON(_ json:[UInt8]) throws -> Int
     {
-        try Grammar.parse(json, as: JSON.Rule<Int>.self, in: [JSON].self).count
+        try Grammar.parse(json, as: JSON.Rule<Int>.Root.self, in: [JSON].self).count
     }
     @inline(never)
     static 

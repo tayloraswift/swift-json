@@ -19,7 +19,7 @@ func decode(message:String) throws ->
 {
     // snippet.parse
     let json:JSON = try Grammar.parse(message.utf8, 
-        as: JSON.Rule<String.Index>.self)
+        as: JSON.Rule<String.Index>.Root.self)
     // snippet.decode 
     return try json.lint 
     {
