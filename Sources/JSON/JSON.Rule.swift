@@ -3,8 +3,6 @@
 extension JSON 
 {
     /// @import(Grammar)
-    /// Matches a complete message; either an ``JSON/Rule//Array`` or an ``JSON/Rule//Object``.
-    /// 
     /// All of the parsing rules in this library are defined at the UTF-8 level. 
     /// 
     /// To parse *any* JSON value, including fragment values, use the ``JSON/Rule//Value`` 
@@ -56,9 +54,37 @@ extension JSON
         /// ASCII decimal digit terminals.
         public 
         typealias DecimalDigit<T> = Grammar.DecimalDigit<Location, UInt8, T> where T:BinaryInteger
+        
+        // @available(*, deprecated, renamed: "JSON.Rule")
+        // public 
+        // typealias Root = JSON.Rule<Location> 
+
+        /// Matches a complete message; either an ``JSON/Rule//Array`` or an ``JSON/Rule//Object``.
+        public 
+        enum Root:ParsingRule
+        {
+            public 
+            typealias Terminal = UInt8
+
+            @inlinable public static 
+            func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> JSON
+                where   Diagnostics:ParsingDiagnostics,
+                        Diagnostics.Source.Index == Location,
+                        Diagnostics.Source.Element == Terminal
+            {
+                if let items:[(key:String, value:JSON)] = input.parse(as: Object?.self)
+                {
+                    return .object(items)
+                }
+                else 
+                {
+                    return .array(try input.parse(as: Array.self))
+                }
+            }
+        }
     }
 }
-extension JSON.Rule:ParsingRule
+extension JSON.Rule
 {
     /// A literal `null` expression.
     public 
@@ -555,29 +581,6 @@ extension JSON.Rule:ParsingRule
             }
             try input.parse(as: Padded<ASCII.BraceRight>.self)
             return items
-        }
-    }
-
-    @available(*, deprecated, renamed: "JSON.Rule")
-    public 
-    typealias Root = JSON.Rule<Location> 
-    
-    public 
-    typealias Terminal = UInt8
-
-    @inlinable public static 
-    func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> JSON
-        where   Diagnostics:ParsingDiagnostics,
-                Diagnostics.Source.Index == Location,
-                Diagnostics.Source.Element == Terminal
-    {
-        if let items:[(key:String, value:JSON)] = input.parse(as: Object?.self)
-        {
-            return .object(items)
-        }
-        else 
-        {
-            return .array(try input.parse(as: Array.self))
         }
     }
 }
