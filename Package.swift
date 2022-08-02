@@ -39,5 +39,11 @@ let package:Package = .init(
             [
                 .product(name: "Grammar", package: "swift-grammar"),
             ]),
+        
+        .target(name: "_BSON", 
+            dependencies: 
+            [
+                .product(name: "Grammar", package: "swift-grammar"),
+            ]),
     ]
 )
