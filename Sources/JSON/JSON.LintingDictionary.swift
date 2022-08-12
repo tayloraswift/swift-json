@@ -112,10 +112,10 @@ extension JSON
             }
             do 
             {
-                #if swift(>=5.7)
-                return try body(_move(value))
+                #if swift(>=5.8)
+                return try body(_move value)
                 #else 
-                return try body(      value )
+                return try body(      value)
                 #endif 
             }
             catch let error 
@@ -145,10 +145,10 @@ extension JSON
             let value:JSON = try self.remove(key)
             do 
             {
-                #if swift(>=5.7)
-                return try body(_move(value))
+                #if swift(>=5.8)
+                return try body(_move value)
                 #else 
-                return try body(      value )
+                return try body(      value)
                 #endif 
             }
             catch let error 
