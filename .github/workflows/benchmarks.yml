@@ -38,14 +38,6 @@ jobs:
                         branch:     development
                     -   toolchain:  DEVELOPMENT-SNAPSHOT-2022-08-15-a
                         branch:     development
-                include:
-                    -   os: 
-                            runner: ubuntu-20.04
-                            prefix: ubuntu2004
-                            suffix: ubuntu20.04
-                        swift: 
-                            toolchain:  5.6.2-RELEASE
-                            branch:     swift-5.6.2-release
 
         steps:
             -   uses: actions/checkout@v2
