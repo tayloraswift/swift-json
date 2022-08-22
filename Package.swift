@@ -13,14 +13,16 @@ import PackageDescription
 // don’t have another way to conditionally exclude snippets from compilation, 
 // there is no way to work around this other than only enabling the plugin on 
 // nightly toolchains.
+var plugins:[Package.Dependency] = []
 #if swift(>=5.7) && (os(Linux) || os(macOS))
-let plugins:[Package.Dependency] = 
-[
-    .package(url: "https://github.com/kelvin13/swift-package-catalog", from: "0.4.0")
-]
-#else 
-let plugins:[Package.Dependency] = []
+    plugins.append(.package(url: "https://github.com/kelvin13/swift-package-catalog", 
+        from: "0.4.0"))
 #endif
+
+#if swift(>=5.8) && (os(Linux) || os(macOS))
+    plugins.append(.package(url: "https://github.com/kelvin13/swift-package-factory", 
+        branch: "swift-DEVELOPMENT-SNAPSHOT-2022-08-18-a"))
+#endif 
 
 let package:Package = .init(
     name: "swift-json",

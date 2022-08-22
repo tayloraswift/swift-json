@@ -62,6 +62,7 @@ extension JSON:Decoder
         try Decoder.init(self, path: []).container(keyedBy: Key.self)
     }
 }
+
 extension JSON 
 {
     // this is specifically used for decoding nested values while keeping track 
@@ -130,80 +131,95 @@ extension JSON.Decoder:SingleValueDecodingContainer
     {
         self.value.is(Void.self)
     }
+
+    public 
+    func decode<T>(_:T.Type) throws -> T where T:Decodable
+    {
+        try .init(from: self)
+    }
+
     public
     func decode(_:Bool.Type) throws -> Bool
     {
         try self.diagnose(self.value.as(_:))
     }
+
     public
     func decode(_:Int.Type) throws -> Int
     {
         try self.diagnose(self.value.as(_:))
     }
+
     public
     func decode(_:Int64.Type) throws -> Int64
     {
         try self.diagnose(self.value.as(_:))
     }
+
     public
     func decode(_:Int32.Type) throws -> Int32
     {
         try self.diagnose(self.value.as(_:))
     }
+
     public
     func decode(_:Int16.Type) throws -> Int16
     {
         try self.diagnose(self.value.as(_:))
     }
+
     public
     func decode(_:Int8.Type) throws -> Int8
     {
         try self.diagnose(self.value.as(_:))
     }
+
     public
     func decode(_:UInt.Type) throws -> UInt
     {
         try self.diagnose(self.value.as(_:))
     }
+
     public
     func decode(_:UInt64.Type) throws -> UInt64
     {
         try self.diagnose(self.value.as(_:))
     }
+
     public
     func decode(_:UInt32.Type) throws -> UInt32
     {
         try self.diagnose(self.value.as(_:))
     }
+
     public
     func decode(_:UInt16.Type) throws -> UInt16
     {
         try self.diagnose(self.value.as(_:))
     }
+
     public
     func decode(_:UInt8.Type) throws -> UInt8
     {
         try self.diagnose(self.value.as(_:))
     }
+
     public
     func decode(_:Float.Type) throws -> Float
     {
         try self.diagnose(self.value.as(_:))
     }
+
     public
     func decode(_:Double.Type) throws -> Double
     {
         try self.diagnose(self.value.as(_:))
     }
+
     public
     func decode(_:String.Type) throws -> String
     {
         try self.diagnose(self.value.as(_:))
-    }
-    public 
-    func decode<T>(_:T.Type) throws -> T where T:Decodable
-    {
-        try .init(from: self)
     }
 }
 extension JSON.Decoder:Decoder
@@ -290,80 +306,95 @@ extension JSON.Dictionary:KeyedDecodingContainerProtocol
     {
         try self.diagnose(key, { `self` in { _ in `self`.is(Void.self) } })
     }
+
+    public
+    func decode<T>(_:T.Type, forKey key:Key) throws -> T where T:Decodable
+    {
+        return try .init(from: try self.singleValueContainer(forKey: key))
+    }
+
     public
     func decode(_:Bool.Type, forKey key:Key) throws -> Bool
     {
         try self.diagnose(key, JSON.as(_:))
     }
+
     public
     func decode(_:Int.Type, forKey key:Key) throws -> Int
     {
         try self.diagnose(key, JSON.as(_:))
     }
+
     public
     func decode(_:Int64.Type, forKey key:Key) throws -> Int64
     {
         try self.diagnose(key, JSON.as(_:))
     }
+
     public
     func decode(_:Int32.Type, forKey key:Key) throws -> Int32
     {
         try self.diagnose(key, JSON.as(_:))
     }
+
     public
     func decode(_:Int16.Type, forKey key:Key) throws -> Int16
     {
         try self.diagnose(key, JSON.as(_:))
     }
+
     public
     func decode(_:Int8.Type, forKey key:Key) throws -> Int8
     {
         try self.diagnose(key, JSON.as(_:))
     }
+
     public
     func decode(_:UInt.Type, forKey key:Key) throws -> UInt
     {
         try self.diagnose(key, JSON.as(_:))
     }
+
     public
     func decode(_:UInt64.Type, forKey key:Key) throws -> UInt64
     {
         try self.diagnose(key, JSON.as(_:))
     }
+
     public
     func decode(_:UInt32.Type, forKey key:Key) throws -> UInt32
     {
         try self.diagnose(key, JSON.as(_:))
     }
+
     public
     func decode(_:UInt16.Type, forKey key:Key) throws -> UInt16
     {
         try self.diagnose(key, JSON.as(_:))
     }
+
     public
     func decode(_:UInt8.Type, forKey key:Key) throws -> UInt8
     {
         try self.diagnose(key, JSON.as(_:))
     }
+
     public
     func decode(_:Float.Type, forKey key:Key) throws -> Float
     {
         try self.diagnose(key, JSON.as(_:))
     }
+
     public
     func decode(_:Double.Type, forKey key:Key) throws -> Double
     {
         try self.diagnose(key, JSON.as(_:))
     }
+
     public
     func decode(_:String.Type, forKey key:Key) throws -> String
     {
         try self.diagnose(key, JSON.as(_:))
-    }
-    public
-    func decode<T>(_:T.Type, forKey key:Key) throws -> T where T:Decodable
-    {
-        return try .init(from: try self.singleValueContainer(forKey: key))
     }
     
     func superDecoder() 
@@ -485,81 +516,97 @@ extension JSON.Array:UnkeyedDecodingContainer
     {
         try self.diagnose{ `self` in { _ in `self`.is(Void.self) } }
     }
-    public mutating 
-    func decode(_:Bool.Type) throws -> Bool
-    {
-        try self.diagnose(JSON.as(_:))
-    }
-    public mutating 
-    func decode(_:Int.Type) throws -> Int
-    {
-        try self.diagnose(JSON.as(_:))
-    }
-    public mutating 
-    func decode(_:Int64.Type) throws -> Int64
-    {
-        try self.diagnose(JSON.as(_:))
-    }
-    public mutating 
-    func decode(_:Int32.Type) throws -> Int32
-    {
-        try self.diagnose(JSON.as(_:))
-    }
-    public mutating 
-    func decode(_:Int16.Type) throws -> Int16
-    {
-        try self.diagnose(JSON.as(_:))
-    }
-    public mutating 
-    func decode(_:Int8.Type) throws -> Int8
-    {
-        try self.diagnose(JSON.as(_:))
-    }
-    public mutating 
-    func decode(_:UInt.Type) throws -> UInt
-    {
-        try self.diagnose(JSON.as(_:))
-    }
-    public mutating 
-    func decode(_:UInt64.Type) throws -> UInt64
-    {
-        try self.diagnose(JSON.as(_:))
-    }
-    public mutating 
-    func decode(_:UInt32.Type) throws -> UInt32
-    {
-        try self.diagnose(JSON.as(_:))
-    }
-    public mutating 
-    func decode(_:UInt16.Type) throws -> UInt16
-    {
-        try self.diagnose(JSON.as(_:))
-    }
-    public mutating 
-    func decode(_:UInt8.Type) throws -> UInt8
-    {
-        try self.diagnose(JSON.as(_:))
-    }
-    public mutating 
-    func decode(_:Float.Type) throws -> Float
-    {
-        try self.diagnose(JSON.as(_:))
-    }
-    public mutating 
-    func decode(_:Double.Type) throws -> Double
-    {
-        try self.diagnose(JSON.as(_:))
-    }
-    public mutating 
-    func decode(_:String.Type) throws -> String
-    {
-        try self.diagnose(JSON.as(_:))
-    }
+
     public mutating 
     func decode<T>(_:T.Type) throws -> T where T:Decodable
     {
         try .init(from: try self.singleValueContainer())
     }
+
+    public mutating 
+    func decode(_:Bool.Type) throws -> Bool
+    {
+        try self.diagnose(JSON.as(_:))
+    }
+
+    public mutating 
+    func decode(_:Int.Type) throws -> Int
+    {
+        try self.diagnose(JSON.as(_:))
+    }
+
+    public mutating 
+    func decode(_:Int64.Type) throws -> Int64
+    {
+        try self.diagnose(JSON.as(_:))
+    }
+
+    public mutating 
+    func decode(_:Int32.Type) throws -> Int32
+    {
+        try self.diagnose(JSON.as(_:))
+    }
+
+    public mutating 
+    func decode(_:Int16.Type) throws -> Int16
+    {
+        try self.diagnose(JSON.as(_:))
+    }
+
+    public mutating 
+    func decode(_:Int8.Type) throws -> Int8
+    {
+        try self.diagnose(JSON.as(_:))
+    }
+
+    public mutating 
+    func decode(_:UInt.Type) throws -> UInt
+    {
+        try self.diagnose(JSON.as(_:))
+    }
+
+    public mutating 
+    func decode(_:UInt64.Type) throws -> UInt64
+    {
+        try self.diagnose(JSON.as(_:))
+    }
+
+    public mutating 
+    func decode(_:UInt32.Type) throws -> UInt32
+    {
+        try self.diagnose(JSON.as(_:))
+    }
+
+    public mutating 
+    func decode(_:UInt16.Type) throws -> UInt16
+    {
+        try self.diagnose(JSON.as(_:))
+    }
+
+    public mutating 
+    func decode(_:UInt8.Type) throws -> UInt8
+    {
+        try self.diagnose(JSON.as(_:))
+    }
+
+    public mutating 
+    func decode(_:Float.Type) throws -> Float
+    {
+        try self.diagnose(JSON.as(_:))
+    }
+
+    public mutating 
+    func decode(_:Double.Type) throws -> Double
+    {
+        try self.diagnose(JSON.as(_:))
+    }
+
+    public mutating 
+    func decode(_:String.Type) throws -> String
+    {
+        try self.diagnose(JSON.as(_:))
+    }
+    
     public mutating  
     func superDecoder() 
         throws -> Decoder
