@@ -105,6 +105,7 @@ extension JSON
         @inlinable public mutating 
         func pop<T>(_ key:String, _ body:(JSON) throws -> T) rethrows -> T?
         {
+            // https://forums.swift.org/t/does-move-into-closure-argument-make-any-difference/59731
             guard let value:JSON = self.pop(key)
             else 
             {
@@ -112,11 +113,7 @@ extension JSON
             }
             do 
             {
-                #if swift(>=5.8)
-                return try body(_move value)
-                #else 
-                return try body(      value)
-                #endif 
+                return try body(value)
             }
             catch let error 
             {
@@ -145,11 +142,7 @@ extension JSON
             let value:JSON = try self.remove(key)
             do 
             {
-                #if swift(>=5.8)
-                return try body(_move value)
-                #else 
-                return try body(      value)
-                #endif 
+                return try body(value)
             }
             catch let error 
             {
