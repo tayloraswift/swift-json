@@ -16,7 +16,7 @@ import PackageDescription
 #if swift(>=5.7) && (os(Linux) || os(macOS))
 let plugins:[Package.Dependency] = 
 [
-    .package(url: "https://github.com/kelvin13/swift-package-catalog", from: "0.2.1")
+    .package(url: "https://github.com/kelvin13/swift-package-catalog", from: "0.4.0")
 ]
 #else 
 let plugins:[Package.Dependency] = []

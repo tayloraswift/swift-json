@@ -1,9 +1,9 @@
 /.build
 /.vscode
+/.devcontainer
 /.swift-version
 
 /Package.catalog
-/Package.resolved
 /Packages
 /*.ss
 /swift-biome
