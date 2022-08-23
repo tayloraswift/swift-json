@@ -3,6 +3,15 @@
 extension JSON 
 {
     /// @import(Grammar)
+    /// Attempts to parse a complete JSON message (either an ``Rule//Array`` or an 
+    /// ``Rule//Object``) from UTF-8-encoded text.
+    @inlinable public 
+    init<UTF8>(parsing utf8:UTF8) throws where UTF8:Collection, UTF8.Element == UInt8
+    {
+        self = try Grammar.parse(utf8, as: JSON.Rule<UTF8.Index>.Root.self)
+    }
+
+    /// @import(Grammar)
     /// All of the parsing rules in this library are defined at the UTF-8 level. 
     /// 
     /// To parse *any* JSON value, including fragment values, use the ``JSON/Rule//Value`` 
