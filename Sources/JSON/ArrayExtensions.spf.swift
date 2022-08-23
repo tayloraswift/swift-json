@@ -82,146 +82,189 @@ extension Array where Element == JSON
         try self.load(index) { try $0.as([JSON]?.self).map(body) }
     }
 
-    @inlinable public  
-    func load(_ index:Int, as _:[JSON].Type = [JSON].self) throws -> [JSON]
-    {
-        try self.load(index, as: [JSON].self) { $0 }
-    }
-    @inlinable public  
-    func load(_ index:Int, as _:[JSON]?.Type = [JSON]?.self) throws -> [JSON]?
-    {
-        try self.load(index, as: [JSON]?.self) { $0 }
-    }
-
     // null
     @inlinable public 
     func load(_ index:Int, as _:Void.Type) throws 
     {
         try self.load(index) { try $0.as(Void.self) }
     }
+}
 
-    // booleans
+extension Array where Element == JSON 
+{
     @inlinable public 
-    func load(_ index:Int, as _:Bool.Type = Bool.self) throws -> Bool
-    {
-        try self.load(index) { try $0.as(Bool.self) }
-    }
-    @inlinable public 
-    func load(_ index:Int, as _:Bool?.Type = Bool?.self) throws -> Bool?
-    {
-        try self.load(index) { try $0.as(Bool?.self) }
-    }
-    @inlinable public 
-    func load<T>(_ index:Int, as _:Bool.Type, _ body:(Bool) throws -> T) throws -> T
+    func load<T>(_ index:Int, as _:Bool.Type, 
+        _ body:(Bool) throws -> T) throws -> T
     {
         try self.load(index) { try body(try $0.as(Bool.self)) }
     }
     @inlinable public 
-    func load<T>(_ index:Int, as _:Bool?.Type, _ body:(Bool) throws -> T) throws -> T?
+    func load<T>(_ index:Int, as _:Bool?.Type, 
+        _ body:(Bool) throws -> T) throws -> T?
     {
         try self.load(index) { try $0.as(Bool?.self).map(body) } ?? nil
     }
-    
-    // strings
+}
+
+extension Array where Element == JSON 
+{
     @inlinable public 
-    func load(_ index:Int, as _:String.Type = String.self) throws -> String
-    {
-        try self.load(index) { try $0.as(String.self) }
-    }
-    @inlinable public 
-    func load(_ index:Int, as _:String?.Type = String?.self) throws -> String?
-    {
-        try self.load(index) { try $0.as(String?.self) }
-    }
-    @inlinable public 
-    func load<T>(_ index:Int, as _:String.Type, _ body:(String) throws -> T) throws -> T
+    func load<T>(_ index:Int, as _:String.Type, 
+        _ body:(String) throws -> T) throws -> T
     {
         try self.load(index) { try body(try $0.as(String.self)) }
     }
     @inlinable public 
-    func load<T>(_ index:Int, as _:String?.Type, _ body:(String) throws -> T) throws -> T?
+    func load<T>(_ index:Int, as _:String?.Type, 
+        _ body:(String) throws -> T) throws -> T?
     {
         try self.load(index) { try $0.as(String?.self).map(body) } ?? nil
     }
+}
 
-    // signed integers 
+extension Array where Element == JSON 
+{
     @inlinable public 
-    func load<Integer>(_ index:Int, as _:Integer.Type = Integer.self) throws -> Integer
-        where Integer:FixedWidthInteger & SignedInteger
+    func load(_ index:Int, as _:Bool.Type = Bool.self) 
+        throws -> Bool
     {
-        try self.load(index) { try $0.as(Integer.self) }
+        try self.load(index) { try $0.as(Bool.self) }
     }
     @inlinable public 
-    func load<Integer>(_ index:Int, as _:Integer?.Type = Integer?.self) throws -> Integer?
-        where Integer:FixedWidthInteger & SignedInteger
+    func load(_ index:Int, as _:Bool?.Type = Bool?.self) 
+        throws -> Bool?
     {
-        try self.load(index) { try $0.as(Integer?.self) }
+        try self.load(index) { try $0.as(Bool?.self) }
     }
+}
 
+extension Array where Element == JSON 
+{
     @inlinable public 
-    func load<Integer, T>(_ index:Int, as _:Integer.Type, _ body:(Integer) throws -> T) throws -> T
+    func load(_ index:Int, as _:String.Type = String.self) 
+        throws -> String
+    {
+        try self.load(index) { try $0.as(String.self) }
+    }
+    @inlinable public 
+    func load(_ index:Int, as _:String?.Type = String?.self) 
+        throws -> String?
+    {
+        try self.load(index) { try $0.as(String?.self) }
+    }
+}
+
+extension Array where Element == JSON 
+{
+    @inlinable public 
+    func load(_ index:Int, as _:[JSON].Type = [JSON].self) 
+        throws -> [JSON]
+    {
+        try self.load(index) { try $0.as([JSON].self) }
+    }
+    @inlinable public 
+    func load(_ index:Int, as _:[JSON]?.Type = [JSON]?.self) 
+        throws -> [JSON]?
+    {
+        try self.load(index) { try $0.as([JSON]?.self) }
+    }
+}
+
+extension Array where Element == JSON 
+{
+    @inlinable public 
+    func load<Integer, T>(_ index:Int, as _:Integer.Type, 
+        _ body:(Integer) throws -> T) throws -> T
         where Integer:FixedWidthInteger & SignedInteger
     {
         try self.load(index) { try body(try $0.as(Integer.self)) }
     }
     @inlinable public 
-    func load<Integer, T>(_ index:Int, as _:Integer?.Type, _ body:(Integer) throws -> T) throws -> T?
+    func load<Integer, T>(_ index:Int, as _:Integer?.Type, 
+        _ body:(Integer) throws -> T) throws -> T?
         where Integer:FixedWidthInteger & SignedInteger
     {
         try self.load(index) { try $0.as(Integer?.self).map(body) }
     }
 
-    // unsigned integers 
     @inlinable public 
-    func load<Integer>(_ index:Int, as _:Integer.Type = Integer.self) throws -> Integer
-        where Integer:FixedWidthInteger & UnsignedInteger
+    func load<Integer>(_ index:Int, as _:Integer.Type = Integer.self) 
+        throws -> Integer
+        where Integer:FixedWidthInteger & SignedInteger
     {
         try self.load(index) { try $0.as(Integer.self) }
     }
     @inlinable public 
-    func load<Integer>(_ index:Int, as _:Integer?.Type = Integer?.self) throws -> Integer?
-        where Integer:FixedWidthInteger & UnsignedInteger
+    func load<Integer>(_ index:Int, as _:Integer?.Type = Integer?.self) 
+        throws -> Integer?
+        where Integer:FixedWidthInteger & SignedInteger
     {
         try self.load(index) { try $0.as(Integer?.self) }
     }
+}
 
+extension Array where Element == JSON 
+{
     @inlinable public 
-    func load<Integer, T>(_ index:Int, as _:Integer.Type, _ body:(Integer) throws -> T) throws -> T
+    func load<Integer, T>(_ index:Int, as _:Integer.Type, 
+        _ body:(Integer) throws -> T) throws -> T
         where Integer:FixedWidthInteger & UnsignedInteger
     {
         try self.load(index) { try body(try $0.as(Integer.self)) }
     }
     @inlinable public 
-    func load<Integer, T>(_ index:Int, as _:Integer?.Type, _ body:(Integer) throws -> T) throws -> T?
+    func load<Integer, T>(_ index:Int, as _:Integer?.Type, 
+        _ body:(Integer) throws -> T) throws -> T?
         where Integer:FixedWidthInteger & UnsignedInteger
     {
         try self.load(index) { try $0.as(Integer?.self).map(body) }
     }
 
-    // floating point 
     @inlinable public 
-    func load<Binary>(_ index:Int, as _:Binary.Type = Binary.self) throws -> Binary
-        where Binary:BinaryFloatingPoint
+    func load<Integer>(_ index:Int, as _:Integer.Type = Integer.self) 
+        throws -> Integer
+        where Integer:FixedWidthInteger & UnsignedInteger
     {
-        try self.load(index) { try $0.as(Binary.self) }
+        try self.load(index) { try $0.as(Integer.self) }
     }
     @inlinable public 
-    func load<Binary>(_ index:Int, as _:Binary?.Type = Binary?.self) throws -> Binary?
-        where Binary:BinaryFloatingPoint
+    func load<Integer>(_ index:Int, as _:Integer?.Type = Integer?.self) 
+        throws -> Integer?
+        where Integer:FixedWidthInteger & UnsignedInteger
     {
-        try self.load(index) { try $0.as(Binary?.self) }
+        try self.load(index) { try $0.as(Integer?.self) }
     }
+}
 
+extension Array where Element == JSON 
+{
     @inlinable public 
-    func load<Binary, T>(_ index:Int, as _:Binary.Type, _ body:(Binary) throws -> T) throws -> T
+    func load<Binary, T>(_ index:Int, as _:Binary.Type, 
+        _ body:(Binary) throws -> T) throws -> T
         where Binary:BinaryFloatingPoint
     {
         try self.load(index) { try body(try $0.as(Binary.self)) }
     }
     @inlinable public 
-    func load<Binary, T>(_ index:Int, as _:Binary?.Type, _ body:(Binary) throws -> T) throws -> T?
+    func load<Binary, T>(_ index:Int, as _:Binary?.Type, 
+        _ body:(Binary) throws -> T) throws -> T?
         where Binary:BinaryFloatingPoint
     {
         try self.load(index) { try $0.as(Binary?.self).map(body) }
+    }
+
+    @inlinable public 
+    func load<Binary>(_ index:Int, as _:Binary.Type = Binary.self) 
+        throws -> Binary
+        where Binary:BinaryFloatingPoint
+    {
+        try self.load(index) { try $0.as(Binary.self) }
+    }
+    @inlinable public 
+    func load<Binary>(_ index:Int, as _:Binary?.Type = Binary?.self) 
+        throws -> Binary?
+        where Binary:BinaryFloatingPoint
+    {
+        try self.load(index) { try $0.as(Binary?.self) }
     }
 }
