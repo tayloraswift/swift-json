@@ -345,40 +345,7 @@ extension JSON
     {
         try self.unwrap(pattern: Self.as(_:)) as Void
     }
-    @inlinable public 
-    func `as`(_:Bool.Type) throws -> Bool
-    {
-        try self.unwrap(pattern: Self.as(_:))
-    }
-    @inlinable public 
-    func `as`<Integer>(_:Integer.Type) throws -> Integer
-        where Integer:FixedWidthInteger & SignedInteger
-    {
-        try self.unwrap(pattern: Self.as(_:))
-    }
-    @inlinable public 
-    func `as`<Integer>(_:Integer.Type) throws -> Integer
-        where Integer:FixedWidthInteger & UnsignedInteger
-    {
-        try self.unwrap(pattern: Self.as(_:))
-    }
-    @inlinable public 
-    func `as`<Binary>(_:Binary.Type) throws -> Binary
-        where Binary:BinaryFloatingPoint
-    {
-        try self.unwrap(pattern: Self.as(_:))
-    }
-
-    @inlinable public 
-    func `as`(_:String.Type) throws -> String
-    {
-        try self.unwrap(pattern: Self.as(_:))
-    }
-    @inlinable public 
-    func `as`(_:[Self].Type) throws -> [Self]
-    {
-        try self.unwrap(pattern: Self.as(_:))
-    }
+    
     /// Attempts to cast this variant to a fixed-length ``Array`` of [`Self`]().
     /// 
     /// - Returns: The payload of this variant if it matches ``array(_:)``, and 
@@ -426,13 +393,7 @@ extension JSON
             throw PrimitiveError.shaping(aggregate: aggregate)
         }
     }
-    
 
-    @inlinable public 
-    func `as`(_:[(key:String, value:Self)].Type) throws -> [(key:String, value:Self)]
-    {
-        try self.unwrap(pattern: Self.as(_:))
-    }
     @inlinable public 
     func `as`(_:[String: Self].Type, 
         uniquingKeysWith combine:(Self, Self) throws -> Self) throws -> [String: Self]
@@ -441,6 +402,7 @@ extension JSON
             uniquingKeysWith: combine)
     }
 } 
+
 // primitive decoding hooks (throws, includes null)
 extension JSON
 {
@@ -461,39 +423,7 @@ extension JSON
             throw PrimitiveError.matching(variant: self, as: T?.self)
         }
     }
-    @inlinable public 
-    func `as`(_:Bool?.Type) throws -> Bool?
-    {
-        try self.apply(pattern: Self.as(_:))
-    }
-    @inlinable public 
-    func `as`<Integer>(_:Integer?.Type) throws -> Integer? 
-        where Integer:FixedWidthInteger & SignedInteger
-    {
-        try self.apply(pattern: Self.as(_:))
-    }
-    @inlinable public 
-    func `as`<Integer>(_:Integer?.Type) throws -> Integer?
-        where Integer:FixedWidthInteger & UnsignedInteger
-    {
-        try self.apply(pattern: Self.as(_:))
-    }
-    @inlinable public 
-    func `as`<Binary>(_:Binary?.Type) throws -> Binary?
-        where Binary:BinaryFloatingPoint
-    {
-        try self.apply(pattern: Self.as(_:))
-    }
-    @inlinable public 
-    func `as`(_:String?.Type) throws -> String?
-    {
-        try self.apply(pattern: Self.as(_:))
-    }
-    @inlinable public 
-    func `as`(_:[Self]?.Type) throws -> [Self]?
-    {
-        try self.apply(pattern: Self.as(_:))
-    }
+    
     @inlinable public 
     func `as`(_:[Self]?.Type, count:Int) throws -> [Self]?
     {
@@ -530,11 +460,6 @@ extension JSON
     }
 
     @inlinable public 
-    func `as`(_:[(key:String, value:Self)]?.Type) throws -> [(key:String, value:Self)]? 
-    {
-        try self.apply(pattern: Self.as(_:))
-    }
-    @inlinable public 
     func `as`(_:[String: Self]?.Type, 
         uniquingKeysWith combine:(Self, Self) throws -> Self) throws -> [String: Self]? 
     {
@@ -544,3 +469,107 @@ extension JSON
         }
     }
 } 
+
+extension JSON 
+{
+    @inlinable public 
+    func `as`(_:Bool.Type) throws -> Bool
+    {
+        try self.unwrap(pattern: Self.as(_:))
+    }
+    @inlinable public 
+    func `as`(_:Bool?.Type) throws -> Bool?
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+}
+
+extension JSON 
+{
+    @inlinable public 
+    func `as`(_:String.Type) throws -> String
+    {
+        try self.unwrap(pattern: Self.as(_:))
+    }
+    @inlinable public 
+    func `as`(_:String?.Type) throws -> String?
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+}
+
+extension JSON 
+{
+    @inlinable public 
+    func `as`(_:[Self].Type) throws -> [Self]
+    {
+        try self.unwrap(pattern: Self.as(_:))
+    }
+    @inlinable public 
+    func `as`(_:[Self]?.Type) throws -> [Self]?
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+}
+
+extension JSON 
+{
+    @inlinable public 
+    func `as`(_:[(key:String, value:Self)].Type) throws -> [(key:String, value:Self)]
+    {
+        try self.unwrap(pattern: Self.as(_:))
+    }
+    @inlinable public 
+    func `as`(_:[(key:String, value:Self)]?.Type) throws -> [(key:String, value:Self)]?
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+}
+
+extension JSON 
+{
+    @inlinable public 
+    func `as`<Integer>(_:Integer.Type) throws -> Integer
+        where Integer:FixedWidthInteger & SignedInteger
+    {
+        try self.unwrap(pattern: Self.as(_:))
+    }
+    @inlinable public 
+    func `as`<Integer>(_:Integer?.Type) throws -> Integer? 
+        where Integer:FixedWidthInteger & SignedInteger
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+}
+
+extension JSON 
+{
+    @inlinable public 
+    func `as`<Integer>(_:Integer.Type) throws -> Integer
+        where Integer:FixedWidthInteger & UnsignedInteger
+    {
+        try self.unwrap(pattern: Self.as(_:))
+    }
+    @inlinable public 
+    func `as`<Integer>(_:Integer?.Type) throws -> Integer? 
+        where Integer:FixedWidthInteger & UnsignedInteger
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+}
+
+extension JSON 
+{
+    @inlinable public 
+    func `as`<Binary>(_:Binary.Type) throws -> Binary
+        where Binary:BinaryFloatingPoint
+    {
+        try self.unwrap(pattern: Self.as(_:))
+    }
+    @inlinable public 
+    func `as`<Binary>(_:Binary?.Type) throws -> Binary? 
+        where Binary:BinaryFloatingPoint
+    {
+        try self.apply(pattern: Self.as(_:))
+    }
+}

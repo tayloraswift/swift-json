@@ -18,6 +18,42 @@
           "revision": "6e71dba093cf72a8a697309401ef5be52d42ddf3",
           "version": "0.4.0"
         }
+      },
+      {
+        "package": "swift-package-factory",
+        "repositoryURL": "https://github.com/kelvin13/swift-package-factory",
+        "state": {
+          "branch": "swift-DEVELOPMENT-SNAPSHOT-2022-08-18-a",
+          "revision": "210d9031872af3dec8f17d35dbd51563e7af5a05",
+          "version": null
+        }
+      },
+      {
+        "package": "SwiftSyntax",
+        "repositoryURL": "https://github.com/apple/swift-syntax.git",
+        "state": {
+          "branch": "swift-DEVELOPMENT-SNAPSHOT-2022-08-18-a",
+          "revision": "f0b5ed4713c484644c5e586b92b129da32ab0a4c",
+          "version": null
+        }
+      },
+      {
+        "package": "swift-system",
+        "repositoryURL": "https://github.com/apple/swift-system.git",
+        "state": {
+          "branch": null,
+          "revision": "025bcb1165deab2e20d4eaba79967ce73013f496",
+          "version": "1.2.1"
+        }
+      },
+      {
+        "package": "swift-system-extras",
+        "repositoryURL": "https://github.com/kelvin13/swift-system-extras.git",
+        "state": {
+          "branch": null,
+          "revision": "42f297a3191e668ed072878d5db3890db8eada50",
+          "version": "0.2.0"
+        }
       }
     ]
   },
