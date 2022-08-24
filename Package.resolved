@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/kelvin13/swift-grammar",
         "state": {
           "branch": null,
-          "revision": "272964fcecfff8b4181251bc9ff8bf76ecacbf57",
-          "version": "0.1.5"
+          "revision": "733ca5e74fb3722f3229a5ae055508da82b338b3",
+          "version": "0.2.0"
         }
       },
       {
@@ -24,7 +24,7 @@
         "repositoryURL": "https://github.com/kelvin13/swift-package-factory",
         "state": {
           "branch": "swift-DEVELOPMENT-SNAPSHOT-2022-08-18-a",
-          "revision": "210d9031872af3dec8f17d35dbd51563e7af5a05",
+          "revision": "cee4d0219240c417e0644553a2e6e8012da7e7f8",
           "version": null
         }
       },

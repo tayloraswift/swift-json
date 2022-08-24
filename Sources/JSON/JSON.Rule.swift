@@ -2,16 +2,14 @@
 
 extension JSON 
 {
-    /// @import(Grammar)
     /// Attempts to parse a complete JSON message (either an ``Rule//Array`` or an 
     /// ``Rule//Object``) from UTF-8-encoded text.
     @inlinable public 
     init<UTF8>(parsing utf8:UTF8) throws where UTF8:Collection, UTF8.Element == UInt8
     {
-        self = try Grammar.parse(utf8, as: JSON.Rule<UTF8.Index>.Root.self)
+        self = try JSON.Rule<UTF8.Index>.Root.parse(utf8)
     }
 
-    /// @import(Grammar)
     /// All of the parsing rules in this library are defined at the UTF-8 level. 
     /// 
     /// To parse *any* JSON value, including fragment values, use the ``JSON/Rule//Value`` 
@@ -26,7 +24,7 @@ extension JSON
     """
     {"success":true,"value":0.1}
     """
-    try Grammar.parse(string.utf8, as: JSON.Rule<String.Index>.Root.self)
+    try JSON.Rule<String.Index>.Root.parse(string.utf8)
     ```
     */
     /// However, you could also parse a UTF-8 buffer directly, without 
@@ -40,7 +38,7 @@ extension JSON
          34, 118,  97, 108, 117, 101,  34,  58, 
          48,  46,  49, 125
     ]
-    try Grammar.parse(utf8, as: JSON.Rule<Array<UInt8>.Index>.Root.self)
+    try JSON.Rule<Array<UInt8>.Index>.Root.parse(utf8)
     ```
     */
     /// The generic [`Location`]() 
@@ -56,13 +54,15 @@ extension JSON
     {
         /// ASCII terminals.
         public 
-        typealias ASCII = Grammar.Encoding<Location, UInt8>
+        typealias ASCII = UnicodeEncoding<Location, UInt8>
         /// ASCII hexadecimal digit terminals.
         public 
-        typealias HexDigit<T> = Grammar.HexDigit<Location, UInt8, T> where T:BinaryInteger
+        typealias HexDigit<T> = UnicodeDigit<Location, UInt8, T>.Hex 
+            where T:BinaryInteger
         /// ASCII decimal digit terminals.
         public 
-        typealias DecimalDigit<T> = Grammar.DecimalDigit<Location, UInt8, T> where T:BinaryInteger
+        typealias DecimalDigit<T> = UnicodeDigit<Location, UInt8, T>.Decimal 
+            where T:BinaryInteger
         
         // @available(*, deprecated, renamed: "JSON.Rule")
         // public 
@@ -246,14 +246,14 @@ extension JSON.Rule
             // https://datatracker.ietf.org/doc/html/rfc8259#section-6
             // JSON does not allow prefix '+'
             let sign:FloatingPointSign
-            switch input.parse(as: ASCII.Minus?.self)
+            switch input.parse(as: ASCII.Hyphen?.self)
             {
             case  _?:   sign = .minus 
             case nil:   sign = .plus
             }
             
             var units:UInt64    = 
-                try  input.parse(as: Grammar.UnsignedIntegerLiteral<DecimalDigit<UInt64>>.self)
+                try  input.parse(as: Pattern.UnsignedInteger<DecimalDigit<UInt64>>.self)
             var places:UInt32   = 0
             if  var (_, remainder):(Void, UInt64) = 
                 try? input.parse(as: (ASCII.Period, DecimalDigit<UInt64>).self)
@@ -264,7 +264,7 @@ extension JSON.Rule
                             case (let refined, false) = shifted.addingReportingOverflow(remainder)
                     else 
                     {
-                        throw Grammar.IntegerOverflowError<UInt64>.init()
+                        throw Pattern.IntegerOverflowError<UInt64>.init()
                     }
                     places += 1
                     units   = refined
@@ -280,7 +280,7 @@ extension JSON.Rule
             if  let _:Void                  =     input.parse(as: ASCII.E?.self) 
             {
                 let sign:FloatingPointSign? =     input.parse(as: PlusOrMinus?.self)
-                let exponent:UInt32         = try input.parse(as: Grammar.UnsignedIntegerLiteral<DecimalDigit<UInt32>>.self)
+                let exponent:UInt32         = try input.parse(as: Pattern.UnsignedInteger<DecimalDigit<UInt32>>.self)
                 // you too, can exploit the vulnerabilities below
                 switch sign
                 {
@@ -307,7 +307,7 @@ extension JSON.Rule
                         units.multipliedReportingOverflow(by: JSON.Base10.Exp[shift])
                     else 
                     {
-                        throw Grammar.IntegerOverflowError<UInt64>.init()
+                        throw Pattern.IntegerOverflowError<UInt64>.init()
                     }
                     units           = shifted
                 }
@@ -434,7 +434,7 @@ extension JSON.Rule
                     Diagnostics.Source.Index == Location,
                     Diagnostics.Source.Element == Terminal
         {
-            try                 input.parse(as: ASCII.Quote.self)
+            try                 input.parse(as: ASCII.DoubleQuote.self)
             
             let start:Location      = input.index 
             input.parse(as: CodeUnit.self, in: Void.self)
@@ -450,7 +450,7 @@ extension JSON.Rule
                 string             += .init(decoding: input[start ..< end], as: Unicode.UTF8.self)
             }
             
-            try                 input.parse(as: ASCII.Quote.self)
+            try                 input.parse(as: ASCII.DoubleQuote.self)
             return string 
         }
     }
@@ -496,7 +496,7 @@ extension JSON.Rule
     /// A helper rule, which accepts an input sequence that matches [`Rule`](), 
     /// with optional leading and trailing ``Whitespace`` characters.
     public 
-    typealias Padded<Rule> = Grammar.Pad<Rule, Whitespace> 
+    typealias Padded<Rule> = Pattern.Pad<Rule, Whitespace> 
         where Rule:ParsingRule, Rule.Location == Location, Rule.Terminal == UInt8
     
     /// @import(Grammar)
@@ -504,7 +504,7 @@ extension JSON.Rule
     /// 
     /// Array literals begin and end with square brackets (`[` and `]`), and 
     /// recursively contain instances of ``JSON/Rule//Value`` separated by ``JSON/Rule//Padded`` 
-    /// ``Grammar/Encoding//Comma``s. Trailing commas are not allowed.
+    /// ``UnicodeEncoding//Comma``s. Trailing commas are not allowed.
     public  
     enum Array:ParsingRule 
     {
@@ -539,7 +539,7 @@ extension JSON.Rule
     /// 
     /// Object literals begin and end with curly braces (`{` and `}`), and 
     /// contain instances of ``Item`` separated by ``JSON/Rule//Padded`` 
-    /// ``Grammar/Encoding//Comma``s. Trailing commas are not allowed.
+    /// ``UnicodeEncoding//Comma``s. Trailing commas are not allowed.
     public 
     enum Object:ParsingRule 
     {
@@ -547,7 +547,7 @@ extension JSON.Rule
         /// Matches an key-value expression.
         /// 
         /// A key-value expression consists of a ``JSON/Rule//StringLiteral``, 
-        /// a ``JSON/Rule//Padded`` ``Grammar/Encoding//Colon``, and 
+        /// a ``JSON/Rule//Padded`` ``UnicodeEncoding//Colon``, and 
         /// a recursive instance of ``JSON/Rule//Value``.
         public 
         enum Item:ParsingRule 

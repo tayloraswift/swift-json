@@ -17,24 +17,6 @@
 
 * `enum JSON`
 
-**In addition, this module re-exports the following top-level symbol(s) from the `Grammar` module of [`swift-grammar`](https://github.com/kelvin13/swift-grammar)**:
-
-* `enum Grammar`
-* `protocol TraceableError`
-* `protocol TraceableErrorRoot`
-* `struct ParsingError<Index>`
-* `struct ParsingInput<Diagnostics>`
-* `protocol ParsingDiagnostics`
-* `protocol ParsingRule`
-* `protocol TerminalRule`
-* `protocol LiteralRule`
-* `protocol DigitRule`
-* `protocol ASCIITerminal`
-* `protocol UTF8Terminal`
-* `protocol UTF16Terminal`
-* `protocol UnicodeTerminal`
-* `protocol CharacterTerminal`
-
 ## example usage
 
 The `JSON` module in `swift-json` enables you to express JSON parsing tasks as **constructive parsers**. This makes the `JSON` module very flexible without requiring much configuration from users who simply want to parse a JSON message from a remote peer.

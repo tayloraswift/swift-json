@@ -9,7 +9,7 @@ let package:Package = .init(
     ],
     dependencies: 
     [
-        .package(url: "https://github.com/kelvin13/swift-grammar", from: "0.1.5")
+        .package(url: "https://github.com/kelvin13/swift-grammar", .upToNextMinor(from: "0.2.0"))
     ],
     targets:
     [
