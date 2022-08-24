@@ -50,7 +50,7 @@ print(response)
 ```
 
 ```text
-$ .build/release/BasicDecoding
+$ swift run BasicDecoding
 Response(success: true, value: Decimal(units: 1, places: 1))
 ```
 
@@ -59,15 +59,19 @@ Like most `swift-grammar`-based [parsers](https://swiftinit.org/reference/swift-
 
 `swift-json`’s constructive parsing engine also allows you to get diagnostics for invalid JSON messages:
 
+> [`Diagnostics.swift`](Snippets/Diagnostics.swift)
+
 ```swift
+import Grammar
+import JSON
+
 let invalid:String = 
 """
 {"success":true,value:0.1}
 """
 do 
 {
-    let _:JSON = try JSON.Rule<String.Index>.Root.parse(
-        diagnosing: invalid.utf8)
+    let _:JSON = try JSON.Rule<String.Index>.Root.parse(diagnosing: invalid.utf8)
 }
 catch let error as ParsingError<String.Index> 
 {
@@ -77,6 +81,7 @@ catch let error as ParsingError<String.Index>
 }
 ```
 ```text
+$ swift run Diagnostics
 Grammar.Expected<Grammar.Encoding<String.Index, UInt8>.Quote>: expected construction by rule 'Quote'
 {"success":true,value:0.1}
                 ^
