@@ -1,4 +1,4 @@
-@_exported import Grammar
+import Grammar
 
 extension JSON 
 {
