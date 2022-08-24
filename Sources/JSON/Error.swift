@@ -1,3 +1,5 @@
+import Grammar
+
 #if swift(>=5.5)
 extension JSON.IntegerOverflowError:Sendable {}
 extension JSON.InvalidUnicodeScalarError:Sendable {}

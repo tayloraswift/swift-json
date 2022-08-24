@@ -12,7 +12,7 @@ let package:Package = .init(
     [
         .package(name: "swift-json", path: ".."),
 
-        .package(url: "https://github.com/kelvin13/swift-system-extras", from: "0.1.0"),
+        .package(url: "https://github.com/kelvin13/swift-system-extras", from: "0.2.0"),
         .package(url: "https://github.com/apple/swift-argument-parser",  from: "1.1.3"),
     ],
     targets: 
