@@ -17,29 +17,11 @@
 
 * `enum JSON`
 
-**In addition, this module re-exports the following top-level symbol(s) from the `Grammar` module of [`swift-grammar`](https://github.com/kelvin13/swift-grammar)**:
-
-* `enum Grammar`
-* `protocol TraceableError`
-* `protocol TraceableErrorRoot`
-* `struct ParsingError<Index>`
-* `struct ParsingInput<Diagnostics>`
-* `protocol ParsingDiagnostics`
-* `protocol ParsingRule`
-* `protocol TerminalRule`
-* `protocol LiteralRule`
-* `protocol DigitRule`
-* `protocol ASCIITerminal`
-* `protocol UTF8Terminal`
-* `protocol UTF16Terminal`
-* `protocol UnicodeTerminal`
-* `protocol CharacterTerminal`
-
 ## example usage
 
 The `JSON` module in `swift-json` enables you to express JSON parsing tasks as **constructive parsers**. This makes the `JSON` module very flexible without requiring much configuration from users who simply want to parse a JSON message from a remote peer.
 
-To parse a complete JSON message, use the [`JSON.Rule<Location>.Root`](https://swiftinit.org/reference/swift-json/json/json/rule/root) parsing rule:
+To parse a complete JSON message, use its `init(parsing:)` initializer, or for more flexibility, the [`JSON.Rule<Location>.Root`](https://swiftinit.org/reference/swift-json/json/json/rule/root) parsing rule:
 
 > [`BasicDecoding.swift`](Snippets/BasicDecoding.swift)
 
@@ -61,9 +43,8 @@ let string:String =
 """
 {"success":true,"value":0.1}
 """
-let decoder:JSON        = try Grammar.parse(string.utf8, 
-    as: JSON.Rule<String.Index>.Root.self)
-let response:Response   = try .init(from: decoder)
+let decoder:JSON = try .init(parsing: string.utf8)
+let response:Response = try .init(from: decoder)
 
 print(response)
 ```
@@ -85,8 +66,8 @@ let invalid:String =
 """
 do 
 {
-    let _:JSON = try Grammar.parse(diagnosing: invalid.utf8, 
-        as: JSON.Rule<String.Index>.Root.self)
+    let _:JSON = try JSON.Rule<String.Index>.Root.parse(
+        diagnosing: invalid.utf8)
 }
 catch let error as ParsingError<String.Index> 
 {

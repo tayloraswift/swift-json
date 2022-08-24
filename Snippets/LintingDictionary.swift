@@ -18,8 +18,7 @@ func decode(message:String) throws ->
 )
 {
     // snippet.parse
-    let json:JSON = try Grammar.parse(message.utf8, 
-        as: JSON.Rule<String.Index>.Root.self)
+    let json:JSON = try .init(parsing: message.utf8)
     // snippet.decode 
     return try json.lint 
     {
