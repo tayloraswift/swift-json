@@ -1,5 +1,6 @@
 import ArgumentParser
 import Foundation
+import Grammar
 import JSON
 import SystemExtras
 
@@ -77,7 +78,7 @@ struct Main:ParsableCommand
     func benchmarkSwiftJSONWithLinter(_ string:String) throws -> [Log]
     {
         var logs:[Log] = []
-        var input:ParsingInput<Grammar.NoDiagnostics<String.UTF8View>> = .init(string.utf8)
+        var input:ParsingInput<NoDiagnostics<String.UTF8View>> = .init(string.utf8)
         while let log:[(key:String, value:JSON)] = 
             input.parse(as: JSON.Rule<String.Index>.Object?.self)
         {
@@ -90,7 +91,7 @@ struct Main:ParsableCommand
     func benchmarkSwiftJSON(_ string:String) throws -> [Log]
     {
         var logs:[Log] = []
-        var input:ParsingInput<Grammar.NoDiagnostics<String.UTF8View>> = .init(string.utf8)
+        var input:ParsingInput<NoDiagnostics<String.UTF8View>> = .init(string.utf8)
         while let log:[(key:String, value:JSON)] = 
             input.parse(as: JSON.Rule<String.Index>.Object?.self)
         {

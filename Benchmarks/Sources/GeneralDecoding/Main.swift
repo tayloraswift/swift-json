@@ -1,5 +1,6 @@
 import ArgumentParser
 import Foundation
+import Grammar
 import JSON
 import SystemExtras
 
@@ -15,7 +16,7 @@ struct Main:ParsableCommand
 
         // the irony here is that ``Foundation/JSONDecoder`` cannot break message boundaries, 
         // so we need to use `/swift-json`’s parser. 
-        var input:ParsingInput<Grammar.NoDiagnostics<[UInt8]>> = .init(data)
+        var input:ParsingInput<NoDiagnostics<[UInt8]>> = .init(data)
         var boundaries:[Range<Int>] = []
         var start:Int = input.index 
         while let _:JSON = input.parse(as: JSON.Rule<Int>.Root?.self)
@@ -44,7 +45,7 @@ struct Main:ParsableCommand
     static 
     func benchmarkSwiftJSON(_ json:[UInt8]) throws -> Int
     {
-        try Grammar.parse(json, as: JSON.Rule<Int>.Root.self, in: [JSON].self).count
+        try JSON.Rule<Int>.Root.parse(json, into: [JSON].self).count
     }
     @inline(never)
     static 
