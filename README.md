@@ -24,7 +24,7 @@ The `JSON` module in `swift-json` enables you to express JSON parsing tasks as *
 
 To parse a complete JSON message, use its [`init(parsing:)`](https://swiftinit.org/reference/swift-json/json/json.init%28parsing:%29) initializer, or for more flexibility, the [`JSON.Rule<Location>.Root`](https://swiftinit.org/reference/swift-json/json/json/rule/root) parsing rule:
 
-> [`BasicDecoding.swift`](Snippets/BasicDecoding.swift)
+> [`BasicDecoding.swift`](_Snippets/BasicDecoding.swift)
 
 ```swift
 import JSON 
@@ -60,7 +60,7 @@ Like most `swift-grammar`-based [parsers](https://swiftinit.org/reference/swift-
 
 `swift-json`’s constructive parsing engine also allows you to get diagnostics for invalid JSON messages:
 
-> [`Diagnostics.swift`](Snippets/Diagnostics.swift)
+> [`Diagnostics.swift`](_Snippets/Diagnostics.swift)
 
 ```swift
 import Grammar
