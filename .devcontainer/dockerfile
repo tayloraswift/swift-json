@@ -1,0 +1,63 @@
+FROM amazonlinux:latest
+
+RUN yum -y update 
+# install sysadmin basics 
+RUN yum -y install sudo useradd passwd 
+# install swift dependencies
+RUN yum -y install \
+    binutils \
+    gcc \
+    git \
+    unzip \
+    glibc-static \
+    gzip \
+    libbsd \
+    libcurl-devel \
+    libedit \
+    libicu \
+    libsqlite \
+    libstdc++-static \
+    libuuid \
+    libxml2-devel \
+    tar \
+    tzdata \
+    zlib-devel
+
+# create the `ec2-user`, and switch to her
+RUN useradd -ms /bin/bash ec2-user
+RUN passwd -d ec2-user
+RUN usermod -aG wheel ec2-user
+USER ec2-user
+
+WORKDIR /home/ec2-user/
+# download a copy of `swiftenv`
+ADD https://github.com/kylef/swiftenv/archive/1.5.0.tar.gz swiftenv.tar.gz 
+# allow `ec2-user` to access it
+RUN sudo chown ec2-user swiftenv.tar.gz
+
+# also overrides any `.swift-version` local configurations
+ENV SWIFT_VERSION DEVELOPMENT-SNAPSHOT-2022-08-18-a
+ENV SWIFTENV_ROOT /home/ec2-user/.swiftenv
+# install `swiftenv`
+RUN mkdir -p $SWIFTENV_ROOT
+RUN tar -xzf swiftenv.tar.gz -C $SWIFTENV_ROOT --strip 1
+RUN rm swiftenv.tar.gz
+ENV PATH $SWIFTENV_ROOT/bin:$SWIFTENV_ROOT/shims:$PATH
+# install `swift`
+RUN swiftenv install https://download.swift.org/development/amazonlinux2/swift-$SWIFT_VERSION/swift-$SWIFT_VERSION-amazonlinux2.tar.gz
+
+# optional, but python, and iptables are very useful in a container
+RUN sudo yum -y install python3 libpython3-dev iptables nc
+
+# generate script that will run on terminal creation, 
+# enables showing the PWD prompt
+RUN echo "PS1='\w\$ '" >> .bashrc
+RUN echo "force_color_prompt=yes" >> .bashrc
+ENV TERM xterm-256color
+# generate script that will run on container startup
+RUN echo 'sudo iptables -t nat -A PREROUTING -p tcp --dport  80 -j REDIRECT --to-port 8080' >> setup
+RUN echo 'sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443' >> setup
+RUN echo 'sleep infinity' >> setup
+RUN chmod +x setup 
+
+CMD ./setup

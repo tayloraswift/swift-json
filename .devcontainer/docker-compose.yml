@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+    swift: 
+        image: swift-2022-08-18-a
+        build:
+            dockerfile: 'dockerfile'
+        volumes:
+            - ..:/swift-json
+        cap_add:
+            - NET_ADMIN
+        ports: 
+            - '80:80'
+            - '443:443'

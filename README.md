@@ -3,6 +3,7 @@
 ***`json`***<br>`0.3.0`
   
 [![ci build status](https://github.com/kelvin13/swift-json/actions/workflows/build.yml/badge.svg)](https://github.com/kelvin13/swift-json/actions/workflows/build.yml)
+[![ci devices build status](https://github.com/kelvin13/swift-json/actions/workflows/build-devices.yml/badge.svg)](https://github.com/kelvin13/swift-json/actions/workflows/build-devices.yml)
 [![ci windows build status](https://github.com/kelvin13/swift-json/actions/workflows/build-windows.yml/badge.svg)](https://github.com/kelvin13/swift-json/actions/workflows/build-windows.yml)
 [![ci benchmarks status](https://github.com/kelvin13/swift-json/actions/workflows/benchmarks.yml/badge.svg)](https://github.com/kelvin13/swift-json/actions/workflows/benchmarks.yml)
 
@@ -11,7 +12,7 @@
 
 </div>
 
-`swift-json` is a pure-Swift JSON parsing library designed for high-performance, high-throughput server-side applications. When compared using the test data [`captured.json`](Benchmarks/), `swift-json` is nearly 7 times faster than `Foundation.JSONDecoder` ([see benchmark source code](Benchmarks/Sources/GeneralDecoding)).
+`swift-json` is a pure-Swift JSON parsing library designed for high-performance, high-throughput server-side applications. When compared using the test data [`captured.json`](Benchmarks/), `swift-json` is nearly 7 times faster than `Foundation.JSONDecoder` ([see benchmark source code](Benchmarks/Sources/GeneralDecoding)). This library is powered by [`swift-grammar`](https://github.com/kelvin13/swift-grammar)!
 
 **Importing this module will expose the following top-level symbol(s)**:
 
@@ -21,9 +22,9 @@
 
 The `JSON` module in `swift-json` enables you to express JSON parsing tasks as **constructive parsers**. This makes the `JSON` module very flexible without requiring much configuration from users who simply want to parse a JSON message from a remote peer.
 
-To parse a complete JSON message, use its `init(parsing:)` initializer, or for more flexibility, the [`JSON.Rule<Location>.Root`](https://swiftinit.org/reference/swift-json/json/json/rule/root) parsing rule:
+To parse a complete JSON message, use its [`init(parsing:)`](https://swiftinit.org/reference/swift-json/json/json.init%28parsing:%29) initializer, or for more flexibility, the [`JSON.Rule<Location>.Root`](https://swiftinit.org/reference/swift-json/json/json/rule/root) parsing rule:
 
-> [`BasicDecoding.swift`](Snippets/BasicDecoding.swift)
+> [`BasicDecoding.swift`](_Snippets/BasicDecoding.swift)
 
 ```swift
 import JSON 
@@ -59,7 +60,7 @@ Like most `swift-grammar`-based [parsers](https://swiftinit.org/reference/swift-
 
 `swift-json`’s constructive parsing engine also allows you to get diagnostics for invalid JSON messages:
 
-> [`Diagnostics.swift`](Snippets/Diagnostics.swift)
+> [`Diagnostics.swift`](_Snippets/Diagnostics.swift)
 
 ```swift
 import Grammar

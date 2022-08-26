@@ -1,6 +1,5 @@
 /.build
 /.vscode
-/.devcontainer
 /.swift-version
 
 /Package.catalog
