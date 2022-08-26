@@ -7,8 +7,9 @@ on:
         branches: [ master, release/0.2 ]
 
 jobs:
-    build-macos:
+    devices:
         runs-on: ${{ matrix.os }}
+        name: ${{ matrix.device }} (${{ matrix.os }}, ${{ matrix.swift }})
         strategy:
             matrix:
                 os: [macos-12]
@@ -18,4 +19,4 @@ jobs:
             -   name: build 
                 run: |
                     swift --version
-                    xcrun xcodebuild build -scheme "JSON" -destination "generic/platform=${{ matrix.device }}"
+                    xcrun xcodebuild build -scheme "swift-json" -destination "generic/platform=${{ matrix.device }}"
