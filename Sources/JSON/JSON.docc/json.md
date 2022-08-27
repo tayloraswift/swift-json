@@ -10,6 +10,7 @@ lightweight set of tools for *decoding* parsed messages into Swift structures. U
 monolithic ``Foundation/JSONDecoder``, `JSON` vends atomized, 
 composable interfaces that can be adapted and optimized for a variety of use-cases.
 
-To minimize namespace pollution, most of this module’s API lives under the ``JSON//JSON`` enumeration.
+This module is a single-type module; its entire API lives under the ``JSON//JSON`` enumeration.
 
-This module re-exports the ``Grammar`` module from ``/swift-grammar``.
+Some of the more advanced functionality in this module requires importing the ``Grammar`` 
+module from ``/swift-grammar``. (It is not re-exported by default.)

@@ -3,6 +3,14 @@ extension JSON:Sendable {}
 #endif 
 /// A JSON variant value. This value may contain a fragment, an array, or an object.
 /// 
+/// You can parse JSON from any ``Collection`` of UTF-8 data using the ``JSON/.init(parsing:)``
+/// initializer. For example, you can parse from a (sub)string via its 
+/// ``StringProtocol//UTF8View``.
+/// 
+/// ```swift
+/// let json:JSON = try .init(parsing: "{\"hello\": \"world\"}".utf8)
+/// ```
+/// 
 /// All instances of this type, including ``JSON/.number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF`` 
 /// instances, can be round-tripped losslessly, as long as the initial encoding is performed by 
 /// ``/swift-json``. 
@@ -19,6 +27,25 @@ extension JSON:Sendable {}
 /// preserve the exact expressions used to represent them. For example, it will normalize the escape 
 /// sequences in [`"6\\/14\\/1946"`]() to [`"6/14/1946"`](), because the escaped forward-slashes 
 /// (`/`) are non-canonical.
+/// 
+/// ## Decoding with ``Codable``
+/// 
+/// `JSON` implements ``Decoder``, so you can use it with any type that conforms to 
+/// ``Decodable``.
+/// 
+/// ## Decoding with high-performance APIs
+/// 
+/// The standard library’s decoding system suffers from inherent inefficiencies due to 
+/// how it is defined. The *recommended* way to decode JSON is to use its 
+/// ``JSON//LintingDictionary`` API, alongside this module’s ``Array`` extensions.
+/// 
+/// Most of `swift-json`’s linting and array APIs take closure arguments. You should perform 
+/// decoding subtasks inside the closure bodies in order to take full advantage of the 
+/// library’s error reporting.
+/// 
+/// These APIs are low-cost abstractions that only incur overhead when decoding fails. 
+/// They can be significantly faster than the standard library’s ``Decoder`` hooks, and 
+/// only slightly more verbose than an equivalent ``Decodable`` implementation.
 @frozen public
 enum JSON
 {
