@@ -8,7 +8,7 @@ extension JSON
     {
         try self.as(cases: T.self)
     }
-
+    /// Attempts to load an instance of some ``String``-backed type from this variant.
     @inlinable public
     func `as`<StringCoded>(cases _:StringCoded.Type) throws -> StringCoded 
         where StringCoded:RawRepresentable, StringCoded.RawValue == String
@@ -22,6 +22,7 @@ extension JSON
             throw PrimitiveError.matching(variant: self, as: StringCoded.self)
         }
     }
+    /// Attempts to load an instance of some ``Character``-backed type from this variant.
     @inlinable public
     func `as`<CharacterCoded>(cases _:CharacterCoded.Type) throws -> CharacterCoded 
         where CharacterCoded:RawRepresentable, CharacterCoded.RawValue == Character
@@ -38,6 +39,7 @@ extension JSON
             throw PrimitiveError.matching(variant: self, as: CharacterCoded.self)
         }
     }
+    /// Attempts to load an instance of some ``Unicode/Scalar``-backed type from this variant.
     @inlinable public
     func `as`<ScalarCoded>(cases _:ScalarCoded.Type) throws -> ScalarCoded 
         where ScalarCoded:RawRepresentable, ScalarCoded.RawValue == Unicode.Scalar
@@ -54,6 +56,7 @@ extension JSON
             throw PrimitiveError.matching(variant: self, as: ScalarCoded.self)
         }
     }
+    /// Attempts to load an instance of some ``SignedInteger``-backed type from this variant.
     @inlinable public
     func `as`<IntegerCoded>(cases _:IntegerCoded.Type) throws -> IntegerCoded 
         where   IntegerCoded:RawRepresentable, 
@@ -69,6 +72,7 @@ extension JSON
             throw PrimitiveError.matching(variant: self, as: IntegerCoded.self)
         }
     }
+    /// Attempts to load an instance of some ``UnsignedInteger``-backed type from this variant.
     @inlinable public
     func `as`<UnsignedIntegerCoded>(cases _:UnsignedIntegerCoded.Type) throws -> UnsignedIntegerCoded 
         where   UnsignedIntegerCoded:RawRepresentable, 
@@ -95,7 +99,7 @@ extension JSON
         default:    return false
         }
     }
-    /// Attempts to cast this variant to an instance of ``Void``.
+    /// Attempts to unwrap an explicit ``null`` from this variant.
     /// 
     /// - returns: [`()`]() if this variant is ``null``, [`nil`]() otherwise.
     @inlinable public 
@@ -107,7 +111,7 @@ extension JSON
         default:    return nil 
         }
     }
-    /// Attempts to cast this variant to an instance of ``Bool``.
+    /// Attempts to unwrap an instance of ``Bool`` from this variant.
     /// 
     /// - Returns: The payload of this variant if it matches ``bool(_:)``, 
     ///     [`nil`]() otherwise.
@@ -120,7 +124,7 @@ extension JSON
         default:                return nil 
         }
     }
-    /// Attempts to cast this variant to an instance of a ``SignedInteger`` type.
+    /// Attempts to load an instance of some ``SignedInteger`` from this variant.
     /// 
     /// - Returns: A signed integer derived from the payload of this variant
     ///     if it matches ``number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF``, 
@@ -154,7 +158,7 @@ extension JSON
         }
         return integer 
     }
-    /// Attempts to cast this variant to an instance of an ``UnsignedInteger`` type.
+    /// Attempts to load an instance of some ``UnsignedInteger`` from this variant.
     /// 
     /// - Returns: An unsigned integer derived from the payload of this variant
     ///     if it matches ``number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF``, 
@@ -186,7 +190,7 @@ extension JSON
         }
         return integer 
     }
-    /// Attempts to cast this variant to an instance of a ``BinaryFloatingPoint`` type.
+    /// Attempts to load an instance of some ``BinaryFloatingPoint`` type from this variant.
     /// 
     /// - Returns: The closest value of [`T`]() to the payload of this 
     ///     variant if it matches ``number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF``, 
@@ -205,7 +209,7 @@ extension JSON
         default:                    return nil 
         }
     }
-    /// Attempts to cast this variant to an instance of ``String``.
+    /// Attempts to unwrap an instance of ``String`` from this variant.
     /// 
     /// - Returns: The payload of this variant if it matches ``string(_:)``, 
     ///     [`nil`]() otherwise.
@@ -220,7 +224,7 @@ extension JSON
         default:                    return nil
         }
     }
-    /// Attempts to cast this variant to an ``Array`` of [`Self`]().
+    /// Attempts to unwrap an ``Array`` of [`Self`]() from this variant.
     /// 
     /// - Returns: The payload of this variant if it matches ``array(_:)``, 
     ///     [`nil`]() otherwise.
@@ -236,7 +240,7 @@ extension JSON
         }
     }
     
-    /// Attempts to cast this variant to an ``Array`` of key-value pairs.
+    /// Attempts to unwrap an ``Array`` of key-value pairs from this variant.
     /// 
     /// - Returns: The payload of this variant if it matches ``object(_:)``, 
     ///     the fields of the payload of this variant if it matches 
@@ -276,7 +280,8 @@ extension JSON
             return nil 
         }
     }
-    /// Attempts to cast this variant to a ``Dictionary`` of [`Self`]().
+    /// Attempts to load a ``Dictionary`` from this variant, de-duplicating keys 
+    /// with the given closure.
     /// 
     /// - Returns: A dictionary derived from the payload of this variant if it 
     ///     matches ``object(_:)``, the fields of the payload of this variant if 
@@ -326,10 +331,20 @@ extension JSON
 }
 // primitive decoding hooks (throws, does not include null)
 extension JSON
-{    
-    @inline(__always)
+{
+    @available(*, deprecated, renamed: "match(_:)")
     @inlinable public 
     func unwrap<T>(pattern:(Self) -> (T.Type) throws -> T?) throws -> T
+    {
+        try self.match(pattern)
+    }
+    /// Promotes a [`nil`]() result to a thrown ``PrimitiveError``.
+    /// 
+    /// >   Throws: A ``PrimitiveError.matching(variant:as:)`` if the given 
+    ///     curried method returns [`nil`]().
+    @inline(__always)
+    @inlinable public 
+    func match<T>(_ pattern:(Self) -> (T.Type) throws -> T?) throws -> T
     {
         if let value:T = try pattern(self)(T.self)
         {
@@ -340,13 +355,16 @@ extension JSON
             throw PrimitiveError.matching(variant: self, as: T.self)
         }
     }
+    /// Attempts to unwrap an explicit ``null`` from this variant.
+    /// 
+    /// This method is a throwing variation of ``as(_:)?overload=s4JSONAAO2asyytSgytmF``.
     @inlinable public 
     func `as`(_:Void.Type) throws 
     {
-        try self.unwrap(pattern: Self.as(_:)) as Void
+        try self.match(Self.as(_:)) as Void
     }
     
-    /// Attempts to cast this variant to a fixed-length ``Array`` of [`Self`]().
+    /// Attempts to unwrap a fixed-length ``Array`` of [`Self`]() from this variant.
     /// 
     /// - Returns: The payload of this variant if it matches ``array(_:)``, and 
     ///     contains the expected number of elements.
@@ -359,7 +377,7 @@ extension JSON
     @inlinable public 
     func `as`(_:[Self].Type, count:Int) throws -> [Self]
     {
-        let aggregate:[Self] = try self.unwrap(pattern: Self.as(_:))
+        let aggregate:[Self] = try self.match(Self.as(_:))
         if  aggregate.count == count 
         {
             return aggregate
@@ -369,7 +387,7 @@ extension JSON
             throw PrimitiveError.shaping(aggregate: aggregate, count: count)
         }
     }
-    /// Attempts to cast this variant to an ``Array`` of [`Self`](), whose length 
+    /// Attempts to unwrap an ``Array`` of [`Self`]() from this variant, whose length 
     /// satifies the given criteria.
     /// 
     /// - Returns: The payload of this variant if it matches ``array(_:)``, and 
@@ -383,7 +401,7 @@ extension JSON
     @inlinable public 
     func `as`(_:[Self].Type, where predicate:(_ count:Int) throws -> Bool) throws -> [Self]
     {
-        let aggregate:[Self] = try self.unwrap(pattern: Self.as(_:))
+        let aggregate:[Self] = try self.match(Self.as(_:))
         if try predicate(aggregate.count)
         {
             return aggregate
@@ -393,7 +411,11 @@ extension JSON
             throw PrimitiveError.shaping(aggregate: aggregate)
         }
     }
-
+    /// Attempts to load a ``Dictionary`` from this variant, de-duplicating keys 
+    /// with the given closure.
+    /// 
+    /// This method is a throwing variation of 
+    /// ``as(_:uniquingKeysWith:)?overload=s4JSONAAO2as_16uniquingKeysWithSDySSABGSgAEm_A2B_ABtKXEtKF``.
     @inlinable public 
     func `as`(_:[String: Self].Type, 
         uniquingKeysWith combine:(Self, Self) throws -> Self) throws -> [String: Self]
@@ -406,9 +428,27 @@ extension JSON
 // primitive decoding hooks (throws, includes null)
 extension JSON
 {
-    @inline(__always)
+    @available(*, deprecated, renamed: "flatMatch(_:)")
     @inlinable public 
     func apply<T>(pattern:(Self) -> (T.Type) throws -> T?) throws -> T?
+    {
+        try self.flatMatch(pattern)
+    }
+
+    /// Promotes a [`nil`]() result to a thrown ``PrimitiveError``, if this variant 
+    /// is not an explicit ``null``.
+    /// 
+    /// `flatMatch(_:)` is to ``match(_:)`` what ``Optional.flatMap(_:)`` is to 
+    /// ``Optional.map(_:)``.
+    /// 
+    /// -   Returns: [`nil`]() if this variant is an explicit ``null``; the result of 
+    ///     applying the given curried method otherwise.
+    /// 
+    /// >   Throws: A ``PrimitiveError.matching(variant:as:)`` if the given 
+    ///     curried method returns [`nil`]().
+    @inline(__always)
+    @inlinable public 
+    func flatMatch<T>(_ pattern:(Self) -> (T.Type) throws -> T?) throws -> T?
     {
         if case .null = self 
         {
@@ -423,11 +463,15 @@ extension JSON
             throw PrimitiveError.matching(variant: self, as: T?.self)
         }
     }
-    
+    /// Attempts to unwrap a fixed-length ``Array`` of [`Self`]() or an explicit ``null`` 
+    /// from this variant.
+    /// 
+    /// This method is an optionalized variation of 
+    /// ``as(_:count:)?overload=s4JSONAAO2as_5countSayABGAEm_SitKF``.
     @inlinable public 
     func `as`(_:[Self]?.Type, count:Int) throws -> [Self]?
     {
-        guard let aggregate:[Self] = try self.apply(pattern: Self.as(_:))
+        guard let aggregate:[Self] = try self.flatMatch(Self.as(_:))
         else 
         {
             return nil
@@ -441,10 +485,15 @@ extension JSON
             throw PrimitiveError.shaping(aggregate: aggregate, count: count)
         }
     }
+    /// Attempts to unwrap an ``Array`` of [`Self`]() from this variant, whose length 
+    /// satifies the given criteria, or an explicit ``null``.
+    /// 
+    /// This method is an optionalized variation of 
+    /// ``as(_:where:)?overload=s4JSONAAO2as_5whereSayABGAEm_SbSiKXEtKF``.
     @inlinable public 
     func `as`(_:[Self]?.Type, where predicate:(_ count:Int) throws -> Bool) throws -> [Self]?
     {
-        guard let aggregate:[Self] = try self.apply(pattern: Self.as(_:))
+        guard let aggregate:[Self] = try self.flatMatch(Self.as(_:))
         else 
         {
             return nil
@@ -458,7 +507,11 @@ extension JSON
             throw PrimitiveError.shaping(aggregate: aggregate)
         }
     }
-
+    /// Attempts to load a ``Dictionary`` from this variant, de-duplicating keys 
+    /// with the given closure.
+    /// 
+    /// This method is an optionalized variation of 
+    /// ``as(_:uniquingKeysWith:)?overload=s4JSONAAO2as_16uniquingKeysWithSDySSABGAEm_A2B_ABtKXEtKF``.
     @inlinable public 
     func `as`(_:[String: Self]?.Type, 
         uniquingKeysWith combine:(Self, Self) throws -> Self) throws -> [String: Self]? 
@@ -475,12 +528,12 @@ extension JSON
     @inlinable public 
     func `as`(_:Bool.Type) throws -> Bool
     {
-        try self.unwrap(pattern: Self.as(_:))
+        try self.match(Self.as(_:))
     }
     @inlinable public 
     func `as`(_:Bool?.Type) throws -> Bool?
     {
-        try self.apply(pattern: Self.as(_:))
+        try self.flatMatch(Self.as(_:))
     }
 }
 
@@ -489,12 +542,12 @@ extension JSON
     @inlinable public 
     func `as`(_:String.Type) throws -> String
     {
-        try self.unwrap(pattern: Self.as(_:))
+        try self.match(Self.as(_:))
     }
     @inlinable public 
     func `as`(_:String?.Type) throws -> String?
     {
-        try self.apply(pattern: Self.as(_:))
+        try self.flatMatch(Self.as(_:))
     }
 }
 
@@ -503,12 +556,12 @@ extension JSON
     @inlinable public 
     func `as`(_:[Self].Type) throws -> [Self]
     {
-        try self.unwrap(pattern: Self.as(_:))
+        try self.match(Self.as(_:))
     }
     @inlinable public 
     func `as`(_:[Self]?.Type) throws -> [Self]?
     {
-        try self.apply(pattern: Self.as(_:))
+        try self.flatMatch(Self.as(_:))
     }
 }
 
@@ -517,12 +570,12 @@ extension JSON
     @inlinable public 
     func `as`(_:[(key:String, value:Self)].Type) throws -> [(key:String, value:Self)]
     {
-        try self.unwrap(pattern: Self.as(_:))
+        try self.match(Self.as(_:))
     }
     @inlinable public 
     func `as`(_:[(key:String, value:Self)]?.Type) throws -> [(key:String, value:Self)]?
     {
-        try self.apply(pattern: Self.as(_:))
+        try self.flatMatch(Self.as(_:))
     }
 }
 
@@ -532,13 +585,13 @@ extension JSON
     func `as`<Integer>(_:Integer.Type) throws -> Integer
         where Integer:FixedWidthInteger & SignedInteger
     {
-        try self.unwrap(pattern: Self.as(_:))
+        try self.match(Self.as(_:))
     }
     @inlinable public 
     func `as`<Integer>(_:Integer?.Type) throws -> Integer? 
         where Integer:FixedWidthInteger & SignedInteger
     {
-        try self.apply(pattern: Self.as(_:))
+        try self.flatMatch(Self.as(_:))
     }
 }
 
@@ -548,13 +601,13 @@ extension JSON
     func `as`<Integer>(_:Integer.Type) throws -> Integer
         where Integer:FixedWidthInteger & UnsignedInteger
     {
-        try self.unwrap(pattern: Self.as(_:))
+        try self.match(Self.as(_:))
     }
     @inlinable public 
     func `as`<Integer>(_:Integer?.Type) throws -> Integer? 
         where Integer:FixedWidthInteger & UnsignedInteger
     {
-        try self.apply(pattern: Self.as(_:))
+        try self.flatMatch(Self.as(_:))
     }
 }
 
@@ -564,12 +617,12 @@ extension JSON
     func `as`<Binary>(_:Binary.Type) throws -> Binary
         where Binary:BinaryFloatingPoint
     {
-        try self.unwrap(pattern: Self.as(_:))
+        try self.match(Self.as(_:))
     }
     @inlinable public 
     func `as`<Binary>(_:Binary?.Type) throws -> Binary? 
         where Binary:BinaryFloatingPoint
     {
-        try self.apply(pattern: Self.as(_:))
+        try self.flatMatch(Self.as(_:))
     }
 }
