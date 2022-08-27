@@ -65,9 +65,8 @@ extension JSON:Decoder
 
 extension JSON 
 {
-    // this is specifically used for decoding nested values while keeping track 
-    // of the coding path taken and user info provided from earlier decoding 
-    // operations. 
+    /// A single-value decoding container, for use with compiler-generated ``Decodable`` 
+    /// implementations.
     public 
     struct Decoder
     {

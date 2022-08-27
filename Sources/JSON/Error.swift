@@ -10,6 +10,10 @@ extension JSON.RecursiveError:Sendable {}
 #endif 
 extension JSON 
 {
+    /// A string literal contained a unicode escape sequence that does not encode a 
+    /// valid ``Unicode/Scalar``.
+    /// 
+    /// This error is thrown by the parser. Decoders should not use it.
     public 
     struct InvalidUnicodeScalarError:Error
     {
@@ -21,13 +25,15 @@ extension JSON
             self.value = value
         }
     }
-    
-    // this is distinct from `Grammar.IntegerOverflowError<T>`, and only thrown
-    // by the conversions on `Number`. this is the error thrown by the `Decoder`
-    // implementation.
+    /// @import(Grammar)
+    /// An integer overflow occurred while converting a number literal to a desired type.
+    /// 
+    /// This error is thrown by decoders, and is different from ``Pattern/IntegerOverflowError``, 
+    /// which is thrown by the parser.
     public
     struct IntegerOverflowError:Error, CustomStringConvertible 
     {
+        /// The number literal that could not be converted.
         public
         let number:Number
         
@@ -46,6 +52,7 @@ extension JSON
         public
         var type:Any.Type { self.overflows }
         
+        /// The metatype of the desired integer type.
         @available(swift, introduced: 5.7)
         public
         let overflows:any FixedWidthInteger.Type
@@ -68,10 +75,12 @@ extension JSON
             #endif
         }
     }
-    
+    /// A decoder did not consume, discard, or whitelist all the available keys
+    /// in a JSON object.
     public 
     struct LintingError:TraceableErrorRoot 
     {
+        /// Returns the string [`"linting error"`]().
         public static 
         var namespace:String 
         {
@@ -92,18 +101,21 @@ extension JSON
             self.unused = unused
         }
     }
-    
+    /// A primitive decoding operation failed.
     public 
     enum PrimitiveError:TraceableErrorRoot
     {
+        /// Returns the string [`"primitive decoding error"`]().
         public static 
         var namespace:String 
         {
             "primitive decoding error"
         }
-        
+        /// A decoder successfully unwrapped an array, but it had the wrong number of elements.
         case shaping(aggregate:[JSON], count:Int? = nil)
+        /// A decoder failed to unwrap the expected type from a variant.
         case matching(variant:JSON, as:Any.Type)
+        /// An object did not contain the expected key.
         case undefined(key:String, in:[String: JSON])
         
         public 
@@ -122,16 +134,21 @@ extension JSON
             }
         }
     }
+    /// An error occurred while performing a decoding operation on an element of 
+    /// an array or object.
     public 
     enum RecursiveError:TraceableError 
     {
+        /// Returns the string [`"nested decoding error"`]().
         public static 
         var namespace:String 
         {
             "nested decoding error"
         }
         
+        /// An error occurred while decoding an element of an array.
         case array(underlying:Error, at:Int)
+        /// An error occurred while decoding a field of an object.
         case dictionary(underlying:Error, in:String)
 
         @available(*, deprecated, message: "Specify an explicit index with ``array(underlying:at:)``.")
@@ -152,6 +169,7 @@ extension JSON
                 return ["while decoding dictionary value for key '\(key)'"]
             }
         }
+        /// The underlying error that occurred.
         public 
         var next:Error?
         {

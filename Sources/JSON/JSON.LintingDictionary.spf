@@ -7,12 +7,26 @@ extension JSON
     {
         preconditionFailure()
     }
-
+    /// Provides a linting context for the given decoding task.
+    /// 
+    /// If you need to delete some of the keys beforehand, use ``lint(discarding:)``. 
+    /// If you need to optionally ignore some of the keys, use ``lint(whitelisting:)``.
+    /// 
+    /// >   Throws: a ``LintingError`` if any unused keys 
+    ///     remain in the linting dictionary after decoding.
     @inlinable public 
     func lint<T>(_ body:(inout LintingDictionary) throws -> T) throws -> T
     {
         try self.lint(whitelisting: EmptyCollection<String>.init(), body)
     }
+    /// Provides a linting context for the given decoding task, removing the 
+    /// specified keys beforehand. 
+    /// 
+    /// All of the discarded keys must exist in this object.
+    /// 
+    /// >   Throws: A ``PrimitiveError.undefined(key:in:)`` if any of the discarded 
+    ///     keys are missing from this object, or a ``LintingError`` if any unused keys 
+    ///     remain in the linting dictionary after decoding.
     @inlinable public 
     func lint<Discards, T>(discarding discards:Discards, 
         _ body:(inout LintingDictionary) throws -> T) throws -> T
@@ -27,6 +41,11 @@ extension JSON
             return try body(&$0)
         }
     }
+    /// Provides a linting context for the given decoding task, removing the 
+    /// specified keys afterwards if the decoder did not consume them. 
+    /// 
+    /// >   Throws: A ``LintingError`` if any unused keys besides the whitelisted ones 
+    ///     remain in the linting dictionary after decoding.
     @inlinable public 
     func lint<Whitelist, T>(whitelisting whitelist:Whitelist, 
         _ body:(inout LintingDictionary) throws -> T) throws -> T
@@ -46,7 +65,10 @@ extension JSON
         }
         return result
     }
-    
+    /// A mutable wrapper around a JSON object for efficient, type-safe decoding.
+    /// 
+    /// Decoding with a linting dictionary can be up to 10 times faster than decoding 
+    /// with the standard library’s ``Decodable`` hooks.
     @frozen public 
     struct LintingDictionary
     {

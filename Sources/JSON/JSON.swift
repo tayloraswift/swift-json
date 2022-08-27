@@ -33,9 +33,19 @@ extension JSON:Sendable {}
 /// `JSON` implements ``Decoder``, so you can use it with any type that conforms to 
 /// ``Decodable``.
 /// 
+/// ## Decoding with high-performance APIs
+/// 
 /// The standard library’s decoding system suffers from inherent inefficiencies due to 
 /// how it is defined. The *recommended* way to decode JSON is to use its 
 /// ``JSON//LintingDictionary`` API, alongside this module’s ``Array`` extensions.
+/// 
+/// Most of `swift-json`’s linting and array APIs take closure arguments. You should perform 
+/// decoding subtasks inside the closure bodies in order to take full advantage of the 
+/// library’s error reporting.
+/// 
+/// These APIs are low-cost abstractions that only incur overhead when decoding fails. 
+/// They can be significantly faster than the standard library’s ``Decoder`` hooks, and 
+/// only slightly more verbose than an equivalent ``Decodable`` implementation.
 @frozen public
 enum JSON
 {
