@@ -1,4 +1,4 @@
-import Grammar
+import TraceableErrors
 
 #if swift(>=5.5)
 extension JSON.IntegerOverflowError:Sendable {}
@@ -78,17 +78,10 @@ extension JSON
     /// A decoder did not consume, discard, or whitelist all the available keys
     /// in a JSON object.
     public 
-    struct LintingError:TraceableErrorRoot 
+    struct LintingError:Error, CustomStringConvertible
     {
-        /// Returns the string [`"linting error"`]().
-        public static 
-        var namespace:String 
-        {
-            "linting error"
-        }
-
         public 
-        var message:String
+        var description:String
         {
             "unused object items \(self.unused)"
         }
@@ -103,14 +96,8 @@ extension JSON
     }
     /// A primitive decoding operation failed.
     public 
-    enum PrimitiveError:TraceableErrorRoot
+    enum PrimitiveError:Error, CustomStringConvertible
     {
-        /// Returns the string [`"primitive decoding error"`]().
-        public static 
-        var namespace:String 
-        {
-            "primitive decoding error"
-        }
         /// A decoder successfully unwrapped an array, but it had the wrong number of elements.
         case shaping(aggregate:[JSON], count:Int? = nil)
         /// A decoder failed to unwrap the expected type from a variant.
@@ -119,7 +106,7 @@ extension JSON
         case undefined(key:String, in:[String: JSON])
         
         public 
-        var message:String 
+        var description:String 
         {
             switch self 
             {
@@ -139,13 +126,6 @@ extension JSON
     public 
     enum RecursiveError:TraceableError 
     {
-        /// Returns the string [`"nested decoding error"`]().
-        public static 
-        var namespace:String 
-        {
-            "nested decoding error"
-        }
-        
         /// An error occurred while decoding an element of an array.
         case array(underlying:Error, at:Int)
         /// An error occurred while decoding a field of an object.
@@ -159,7 +139,7 @@ extension JSON
         }
 
         public 
-        var context:[String] 
+        var notes:[String] 
         {
             switch self 
             {
@@ -171,7 +151,7 @@ extension JSON
         }
         /// The underlying error that occurred.
         public 
-        var next:Error?
+        var underlying:Error
         {
             switch self 
             {

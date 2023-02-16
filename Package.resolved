@@ -2,15 +2,6 @@
   "object": {
     "pins": [
       {
-        "package": "swift-grammar",
-        "repositoryURL": "https://github.com/kelvin13/swift-grammar",
-        "state": {
-          "branch": null,
-          "revision": "9951511e213741b18de71264f22be1392163428e",
-          "version": "0.2.0"
-        }
-      },
-      {
         "package": "swift-package-catalog",
         "repositoryURL": "https://github.com/kelvin13/swift-package-catalog",
         "state": {

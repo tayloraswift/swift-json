@@ -29,10 +29,12 @@ let package:Package = .init(
     products:
     [
         .library(name: "JSON", targets: ["JSON"]),
+        .library(name: "JSONDecoding", targets: ["JSONDecoding"]),
     ],
     dependencies: plugins +
     [
-        .package(url: "https://github.com/kelvin13/swift-grammar", .upToNextMinor(from: "0.2.0")),
+        //.package(url: "https://github.com/kelvin13/swift-grammar", .upToNextMinor(from: "0.2.0")),
+        .package(path: "../swift-grammar"),
     ],
     targets:
     [
@@ -41,5 +43,25 @@ let package:Package = .init(
             [
                 .product(name: "Grammar", package: "swift-grammar"),
             ]),
+        
+        .target(name: "JSONDecoding", 
+            dependencies: 
+            [
+                .target(name: "JSON"),
+            ]),
+        
+        .executableTarget(name: "ParsingDiagnosticsExample", 
+            dependencies: 
+            [
+                .target(name: "JSON"),
+            ],
+            path: "Examples/ParsingDiagnostics"),
+        
+        .executableTarget(name: "BasicDecodingExample", 
+            dependencies: 
+            [
+                .target(name: "JSON"),
+            ],
+            path: "Examples/BasicDecoding"),
     ]
 )

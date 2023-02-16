@@ -11,7 +11,8 @@ do
 }
 catch let error as ParsingError<String.Index> 
 {
-    let debug:String = error.annotate(source: invalid, 
-        line: String.init(_:), newline: \.isNewline)
-    print(debug)
+    let annotated:String = error.annotate(source: invalid, 
+        renderer: String.init(_:),
+        newline: \.isNewline)
+    print(annotated)
 }

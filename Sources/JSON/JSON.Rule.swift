@@ -401,7 +401,7 @@ extension JSON.Rule
                     }
                     else 
                     {
-                        try input.parse(as: ASCII.U.Lowercase.self) 
+                        try input.parse(as: ASCII.LowercaseU.self) 
                         let value:UInt16 = 
                             (try input.parse(as: HexDigit<UInt16>.self) << 12) |
                             (try input.parse(as: HexDigit<UInt16>.self) <<  8) |

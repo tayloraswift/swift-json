@@ -115,171 +115,48 @@ extension JSON
     /// 
     /// - Returns: The payload of this variant if it matches ``bool(_:)``, 
     ///     [`nil`]() otherwise.
-    @inlinable public 
-    func `as`(_:Bool.Type) -> Bool?
-    {
-        switch self 
-        {
-        case .bool(let value):  return value
-        default:                return nil 
-        }
-    }
-    /// Attempts to load an instance of some ``SignedInteger`` from this variant.
-    /// 
-    /// - Returns: A signed integer derived from the payload of this variant
-    ///     if it matches ``number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF``, 
-    ///     and it can be represented exactly by [`T`](); [`nil`]() otherwise.
-    ///
-    /// This method reports failure in two ways — it returns [`nil`]() on a type 
-    /// mismatch, and it [`throws`]() an ``IntegerOverflowError`` if this variant 
-    /// matches ``number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF``, but it 
-    /// could not be represented exactly by [`T`]().
-    /// 
-    /// >   Note:
-    ///     This type conversion will fail if ``Number.places`` is non-zero, even if 
-    ///     the fractional part is zero. For example, you can convert 
-    ///     [`5`]() to an integer, but not [`5.0`](). This matches the behavior 
-    ///     of ``ExpressibleByIntegerLiteral``.
-    @inlinable public 
-    func `as`<Integer>(_:Integer.Type) throws -> Integer? 
-        where Integer:FixedWidthInteger & SignedInteger
-    {
-        // do not use init(exactly:) with decimal value directly, as this 
-        // will also accept values like 1.0, which we want to reject
-        guard case .number(let number) = self 
-        else 
-        {
-            return nil
-        }
-        guard let integer:Integer = number.as(Integer.self)
-        else 
-        {
-            throw IntegerOverflowError.init(number: number, overflows: Integer.self)
-        }
-        return integer 
-    }
-    /// Attempts to load an instance of some ``UnsignedInteger`` from this variant.
-    /// 
-    /// - Returns: An unsigned integer derived from the payload of this variant
-    ///     if it matches ``number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF``, 
-    ///     and it can be represented exactly by [`T`](); [`nil`]() otherwise.
-    ///
-    /// This method reports failure in two ways — it returns [`nil`]() on a type 
-    /// mismatch, and it [`throws`]() an ``IntegerOverflowError`` if this variant 
-    /// matches ``number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF``, but it could 
-    /// not be represented exactly by [`T`]().
-    /// 
-    /// >   Note:
-    ///     This type conversion will fail if ``Number.places`` is non-zero, even if 
-    ///     the fractional part is zero. For example, you can convert 
-    ///     [`5`]() to an integer, but not [`5.0`](). This matches the behavior 
-    ///     of ``ExpressibleByIntegerLiteral``.
-    @inlinable public 
-    func `as`<Integer>(_:Integer.Type) throws -> Integer?
-        where Integer:FixedWidthInteger & UnsignedInteger
-    {
-        guard case .number(let number) = self 
-        else 
-        {
-            return nil
-        }
-        guard let integer:Integer = number.as(Integer.self)
-        else 
-        {
-            throw IntegerOverflowError.init(number: number, overflows: Integer.self)
-        }
-        return integer 
-    }
-    /// Attempts to load an instance of some ``BinaryFloatingPoint`` type from this variant.
-    /// 
-    /// - Returns: The closest value of [`T`]() to the payload of this 
-    ///     variant if it matches ``number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF``, 
-    ///     [`nil`]() otherwise.
-    ///
-    /// Calling this method is equivalent to matching the 
-    /// ``number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF`` enumeration 
-    /// case, and calling ``Number.as(_:)`` on its payload.
-    @inlinable public 
-    func `as`<Binary>(_:Binary.Type) -> Binary?
-        where Binary:BinaryFloatingPoint
-    {
-        switch self 
-        {
-        case .number(let number):   return number.as(Binary.self)
-        default:                    return nil 
-        }
-    }
+    // @inlinable public 
+    // func `as`(_:Bool.Type) -> Bool?
+    // {
+    //     switch self 
+    //     {
+    //     case .bool(let value):  return value
+    //     default:                return nil 
+    //     }
+    // }
+    
     /// Attempts to unwrap an instance of ``String`` from this variant.
     /// 
     /// - Returns: The payload of this variant if it matches ``string(_:)``, 
     ///     [`nil`]() otherwise.
     /// >   Complexity: 
     ///     O(1). This method does *not* perform any character-wise work.
-    @inlinable public 
-    func `as`(_:String.Type) -> String?
-    {
-        switch self 
-        {
-        case .string(let string):   return string
-        default:                    return nil
-        }
-    }
+    // @inlinable public 
+    // func `as`(_:String.Type) -> String?
+    // {
+    //     switch self 
+    //     {
+    //     case .string(let string):   return string
+    //     default:                    return nil
+    //     }
+    // }
     /// Attempts to unwrap an ``Array`` of [`Self`]() from this variant.
     /// 
     /// - Returns: The payload of this variant if it matches ``array(_:)``, 
     ///     [`nil`]() otherwise.
     /// >   Complexity: 
     //      O(1). This method does *not* perform any elementwise work.
-    @inlinable public 
-    func `as`(_:[Self].Type) -> [Self]?
-    {
-        switch self 
-        {
-        case .array(let elements):  return elements 
-        default:                    return nil
-        }
-    }
+    // @inlinable public 
+    // func `as`(_:[Self].Type) -> [Self]?
+    // {
+    //     switch self 
+    //     {
+    //     case .array(let elements):  return elements 
+    //     default:                    return nil
+    //     }
+    // }
     
-    /// Attempts to unwrap an ``Array`` of key-value pairs from this variant.
-    /// 
-    /// - Returns: The payload of this variant if it matches ``object(_:)``, 
-    ///     the fields of the payload of this variant if it matches 
-    ///     ``number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF``, or
-    ///     [`nil`]() otherwise.
-    /// 
-    /// The order of the items reflects the order in which they appear in the 
-    /// source object. For more details about the payload, see the documentation 
-    /// for ``object(_:)``.
-    /// 
-    /// To facilitate interoperability with decimal types, this method will also 
-    /// return a pseudo-object containing the values of ``Number.units`` and ``Number.places``, 
-    /// if this variant is a ``number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF``. 
-    /// Specifically, it contains integral ``Number`` values keyed by [`"units"`]() and 
-    /// [`"places"`]() and wrapped in containers of type [`Self`]().
-    ///
-    /// This pseudo-object is intended for consumption by compiler-generated 
-    /// ``Codable`` implementations. Decoding it incurs a small but non-zero 
-    /// overhead when compared with calling 
-    /// ``Number.as(_:)?overload=s4JSONAAO6NumberV2asyx5units_x6placestSgxAF_xAGtms17FixedWidthIntegerRzSZRzlF`` 
-    /// directly.
-    /// 
-    /// >   Complexity: 
-    ///     O(1). This method does *not* perform any elementwise work.
-    @inlinable public 
-    func `as`(_:[(key:String, value:Self)].Type) -> [(key:String, value:Self)]? 
-    {
-        switch self 
-        {
-        case .object(let items):
-            return items
-        case .number(let number):
-            let units:Number    = .init(sign: number.sign, units: number.units,  places: 0),
-                places:Number   = .init(sign:       .plus, units: number.places, places: 0)
-            return [("units", .number(units)), ("places", .number(places))]
-        default:
-            return nil 
-        }
-    }
+
     /// Attempts to load a ``Dictionary`` from this variant, de-duplicating keys 
     /// with the given closure.
     /// 
@@ -323,7 +200,7 @@ extension JSON
     func `as`(_:[String: Self].Type, 
         uniquingKeysWith combine:(Self, Self) throws -> Self) rethrows -> [String: Self]? 
     {
-        try self.as([(key:String, value:Self)].self).map
+        try self.object.map
         {
             try [String: Self].init($0, uniquingKeysWith: combine)
         }

@@ -216,3 +216,231 @@ extension JSON:ExpressibleByBooleanLiteral
         self = .bool(booleanLiteral)
     }
 }
+
+extension JSON
+{
+    /// Promotes a `nil` result to a thrown ``TypecastError``.
+    /// 
+    /// If `T` conforms to ``JSONDecodable``, prefer calling its throwing
+    /// ``JSONDecodable init(json:)`` to calling this method directly.
+    ///
+    /// >   Throws:
+    ///     A ``TypecastError`` if the given closure returns [`nil`]().
+    ///
+    /// >   Complexity: O(1), as long as the closure is O(1).
+    @inline(__always)
+    @inlinable public 
+    func cast<T>(with cast:(Self) throws -> T?) throws -> T
+    {
+        if let value:T = try cast(self)
+        {
+            return value 
+        }
+        else 
+        {
+            throw TypecastError<T>.init(invalid: self)
+        }
+    }
+}
+
+extension JSON
+{
+    /// Attempts to load an instance of ``Bool`` from this variant.
+    /// 
+    /// -   Returns:
+    ///     The payload of this variant if it matches ``case bool(_:)``, 
+    ///     [`nil`]() otherwise.
+    ///
+    /// >   Complexity: O(1).
+    @inlinable public 
+    func `as`(_:Bool.Type) -> Bool?
+    {
+        switch self 
+        {
+        case .bool(let bool):   return bool
+        default:                return nil 
+        }
+    }
+
+    /// Attempts to load an instance of some ``SignedInteger`` from this variant.
+    /// 
+    /// - Returns: A signed integer derived from the payload of this variant
+    ///     if it matches ``case number(_:)``, and it can be represented exactly
+    ///     by `T`; `nil` otherwise.
+    ///
+    /// This method reports failure in two ways — it returns `nil` on a type 
+    /// mismatch, and it throws an ``IntegerOverflowError`` if this variant 
+    /// matches ``case number(_:)``, but it could not be represented exactly by `T`.
+    /// 
+    /// >   Note:
+    ///     This type conversion will fail if ``Number.places`` is non-zero, even if 
+    ///     the fractional part is zero. For example, you can convert `5` to an
+    ///     integer, but not `5.0`. This matches the behavior of
+    ///     ``ExpressibleByIntegerLiteral``.
+    ///
+    /// >   Complexity: O(1).
+    @inlinable public 
+    func `as`<Integer>(_:Integer.Type) throws -> Integer? 
+        where Integer:FixedWidthInteger & SignedInteger
+    {
+        // do not use init(exactly:) with decimal value directly, as this 
+        // will also accept values like 1.0, which we want to reject
+        guard case .number(let number) = self 
+        else 
+        {
+            return nil
+        }
+        guard let integer:Integer = number.as(Integer.self)
+        else 
+        {
+            throw IntegerOverflowError.init(number: number, overflows: Integer.self)
+        }
+        return integer 
+    }
+    /// Attempts to load an instance of some ``UnsignedInteger`` from this variant.
+    /// 
+    /// - Returns: An unsigned integer derived from the payload of this variant
+    ///     if it matches ``case number(_:)``, and it can be represented exactly
+    ///     by `T`; `nil` otherwise.
+    ///
+    /// This method reports failure in two ways — it returns `nil` on a type 
+    /// mismatch, and it throws an ``IntegerOverflowError`` if this variant 
+    /// matches ``case number(_:)``, but it could not be represented exactly by `T`.
+    /// 
+    /// >   Note:
+    ///     This type conversion will fail if ``Number.places`` is non-zero, even if 
+    ///     the fractional part is zero. For example, you can convert `5` to an
+    ///     integer, but not `5.0`. This matches the behavior of
+    ///     ``ExpressibleByIntegerLiteral``.
+    ///
+    /// >   Complexity: O(1).
+    @inlinable public 
+    func `as`<Integer>(_:Integer.Type) throws -> Integer?
+        where Integer:FixedWidthInteger & UnsignedInteger
+    {
+        guard case .number(let number) = self 
+        else 
+        {
+            return nil
+        }
+        guard let integer:Integer = number.as(Integer.self)
+        else 
+        {
+            throw IntegerOverflowError.init(number: number, overflows: Integer.self)
+        }
+        return integer 
+    }
+    /// Attempts to load an instance of some ``BinaryFloatingPoint`` type from this
+    /// variant.
+    /// 
+    /// -   Returns:
+    ///     The closest value of `T` to the payload of this variant if it matches
+    ///     ``case number(_:)``, `nil` otherwise.
+    ///
+    /// Calling this method is equivalent to matching the ``case number(_:)``
+    /// enumeration case, and calling ``Number.as(_:)`` on its payload.
+    ///
+    /// >   Complexity: O(1).
+    @inlinable public 
+    func `as`<Fraction>(_:Fraction.Type) -> Fraction?
+        where Fraction:BinaryFloatingPoint
+    {
+        switch self 
+        {
+        case .number(let number):   return number.as(Fraction.self)
+        default:                    return nil 
+        }
+    }
+
+    /// Attempts to load an instance of ``String`` from this variant.
+    /// 
+    /// -   Returns:
+    ///     The payload of this variant, if it matches ``case string(_:)``,
+    ///     `nil` otherwise.
+    ///
+    /// >   Complexity: O(1).
+    @inlinable public 
+    func `as`(_:String.Type) -> String?
+    {
+        switch self 
+        {
+        case .string(let string):   return string
+        default:                    return nil 
+        }
+    }
+}
+extension JSON
+{
+    /// Attempts to load an explicit ``null`` from this variant.
+    /// 
+    /// -   Returns:
+    ///     `nil` in the inner optional this variant is ``null``,
+    //      `nil` in the outer optional otherwise.
+    @inlinable public 
+    func `as`(_:Never?.Type) -> Never??
+    {
+        switch self 
+        {
+        case .null: return (nil as Never?) as Never??
+        default:    return  nil            as Never??
+        }
+    }
+}
+extension JSON
+{
+    /// Attempts to unwrap an array from this variant.
+    /// 
+    /// -   Returns:
+    ///     The payload of this variant if it matches ``case array(_:)``,
+    ///     `nil` otherwise.
+    ///
+    /// >   Complexity: O(1).
+    @inlinable public 
+    var array:[Self]?
+    {
+        switch self 
+        {
+        case .array(let array): return array
+        default:                return nil
+        }
+    }
+    /// Attempts to unwrap an object from this variant.
+    /// 
+    /// - Returns: The payload of this variant if it matches ``case object(_:)``, 
+    ///     the fields of the payload of this variant if it matches
+    ///     ``case number(_:)``, or `nil` otherwise.
+    /// 
+    /// The order of the items reflects the order in which they appear in the 
+    /// source object. For more details about the payload, see the documentation 
+    /// for ``object(_:)``.
+    /// 
+    /// To facilitate interoperability with decimal types, this method will also 
+    /// return a pseudo-object containing the values of ``Number.units`` and
+    /// ``Number.places``, if this variant is a ``case number(_:)``. Specifically,
+    /// it contains integral ``Number`` values keyed by `"units"` and `"places"`
+    /// and wrapped in containers of type ``Self``.
+    ///
+    /// This pseudo-object is intended for consumption by compiler-generated 
+    /// ``Codable`` implementations. Decoding it incurs a small but non-zero 
+    /// overhead when compared with calling 
+    /// ``Number.as(_:)?overload=s4JSONAAO6NumberV2asyx5units_x6placestSgxAF_xAGtms17FixedWidthIntegerRzSZRzlF`` 
+    /// directly.
+    /// 
+    /// >   Complexity: 
+    ///     O(1). This method does *not* perform any elementwise work.
+    @inlinable public 
+    var object:[(key:String, value:Self)]? 
+    {
+        switch self 
+        {
+        case .object(let items):
+            return items
+        case .number(let number):
+            let units:Number    = .init(sign: number.sign, units: number.units,  places: 0),
+                places:Number   = .init(sign:       .plus, units: number.places, places: 0)
+            return [("units", .number(units)), ("places", .number(places))]
+        default:
+            return nil 
+        }
+    }
+}
