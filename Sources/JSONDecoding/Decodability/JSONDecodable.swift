@@ -83,24 +83,6 @@ extension JSONDecodable where Self:RawRepresentable, RawValue:JSONDecodable
     }
 }
 
-extension JSON.Array:JSONDecodable
-{
-    @inlinable public
-    init(json:JSON) throws
-    {
-        self.init(try json.cast { $0.array })
-    }
-}
-
-extension JSON.Dictionary:JSONDecodable
-{
-    @inlinable public
-    init(json:JSON) throws
-    {
-        try self.init(object: try json.cast { $0.object })
-    }
-}
-
 extension Optional:JSONDecodable where Wrapped:JSONDecodable
 {
     @inlinable public
@@ -113,6 +95,50 @@ extension Optional:JSONDecodable where Wrapped:JSONDecodable
         else
         {
             self = .some(try .init(json: json))
+        }
+    }
+}
+extension Dictionary:JSONDecodable where Key == String, Value:JSONDecodable
+{
+    /// Decodes an unordered dictionary from the given document. Dictionaries
+    /// are not ``JSONEncodable``, because round-tripping them loses the field
+    /// ordering information.
+    @inlinable public
+    init(json:JSON) throws
+    {
+        let object:JSON.Object = try .init(json: json)
+
+        self.init(minimumCapacity: object.count)
+        for field:JSON.ExplicitField<String> in object
+        {
+            if case _? = self.updateValue(try field.decode(to: Value.self), forKey: field.key)
+            {
+                throw JSON.DictionaryKeyError.duplicate(field.key)
+            }
+        }
+    }
+}
+extension Array:JSONDecodable where Element:JSONDecodable
+{
+    @inlinable public
+    init(json:JSON) throws
+    {
+        let array:JSON.Array = try .init(json: json)
+        self = try array.map { try $0.decode(to: Element.self) }
+    }
+}
+extension Set:JSONDecodable where Element:JSONDecodable
+{
+    @inlinable public
+    init(json:JSON) throws
+    {
+        let array:JSON.Array = try .init(json: json)
+
+        self.init()
+        self.reserveCapacity(array.count)
+        for field:JSON.ExplicitField<Int> in array
+        {
+            self.update(with: try field.decode(to: Element.self))
         }
     }
 }

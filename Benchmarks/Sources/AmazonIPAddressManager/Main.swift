@@ -2,6 +2,7 @@ import ArgumentParser
 import Foundation
 import Grammar
 import JSON
+import JSONDecoding
 import SystemExtras
 
 struct Log:Decodable 
@@ -20,25 +21,17 @@ struct Log:Decodable
         case logger = "logger_name"
         case message
     }
-
-    init(from json:JSON) throws 
+}
+extension Log:JSONDecodable
+{
+    init(json:JSON) throws 
     {
-        (
-            timestamp:  self.timestamp,
-            level:      self.level,
-            thread:     self.thread,
-            logger:     self.logger,
-            message:    self.message
-        ) = try json.lint 
-        {
-            (
-                timestamp:  try $0.remove(CodingKeys.timestamp.rawValue, as: String.self),
-                level:      try $0.remove(CodingKeys.level.rawValue, as: String.self),
-                thread:     try $0.remove(CodingKeys.thread.rawValue, as: String.self),
-                logger:     try $0.remove(CodingKeys.logger.rawValue, as: String.self),
-                message:    try $0.remove(CodingKeys.message.rawValue, as: String.self)
-            )
-        }
+        let json:JSON.Dictionary = try .init(json: json)
+        self.timestamp  = try json[CodingKeys.timestamp.rawValue].decode(to: String.self)
+        self.level      = try json[CodingKeys.level.rawValue].decode(to: String.self)
+        self.thread     = try json[CodingKeys.thread.rawValue].decode(to: String.self)
+        self.logger     = try json[CodingKeys.logger.rawValue].decode(to: String.self)
+        self.message    = try json[CodingKeys.message.rawValue].decode(to: String.self)
     }
 }
 
@@ -82,7 +75,7 @@ struct Main:ParsableCommand
         while let log:[(key:String, value:JSON)] = 
             input.parse(as: JSON.Rule<String.Index>.Object?.self)
         {
-            logs.append(try .init(from: .object(log)))
+            logs.append(try .init(json: .object(log)))
         }
         return logs
     }

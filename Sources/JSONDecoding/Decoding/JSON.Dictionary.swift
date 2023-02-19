@@ -18,14 +18,14 @@ extension JSON
 extension JSON.Dictionary
 {
     @inlinable public
-    init(object:[(key:String, value:JSON)]) throws
+    init(object:JSON.Object) throws
     {
         self.init(.init(minimumCapacity: object.count))
-        for (key, value):(String, JSON) in object
+        for field:JSON.ExplicitField<String> in object
         {
-            if case _? = self.items.updateValue(value, forKey: key)
+            if case _? = self.items.updateValue(field.value, forKey: field.key)
             {
-                throw JSON.DictionaryKeyError.duplicate(key)
+                throw JSON.DictionaryKeyError.duplicate(field.key)
             }
         }
     }
@@ -41,5 +41,13 @@ extension JSON.Dictionary
     subscript(key:String) -> JSON.ImplicitField
     {
         .init(key: key, value: self.items[key])
+    }
+}
+extension JSON.Dictionary:JSONDecodable
+{
+    @inlinable public
+    init(json:JSON) throws
+    {
+        try self.init(object: try .init(json: json))
     }
 }

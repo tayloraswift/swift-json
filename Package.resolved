@@ -1,52 +1,32 @@
 {
-  "object": {
-    "pins": [
-      {
-        "package": "swift-package-catalog",
-        "repositoryURL": "https://github.com/kelvin13/swift-package-catalog",
-        "state": {
-          "branch": null,
-          "revision": "6e71dba093cf72a8a697309401ef5be52d42ddf3",
-          "version": "0.4.0"
-        }
-      },
-      {
-        "package": "swift-package-factory",
-        "repositoryURL": "https://github.com/kelvin13/swift-package-factory",
-        "state": {
-          "branch": "swift-DEVELOPMENT-SNAPSHOT-2022-08-18-a",
-          "revision": "cee4d0219240c417e0644553a2e6e8012da7e7f8",
-          "version": null
-        }
-      },
-      {
-        "package": "SwiftSyntax",
-        "repositoryURL": "https://github.com/apple/swift-syntax.git",
-        "state": {
-          "branch": "swift-DEVELOPMENT-SNAPSHOT-2022-08-18-a",
-          "revision": "f0b5ed4713c484644c5e586b92b129da32ab0a4c",
-          "version": null
-        }
-      },
-      {
-        "package": "swift-system",
-        "repositoryURL": "https://github.com/apple/swift-system.git",
-        "state": {
-          "branch": null,
-          "revision": "025bcb1165deab2e20d4eaba79967ce73013f496",
-          "version": "1.2.1"
-        }
-      },
-      {
-        "package": "swift-system-extras",
-        "repositoryURL": "https://github.com/kelvin13/swift-system-extras.git",
-        "state": {
-          "branch": null,
-          "revision": "42f297a3191e668ed072878d5db3890db8eada50",
-          "version": "0.2.0"
-        }
+  "pins" : [
+    {
+      "identity" : "swift-grammar",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kelvin13/swift-grammar",
+      "state" : {
+        "revision" : "fa809185be2d204874fe21c224e57911ee18a39c",
+        "version" : "0.3.0"
       }
-    ]
-  },
-  "version": 1
+    },
+    {
+      "identity" : "swift-hash",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kelvin13/swift-hash",
+      "state" : {
+        "revision" : "7475de0872c71f1b8dc69ac2e395f9ede42356b2",
+        "version" : "0.4.6"
+      }
+    },
+    {
+      "identity" : "swift-package-catalog",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kelvin13/swift-package-catalog",
+      "state" : {
+        "revision" : "6e71dba093cf72a8a697309401ef5be52d42ddf3",
+        "version" : "0.4.0"
+      }
+    }
+  ],
+  "version" : 2
 }

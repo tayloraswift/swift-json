@@ -1,4 +1,4 @@
-// swift-tools-version:5.5
+// swift-tools-version:5.7
 import PackageDescription
 
 // cannot build the documentation plugin on these platforms due to 
@@ -19,22 +19,18 @@ var plugins:[Package.Dependency] = []
         from: "0.4.0"))
 #endif
 
-#if swift(>=5.8) && (os(Linux) || os(macOS))
-    plugins.append(.package(url: "https://github.com/kelvin13/swift-package-factory", 
-        branch: "swift-DEVELOPMENT-SNAPSHOT-2022-08-18-a"))
-#endif 
-
 let package:Package = .init(
     name: "swift-json",
     products:
     [
         .library(name: "JSON", targets: ["JSON"]),
         .library(name: "JSONDecoding", targets: ["JSONDecoding"]),
+        .library(name: "JSONEncoding", targets: ["JSONEncoding"]),
     ],
     dependencies: plugins +
     [
-        //.package(url: "https://github.com/kelvin13/swift-grammar", .upToNextMinor(from: "0.2.0")),
-        .package(path: "../swift-grammar"),
+        .package(url: "https://github.com/kelvin13/swift-grammar", .upToNextMinor(from: "0.3.0")),
+        .package(url: "https://github.com/kelvin13/swift-hash", .upToNextMinor(from: "0.4.6")),
     ],
     targets:
     [
@@ -50,18 +46,18 @@ let package:Package = .init(
                 .target(name: "JSON"),
             ]),
         
-        .executableTarget(name: "ParsingDiagnosticsExample", 
+        .target(name: "JSONEncoding", 
             dependencies: 
             [
                 .target(name: "JSON"),
-            ],
-            path: "Examples/ParsingDiagnostics"),
+            ]),
         
-        .executableTarget(name: "BasicDecodingExample", 
+        .executableTarget(name: "JSONTests", 
             dependencies: 
             [
                 .target(name: "JSON"),
+                .product(name: "Testing", package: "swift-hash"),
             ],
-            path: "Examples/BasicDecoding"),
+            path: "Tests/JSON"),
     ]
 )

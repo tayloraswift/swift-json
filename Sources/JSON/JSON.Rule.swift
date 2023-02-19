@@ -2,14 +2,6 @@ import Grammar
 
 extension JSON 
 {
-    /// Attempts to parse a complete JSON message (either an ``Rule//Array`` or an 
-    /// ``Rule//Object``) from UTF-8-encoded text.
-    @inlinable public 
-    init<UTF8>(parsing utf8:UTF8) throws where UTF8:Collection, UTF8.Element == UInt8
-    {
-        self = try JSON.Rule<UTF8.Index>.Root.parse(utf8)
-    }
-
     /// All of the parsing rules in this library are defined at the UTF-8 level. 
     /// 
     /// To parse *any* JSON value, including fragment values, use the ``JSON/Rule//Value`` 
@@ -83,11 +75,11 @@ extension JSON
             {
                 if let items:[(key:String, value:JSON)] = input.parse(as: Object?.self)
                 {
-                    return .object(items)
+                    return .object(.init(items))
                 }
                 else 
                 {
-                    return .array(try input.parse(as: Array.self))
+                    return .array(.init(try input.parse(as: Array.self)))
                 }
             }
         }
@@ -135,7 +127,8 @@ extension JSON.Rule
         }
     }
     
-    @available(*, deprecated, message: "nested types have been moved into the outer `JSON` namespace.")
+    @available(*, deprecated,
+        message: "nested types have been moved into the outer `JSON` namespace.")
     public 
     enum Keyword
     {
@@ -175,11 +168,11 @@ extension JSON.Rule
             }
             else if let elements:[JSON] = input.parse(as: Array?.self)
             {
-                return .array(elements)
+                return .array(.init(elements))
             }
             else if let items:[(key:String, value:JSON)] = input.parse(as: Object?.self)
             {
-                return .object(items)
+                return .object(.init(items))
             }
             else if let _:Void = input.parse(as: True?.self)
             {
@@ -260,56 +253,66 @@ extension JSON.Rule
             {
                 while true 
                 {
-                    guard   case (let shifted, false) = units.multipliedReportingOverflow(by: 10), 
-                            case (let refined, false) = shifted.addingReportingOverflow(remainder)
+                    if  case (let shifted, false) = units.multipliedReportingOverflow(by: 10), 
+                        case (let refined, false) = shifted.addingReportingOverflow(remainder)
+                    {
+                        places += 1
+                        units = refined
+                    }
                     else 
                     {
                         throw Pattern.IntegerOverflowError<UInt64>.init()
                     }
-                    places += 1
-                    units   = refined
                     
-                    guard let next:UInt64 = input.parse(as: DecimalDigit<UInt64>?.self)
+                    if let next:UInt64 = input.parse(as: DecimalDigit<UInt64>?.self)
+                    {
+                        remainder = next
+                    }
                     else 
                     {
                         break 
                     }
-                    remainder = next
                 }
             }
-            if  let _:Void                  =     input.parse(as: ASCII.E?.self) 
+            if  let _:Void = input.parse(as: ASCII.E?.self) 
             {
-                let sign:FloatingPointSign? =     input.parse(as: PlusOrMinus?.self)
-                let exponent:UInt32         = try input.parse(as: Pattern.UnsignedInteger<DecimalDigit<UInt32>>.self)
+                let sign:FloatingPointSign? = input.parse(as: PlusOrMinus?.self)
+                let exponent:UInt32 = try input.parse(
+                    as: Pattern.UnsignedInteger<DecimalDigit<UInt32>>.self)
                 // you too, can exploit the vulnerabilities below
                 switch sign
                 {
                 case .minus?:
-                    places         += exponent 
+                    places += exponent
+                
                 case .plus?, nil:
-                    guard places    < exponent
+                    guard places < exponent
                     else 
                     {
-                        places     -= exponent
+                        places -= exponent
                         break 
                     }
                     defer 
                     {
-                        places      = 0
+                        places = 0
                     }
-                    guard units    != 0 
+                    guard units != 0 
                     else 
                     {
                         break 
                     }
-                    let shift:Int   = .init(exponent - places) 
-                    guard shift     < JSON.Base10.Exp.endIndex, case (let shifted, false) = 
-                        units.multipliedReportingOverflow(by: JSON.Base10.Exp[shift])
+                    let shift:Int = .init(exponent - places) 
+                    if  shift < JSON.Number.Base10.Exp.endIndex,
+                        case (let shifted, false) = units.multipliedReportingOverflow(
+                            by: JSON.Number.Base10.Exp[shift])
+                    {
+
+                        units = shifted
+                    }
                     else 
                     {
                         throw Pattern.IntegerOverflowError<UInt64>.init()
                     }
-                    units           = shifted
                 }
             }
             return .init(sign: sign, units: units, places: places)

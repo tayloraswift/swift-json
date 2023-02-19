@@ -1,4 +1,5 @@
-import JSON 
+import JSON
+import JSONDecoding
 
 struct Decimal:Codable  
 {
@@ -15,7 +16,7 @@ let string:String =
 """
 {"success":true,"value":0.1}
 """
-let decoder:JSON = try .init(parsing: string.utf8)
+let decoder:JSON = try .init(parsing: string)
 let response:Response = try .init(from: decoder)
 
 print(response)

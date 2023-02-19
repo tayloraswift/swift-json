@@ -1,4 +1,4 @@
-extension JSON 
+extension JSON.Number
 {
     /// A namespace for decimal-related functionality.
     /// 

@@ -20,14 +20,14 @@ let package:Package = .init(
         .executableTarget(name: "GeneralDecoding",
             dependencies: 
             [
-                .product(name: "JSON", package: "swift-json"),
+                .product(name: "JSONDecoding", package: "swift-json"),
                 .product(name: "SystemExtras", package: "swift-system-extras"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ]),
         .executableTarget(name: "AmazonIPAddressManager",
             dependencies: 
             [
-                .product(name: "JSON", package: "swift-json"),
+                .product(name: "JSONDecoding", package: "swift-json"),
                 .product(name: "SystemExtras", package: "swift-system-extras"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ]),

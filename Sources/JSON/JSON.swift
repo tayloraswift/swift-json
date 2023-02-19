@@ -1,32 +1,28 @@
-#if swift(>=5.5)
-extension JSON:Sendable {}
-#endif 
+import Grammar
+
 /// A JSON variant value. This value may contain a fragment, an array, or an object.
 /// 
-/// You can parse JSON from any ``Collection`` of UTF-8 data using the ``JSON/.init(parsing:)``
+/// You can parse JSON from any ``Collection`` of UTF-8 data using the ``init(parsing:)``
 /// initializer. For example, you can parse from a (sub)string via its 
-/// ``StringProtocol//UTF8View``.
+/// ``StringProtocol UTF8View``.
 /// 
 /// ```swift
 /// let json:JSON = try .init(parsing: "{\"hello\": \"world\"}".utf8)
 /// ```
+///
+/// When re-encoding arbitrary JSON, the implementation makes a reasonable effort to
+/// preserve important features of the original input. The library will not re-order
+/// object fields, strip explicit ``case null`` values, or convert decimals to floating
+/// point. However the parser does *not* preserve structural whitespace.
 /// 
-/// All instances of this type, including ``JSON/.number(_:)?overload=s4JSONAAO6numberyA2B6NumberVcABmF`` 
-/// instances, can be round-tripped losslessly, as long as the initial encoding is performed by 
-/// ``/swift-json``. 
+/// The implementation guarantees *canonical equivalence* when re-encoding values, but
+/// it may not preserve the exact expressions used to represent them. For example, it
+/// will normalize the escape sequences in [`"6\\/14\\/1946"`]() to [`"6/14/1946"`](),
+/// because the escaped forward-slashes (`/`) are non-canonical.
 /// 
-/// As of version 0.3.0, re-encoding a ``/swift-json``-encoded message is guaranteed to produce
-/// bytewise-identical output.
-/// 
-/// When re-encoding arbitrary JSON, the implementation makes a reasonable effort to preserve 
-/// features of the original input. It will not re-order object fields, strip explicit ``JSON/.null`` 
-/// values, or convert decimals to floating point. The parser does *not* preserve structural 
-/// whitespace.
-/// 
-/// The implementation guarantees *canonical equivalence* when re-encoding values, but it may not 
-/// preserve the exact expressions used to represent them. For example, it will normalize the escape 
-/// sequences in [`"6\\/14\\/1946"`]() to [`"6/14/1946"`](), because the escaped forward-slashes 
-/// (`/`) are non-canonical.
+/// Re-encoding instances of this type, including ``case number(_:)`` instances, through
+/// multiple round trips will always produce output that is bytewise-identical to the
+/// output of the first encoding iteration.
 /// 
 /// ## Decoding with ``Codable``
 /// 
@@ -47,7 +43,58 @@ extension JSON:Sendable {}
 /// They can be significantly faster than the standard library’s ``Decoder`` hooks, and 
 /// only slightly more verbose than an equivalent ``Decodable`` implementation.
 @frozen public
-enum JSON
+enum JSON:Sendable
+{    
+    /// A null value. 
+    /// 
+    /// The library models statically-typed null values elsewhere as
+    /// [`Optional<Never>`]().
+    case null 
+    /// A boolean value. 
+    case bool(Bool)
+    /// A numerical value.
+    case number(Number)
+    /// A string value.
+    /// 
+    /// The contents of this string are *not* escaped. If you are creating an 
+    /// instance of this type for serialization with this case-constructor, 
+    /// do not escape the input.
+    case string(String)
+    /// An array container.
+    case array(Array)
+    /// An object container.
+    case object(Object)
+}
+extension JSON
+{
+    /// Wraps a signed integer as a numeric value.
+    /// 
+    /// Calling this function is equivalent to the following:
+    ///
+    /// ```swift 
+    /// let json:JSON = .number(JSON.Number.init(signed))
+    /// ```
+    @available(*, deprecated)
+    @inlinable public static 
+    func number<T>(_ signed:T) -> Self where T:SignedInteger 
+    {
+        .number(.init(signed))
+    }
+    /// Wraps an usigned integer as a numeric value.
+    /// 
+    /// Calling this function is equivalent to the following:
+    ///
+    /// ```swift 
+    /// let json:JSON = .number(JSON.Number.init(signed))
+    /// ```
+    @available(*, deprecated)
+    @inlinable public static 
+    func number<T>(_ unsigned:T) -> Self where T:UnsignedInteger 
+    {
+        .number(.init(unsigned))
+    }
+}
+extension JSON
 {
     // TODO: optimize this, it should operate at the utf8 level, and be @inlinable 
 
@@ -63,9 +110,9 @@ enum JSON
     /// JSON string literals may contain unicode characters, even after escaping. 
     /// Do not assume the output of this function is ASCII.
     /// 
-    /// >   Important: This function should *not* be called on an input to the ``string(_:)`` case 
-    ///     constructor. The library performs string escaping lazily; calling this function 
-    ///     explicitly will double-escape the input. 
+    /// >   Important: This function should *not* be called on an input to the ``string(_:)``
+    ///     case  constructor. The library performs string escaping lazily; calling this
+    ///     function explicitly will double-escape the input. 
     public static 
     func escape<S>(_ string:S) -> String where S:StringProtocol
     {
@@ -89,73 +136,24 @@ enum JSON
         escaped += "\""
         return escaped
     }
-    
-    /// A null value. 
-    /// 
-    /// This is conceptually equivalent to ``Void``, and should 
-    /// not be confused with [`nil`]() in Swift. It represents an empty value, 
-    /// *not* the absence of a value.
-    case null 
-    /// A boolean value. 
-    case bool(Bool)
-    /// A numerical value.
-    case number(Number)
-    /// A string value.
-    /// 
-    /// The contents of this string are *not* escaped. If you are creating an 
-    /// instance of [`Self`]() for serialization with this case-constructor, 
-    /// do not escape the input.
-    case string(String)
-    /// An array, which can recursively contain instances of [`Self`]().
-    case array([Self])
-    /// A ``String``-keyed object, which can recursively contain instances of [`Self`]().
-    /// 
-    /// This is more closely-related to ``KeyValuePairs`` than to ``Dictionary``, 
-    /// since object keys can occur more than once in the same object. However, 
-    /// most JSON APIs allow clients to safely treat objects as ``Dictionary``-like 
-    /// containers.
-    /// 
-    /// The order of the items in the payload reflects the order in which they 
-    /// appear in the source object.
-    /// 
-    /// >   Warning: 
-    ///     Many JSON APIs do not encode object items in a stable order. Only 
-    ///     assume a particular ordering based on careful observation or official 
-    ///     documentation.
-    /// 
-    /// The keys in the payload are *not* escaped.
-    /// 
-    /// >   Warning: 
-    ///     Object keys can contain arbitrary unicode text. Don’t assume the 
-    ///     keys are ASCII.
-    case object([(key:String, value:Self)])
-
-    /// Wraps a signed integer as a numeric value.
-    /// 
-    /// Calling this function is equivalent to the following:
-    ///
-    /// ```swift 
-    /// let json:JSON = .number(JSON.Number.init(signed))
-    /// ```
-    @inlinable public static 
-    func number<T>(_ signed:T) -> Self where T:SignedInteger 
+}
+extension JSON
+{
+    /// Attempts to parse a complete JSON message (either an ``Array`` or an 
+    /// ``Object``) from a string.
+    @inlinable public 
+    init(parsing string:some StringProtocol) throws
     {
-        .number(.init(signed))
+        try self.init(parsing: string.utf8)
     }
-    /// Wraps an usigned integer as a numeric value.
-    /// 
-    /// Calling this function is equivalent to the following:
-    ///
-    /// ```swift 
-    /// let json:JSON = .number(JSON.Number.init(signed))
-    /// ```
-    @inlinable public static 
-    func number<T>(_ unsigned:T) -> Self where T:UnsignedInteger 
+    /// Attempts to parse a complete JSON message (either an ``Array`` or an 
+    /// ``Object``) from UTF-8-encoded text.
+    @inlinable public 
+    init<UTF8>(parsing utf8:UTF8) throws where UTF8:Collection<UInt8>
     {
-        .number(.init(unsigned))
+        self = try JSON.Rule<UTF8.Index>.Root.parse(utf8)
     }
 }
-
 extension JSON:CustomStringConvertible 
 {
     /// Returns this value serialized as a minified string.
@@ -177,10 +175,10 @@ extension JSON:CustomStringConvertible
             return value.description
         case .string(let string):
             return Self.escape(string)
-        case .array(let elements):
-            return "[\(elements.map(\.description).joined(separator: ","))]"
-        case .object(let items):
-            return "{\(items.map{ "\(Self.escape($0.key)):\($0.value)" }.joined(separator: ","))}"
+        case .array(let array):
+            return array.description
+        case .object(let object):
+            return object.description
         }
     }
 }
@@ -189,7 +187,7 @@ extension JSON:ExpressibleByDictionaryLiteral
     @inlinable public 
     init(dictionaryLiteral:(String, Self)...) 
     {
-        self = .object(dictionaryLiteral)
+        self = .object(.init(dictionaryLiteral))
     }
 }
 extension JSON:ExpressibleByArrayLiteral 
@@ -197,7 +195,7 @@ extension JSON:ExpressibleByArrayLiteral
     @inlinable public 
     init(arrayLiteral:Self...) 
     {
-        self = .array(arrayLiteral)
+        self = .array(.init(arrayLiteral))
     }
 }
 extension JSON:ExpressibleByStringLiteral 
@@ -394,9 +392,9 @@ extension JSON
     ///     The payload of this variant if it matches ``case array(_:)``,
     ///     `nil` otherwise.
     ///
-    /// >   Complexity: O(1).
+    /// >   Complexity: O(1). This method does *not* perform any elementwise work.
     @inlinable public 
-    var array:[Self]?
+    var array:Array?
     {
         switch self 
         {
@@ -416,29 +414,20 @@ extension JSON
     /// 
     /// To facilitate interoperability with decimal types, this method will also 
     /// return a pseudo-object containing the values of ``Number.units`` and
-    /// ``Number.places``, if this variant is a ``case number(_:)``. Specifically,
-    /// it contains integral ``Number`` values keyed by `"units"` and `"places"`
-    /// and wrapped in containers of type ``Self``.
-    ///
-    /// This pseudo-object is intended for consumption by compiler-generated 
-    /// ``Codable`` implementations. Decoding it incurs a small but non-zero 
-    /// overhead when compared with calling 
-    /// ``Number.as(_:)?overload=s4JSONAAO6NumberV2asyx5units_x6placestSgxAF_xAGtms17FixedWidthIntegerRzSZRzlF`` 
-    /// directly.
+    /// ``Number.places``, if this variant is a ``case number(_:)``. This function
+    /// creates the pseudo-object by calling ``Object.init(encoding:)``.
     /// 
     /// >   Complexity: 
     ///     O(1). This method does *not* perform any elementwise work.
     @inlinable public 
-    var object:[(key:String, value:Self)]? 
+    var object:Object? 
     {
         switch self 
         {
         case .object(let items):
             return items
         case .number(let number):
-            let units:Number    = .init(sign: number.sign, units: number.units,  places: 0),
-                places:Number   = .init(sign:       .plus, units: number.places, places: 0)
-            return [("units", .number(units)), ("places", .number(places))]
+            return .init(encoding: number)
         default:
             return nil 
         }
