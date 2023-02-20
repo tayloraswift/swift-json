@@ -6,10 +6,10 @@ extension JSON
         let allKeys:[Key]
         let items:[String: JSON]
         
-        init(_ dictionary:JSON.Dictionary, path:[any CodingKey]) 
+        init(_ dictionary:JSON.ObjectDecoder<String>, path:[any CodingKey]) 
         {
             self.codingPath = path
-            self.items = dictionary.items
+            self.items = dictionary.index
             self.allKeys = self.items.keys.compactMap(Key.init(stringValue:))
         }
     }

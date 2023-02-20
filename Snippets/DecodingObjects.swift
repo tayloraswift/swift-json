@@ -21,9 +21,9 @@ func decode(message:String) throws ->
     // snippet.parse
     let object:JSON.Object = try .init(parsing: message)
     // snippet.index
-    let json:JSON.Dictionary = try .init(object: object)
+    let json:JSON.ObjectDecoder<String> = try .init(object: object)
     // snippet.decode 
-    return try json["market"].decode(as: JSON.Dictionary.self)
+    return try json["market"].decode(as: JSON.ObjectDecoder<String>.self)
     {
         // snippet.decode-string
         let name:String = try $0["name"].decode(to: String.self)

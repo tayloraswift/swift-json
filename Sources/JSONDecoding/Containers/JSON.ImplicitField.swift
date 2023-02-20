@@ -5,15 +5,15 @@ extension JSON
     /// is useful for obtaining structured diagnostics for “key-not-found”
     /// scenarios.
     @frozen public
-    struct ImplicitField
+    struct ImplicitField<Key>
     {
         public
-        let key:String
+        let key:Key
         public
         let value:JSON?
 
         @inlinable public
-        init(key:String, value:JSON?)
+        init(key:Key, value:JSON?)
         {
             self.key = key
             self.value = value
@@ -37,7 +37,7 @@ extension JSON.ImplicitField
 }
 extension JSON.ImplicitField
 {
-    /// Gets the value of this key, throwing a ``JSON.DictionaryKeyError``
+    /// Gets the value of this key, throwing a ``JSON.ObjectKeyError``
     /// if it is [`nil`](). This is a distinct condition from an explicit
     /// ``JSON.null`` value, which will be returned without throwing an error.
     @inlinable public
@@ -49,14 +49,14 @@ extension JSON.ImplicitField
         }
         else 
         {
-            throw JSON.DictionaryKeyError.undefined(self.key)
+            throw JSON.ObjectKeyError<Key>.undefined(self.key)
         }
     }
 }
 extension JSON.ImplicitField:JSONScope
 {
     /// Decodes the value of this implicit field with the given decoder, throwing a
-    /// ``JSON/DictionaryKeyError`` if it does not exist. Throws a
+    /// ``JSON/ObjectKeyError`` if it does not exist. Throws a
     /// ``JSON/DecodingError`` wrapping the underlying error if decoding fails.
     @inlinable public
     func decode<T>(with decode:(JSON) throws -> T) throws -> T

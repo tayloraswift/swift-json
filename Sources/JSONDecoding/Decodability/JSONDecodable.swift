@@ -38,9 +38,30 @@ extension Int32:JSONDecodable {}
 extension Int64:JSONDecodable {}
 extension Int:JSONDecodable {}
 
-extension Float:JSONDecodable {}
-extension Double:JSONDecodable {}
-extension Float80:JSONDecodable {}
+extension Float:JSONDecodable
+{
+    @inlinable public
+    init(json:JSON) throws
+    {
+        self = try json.cast { $0.as(Self.self) }
+    }
+}
+extension Double:JSONDecodable
+{
+    @inlinable public
+    init(json:JSON) throws
+    {
+        self = try json.cast { $0.as(Self.self) }
+    }
+}
+extension Float80:JSONDecodable
+{
+    @inlinable public
+    init(json:JSON) throws
+    {
+        self = try json.cast { $0.as(Self.self) }
+    }
+}
 
 extension JSONDecodable where Self:SignedInteger & FixedWidthInteger
 {
@@ -56,14 +77,6 @@ extension JSONDecodable where Self:UnsignedInteger & FixedWidthInteger
     init(json:JSON) throws
     {
         self = try json.cast { try $0.as(Self.self) }
-    }
-}
-extension JSONDecodable where Self:BinaryFloatingPoint
-{
-    @inlinable public
-    init(json:JSON) throws
-    {
-        self = try json.cast { $0.as(Self.self) }
     }
 }
 extension JSONDecodable where Self:RawRepresentable, RawValue:JSONDecodable
@@ -113,7 +126,7 @@ extension Dictionary:JSONDecodable where Key == String, Value:JSONDecodable
         {
             if case _? = self.updateValue(try field.decode(to: Value.self), forKey: field.key)
             {
-                throw JSON.DictionaryKeyError.duplicate(field.key)
+                throw JSON.ObjectKeyError<String>.duplicate(field.key)
             }
         }
     }

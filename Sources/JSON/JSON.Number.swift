@@ -162,18 +162,54 @@ extension JSON.Number
             return (units: units, places: places)
         }
     }
+
+    //  Note: There is currently a compiler crash
+    //
+    //      https://github.com/apple/swift/issues/63775
+    //
+    //  that prevents ``nearest(_:)`` from being inlined into clients,
+    //  because it uses a lookup table for negative powers of ten.
+    //  Therefore, we provide manual specializations for ``Float80``,
+    //  ``Double``, and ``Float`` instead. On the bright side, this
+    //  means we don’t need to emit a giant conversion function into
+    //  the client. (We just have three giant conversion function
+    //  specializations in the library.)
+
+    /// Converts this numeric literal to a ``Float80`` value, or its closest 
+    /// floating-point representation.
+    public
+    func `as`(_:Float80.Type) -> Float80
+    {
+        self.nearest(Float80.self)
+    }
+    /// Converts this numeric literal to a ``Double`` value, or its closest 
+    /// floating-point representation.
+    public
+    func `as`(_:Double.Type) -> Double
+    {
+        self.nearest(Double.self)
+    }
+    /// Converts this numeric literal to a ``Float`` value, or its closest 
+    /// floating-point representation.
+    public
+    func `as`(_:Float.Type) -> Float
+    {
+        self.nearest(Float.self)
+    }
+
     /// Converts this numeric literal to a floating-point value, or its closest 
     /// floating-point representation.
+    ///
     /// -   Parameters:
     ///     - _: A type conforming to ``BinaryFloatingPoint``.
     /// -   Returns: 
     ///     The value of this numeric literal as an instance of 
     ///     [`T`](), or the value of [`T`]() closest to it.
-    @inlinable public
-    func `as`<T>(_:T.Type) -> T where T:BinaryFloatingPoint 
+    private
+    func nearest<T>(_:T.Type) -> T where T:BinaryFloatingPoint 
     {
-        var places:Int      = .init(self.places), 
-            units:UInt64    =       self.units 
+        var places:Int      = .init(self.places),
+            units:UInt64    =       self.units
         // steve canon, feel free to submit a PR
         while places > 0 
         {
@@ -194,32 +230,6 @@ extension JSON.Number
         case .minus: return -T.init(units)
         case  .plus: return  T.init(units)
         }
-    }
-
-    @available(*, deprecated, renamed: "JSON.Number.as(_:)")
-    public
-    func callAsFunction<T>(as _:T?.Type) -> T? where T:FixedWidthInteger & UnsignedInteger 
-    {
-        self.as(T.self)
-    }
-    @available(*, deprecated, renamed: "JSON.Number.as(_:)")
-    public
-    func callAsFunction<T>(as _:T?.Type) -> T? where T:FixedWidthInteger & SignedInteger 
-    {
-        self.as(T.self)
-    }
-    @available(*, deprecated, renamed: "JSON.Number.as(_:)")
-    public
-    func callAsFunction<T>(as _:(units:T, places:T)?.Type) -> (units:T, places:T)? 
-        where T:FixedWidthInteger & SignedInteger 
-    {
-        self.as((units:T, places:T).self)
-    }
-    @available(*, deprecated, renamed: "JSON.Number.as(_:)")
-    public
-    func callAsFunction<T>(as _:T.Type) -> T where T:BinaryFloatingPoint
-    {
-        self.as(T.self)
     }
 }
 extension JSON.Number:CustomStringConvertible

@@ -328,24 +328,49 @@ extension JSON
         }
         return integer 
     }
-    /// Attempts to load an instance of some ``BinaryFloatingPoint`` type from this
-    /// variant.
+    /// Attempts to load an instance of ``Float80`` from this variant.
     /// 
     /// -   Returns:
-    ///     The closest value of `T` to the payload of this variant if it matches
+    ///     The closest value of ``Float80`` to the payload of this variant if it matches
     ///     ``case number(_:)``, `nil` otherwise.
-    ///
-    /// Calling this method is equivalent to matching the ``case number(_:)``
-    /// enumeration case, and calling ``Number.as(_:)`` on its payload.
+    @inlinable public 
+    func `as`(_:Float80.Type) -> Float80?
+    {
+        self.as(Number.self)?.as(Float80.self)
+    }
+    /// Attempts to load an instance of ``Double`` from this variant.
+    /// 
+    /// -   Returns:
+    ///     The closest value of ``Double`` to the payload of this variant if it matches
+    ///     ``case number(_:)``, `nil` otherwise.
+    @inlinable public 
+    func `as`(_:Double.Type) -> Double?
+    {
+        self.as(Number.self)?.as(Double.self)
+    }
+    /// Attempts to load an instance of ``Float`` from this variant.
+    /// 
+    /// -   Returns:
+    ///     The closest value of ``Float`` to the payload of this variant if it matches
+    ///     ``case number(_:)``, `nil` otherwise.
+    @inlinable public 
+    func `as`(_:Float.Type) -> Float?
+    {
+        self.as(Number.self)?.as(Float.self)
+    }
+    /// Attempts to load an instance of ``Number`` from this variant.
+    /// 
+    /// -   Returns:
+    ///     The payload of this variant, if it matches ``case number(_:)``,
+    ///     `nil` otherwise.
     ///
     /// >   Complexity: O(1).
     @inlinable public 
-    func `as`<Fraction>(_:Fraction.Type) -> Fraction?
-        where Fraction:BinaryFloatingPoint
+    func `as`(_:Number.Type) -> Number?
     {
         switch self 
         {
-        case .number(let number):   return number.as(Fraction.self)
+        case .number(let number):   return number
         default:                    return nil 
         }
     }

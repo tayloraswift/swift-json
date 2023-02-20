@@ -306,7 +306,6 @@ extension JSON.Rule
                         case (let shifted, false) = units.multipliedReportingOverflow(
                             by: JSON.Number.Base10.Exp[shift])
                     {
-
                         units = shifted
                     }
                     else 
