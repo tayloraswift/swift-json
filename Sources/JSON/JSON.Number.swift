@@ -16,7 +16,7 @@ extension JSON
         public 
         var sign:FloatingPointSign 
         // cannot have an inlinable property wrapper
-        public 
+        @usableFromInline internal 
         var _places:UInt32
         /// The number of decimal places this numeric literal has.
         /// 
@@ -174,7 +174,7 @@ extension JSON.Number
     //  means we don’t need to emit a giant conversion function into
     //  the client. (We just have three giant conversion function
     //  specializations in the library.)
-
+    #if (os(Linux) || os(macOS)) && arch(x86_64)
     /// Converts this numeric literal to a ``Float80`` value, or its closest 
     /// floating-point representation.
     public
@@ -182,6 +182,7 @@ extension JSON.Number
     {
         self.nearest(Float80.self)
     }
+    #endif
     /// Converts this numeric literal to a ``Double`` value, or its closest 
     /// floating-point representation.
     public

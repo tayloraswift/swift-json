@@ -328,6 +328,7 @@ extension JSON
         }
         return integer 
     }
+    #if (os(Linux) || os(macOS)) && arch(x86_64)
     /// Attempts to load an instance of ``Float80`` from this variant.
     /// 
     /// -   Returns:
@@ -338,6 +339,7 @@ extension JSON
     {
         self.as(Number.self)?.as(Float80.self)
     }
+    #endif
     /// Attempts to load an instance of ``Double`` from this variant.
     /// 
     /// -   Returns:
