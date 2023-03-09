@@ -54,6 +54,7 @@ extension Double:JSONDecodable
         self = try json.cast { $0.as(Self.self) }
     }
 }
+#if (os(Linux) || os(macOS)) && arch(x86_64)
 extension Float80:JSONDecodable
 {
     @inlinable public
@@ -62,7 +63,7 @@ extension Float80:JSONDecodable
         self = try json.cast { $0.as(Self.self) }
     }
 }
-
+#endif
 extension JSONDecodable where Self:SignedInteger & FixedWidthInteger
 {
     @inlinable public
