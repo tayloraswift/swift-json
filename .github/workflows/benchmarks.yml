@@ -1,0 +1,35 @@
+name: build
+
+on:
+    push:
+        branches: [ master ]
+    pull_request:
+        branches: [ master ]
+
+jobs:
+    linux:
+        runs-on: ubuntu-22.04
+        name: ${{ matrix.image }}
+
+        strategy:
+            matrix:
+                image:
+                -   swiftlang/swift:nightly-5.8-amazonlinux2
+                -   swiftlang/swift:nightly-5.8-jammy
+                -   swift:5.7.3-amazonlinux2
+                -   swift:5.7.3-jammy
+        steps:
+            -   name: checkout repository
+                uses: actions/checkout@v3
+            
+            -   name: build and test
+                run: |
+                    cd Benchmarks
+                    mkdir .data && tar -xf data.tar.xz -C .data
+                    cd ..
+                    docker run -t --rm \
+                        --name swift-environment \
+                        -v $PWD:/swift-json \
+                        -w /swift-json \
+                        ${{ matrix.image }} \
+                        /bin/bash $(echo .github/benchmark)

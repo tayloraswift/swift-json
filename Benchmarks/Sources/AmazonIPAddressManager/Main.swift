@@ -70,10 +70,10 @@ struct Main:ParsableCommand
     {
         var logs:[Log] = []
         var input:ParsingInput<NoDiagnostics<String.UTF8View>> = .init(string.utf8)
-        while let log:[(key:String, value:JSON)] = 
+        while let log:[(key:JSON.Key, value:JSON)] = 
             input.parse(as: JSON.Rule<String.Index>.Object?.self)
         {
-            logs.append(try .init(json: .object(log)))
+            logs.append(try .init(json: .object(.init(log))))
         }
         return logs
     }
@@ -83,10 +83,10 @@ struct Main:ParsableCommand
     {
         var logs:[Log] = []
         var input:ParsingInput<NoDiagnostics<String.UTF8View>> = .init(string.utf8)
-        while let log:[(key:String, value:JSON)] = 
+        while let log:[(key:JSON.Key, value:JSON)] = 
             input.parse(as: JSON.Rule<String.Index>.Object?.self)
         {
-            logs.append(try .init(from: JSON.object(log) as any Decoder))
+            logs.append(try .init(from: JSON.object(.init(log)) as any Decoder))
         }
         return logs
     }

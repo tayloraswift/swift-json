@@ -28,10 +28,10 @@ extension JSON:Decodable
     {
         if let object:KeyedDecodingContainer<_Key> = try? decoder.container(keyedBy: _Key.self)
         {
-            self = .object(try object.allKeys.map 
+            self = .object(.init(try object.allKeys.map 
             {
-                ($0.stringValue, try object.decode(Self.self, forKey: $0))
-            })
+                (.init($0), try object.decode(Self.self, forKey: $0))
+            }))
         }
         else if var array:UnkeyedDecodingContainer = try? decoder.unkeyedContainer() 
         {
@@ -40,7 +40,7 @@ extension JSON:Decodable
             {
                 elements.append(try array.decode(Self.self))
             }
-            self = .array(elements)
+            self = .array(.init(elements))
         }
         else 
         {
