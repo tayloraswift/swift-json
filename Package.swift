@@ -29,8 +29,8 @@ let package:Package = .init(
     ],
     dependencies: plugins +
     [
-        .package(url: "https://github.com/kelvin13/swift-grammar", .upToNextMinor(from: "0.3.0")),
-        .package(url: "https://github.com/kelvin13/swift-hash", .upToNextMinor(from: "0.4.6")),
+        .package(url: "https://github.com/kelvin13/swift-grammar", .upToNextMinor(
+            from: "0.3.1")),
     ],
     targets:
     [
@@ -56,7 +56,7 @@ let package:Package = .init(
             dependencies: 
             [
                 .target(name: "JSON"),
-                .product(name: "Testing", package: "swift-hash"),
+                .product(name: "Testing", package: "swift-grammar"),
             ],
             path: "Tests/JSON"),
     ]

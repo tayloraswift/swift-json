@@ -3,7 +3,7 @@ extension JSON
     /// A thin wrapper around a native Swift dictionary providing an efficient decoding
     /// interface for a JSON object.
     @frozen public
-    struct ObjectDecoder<CodingKey> where CodingKey:Hashable
+    struct ObjectDecoder<CodingKey> where CodingKey:RawRepresentable<String> & Hashable
     {
         public
         var index:[CodingKey: JSON]
@@ -15,19 +15,12 @@ extension JSON
         }
     }
 }
-extension JSON.ObjectDecoder<String>
+extension JSON.ObjectDecoder:JSONDecodable
 {
     @inlinable public
-    init(object:JSON.Object) throws
+    init(json:JSON) throws
     {
-        self.init(.init(minimumCapacity: object.count))
-        for field:JSON.ExplicitField<String> in object
-        {
-            if case _? = self.index.updateValue(field.value, forKey: field.key)
-            {
-                throw JSON.ObjectKeyError<String>.duplicate(field.key)
-            }
-        }
+        try self.init(object: try .init(json: json))
     }
 }
 extension JSON.ObjectDecoder where CodingKey:RawRepresentable<String>
@@ -61,13 +54,5 @@ extension JSON.ObjectDecoder
     subscript(key:CodingKey) -> JSON.ImplicitField<CodingKey>
     {
         .init(key: key, value: self.index[key])
-    }
-}
-extension JSON.ObjectDecoder<String>:JSONDecodable
-{
-    @inlinable public
-    init(json:JSON) throws
-    {
-        try self.init(object: try .init(json: json))
     }
 }

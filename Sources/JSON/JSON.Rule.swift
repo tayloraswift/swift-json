@@ -73,7 +73,7 @@ extension JSON
                         Diagnostics.Source.Index == Location,
                         Diagnostics.Source.Element == Terminal
             {
-                if let items:[(key:String, value:JSON)] = input.parse(as: Object?.self)
+                if let items:[(key:JSON.Key, value:JSON)] = input.parse(as: Object?.self)
                 {
                     return .object(.init(items))
                 }
@@ -170,7 +170,7 @@ extension JSON.Rule
             {
                 return .array(.init(elements))
             }
-            else if let items:[(key:String, value:JSON)] = input.parse(as: Object?.self)
+            else if let items:[(key:JSON.Key, value:JSON)] = input.parse(as: Object?.self)
             {
                 return .object(.init(items))
             }
@@ -557,31 +557,30 @@ extension JSON.Rule
             public 
             typealias Terminal = UInt8
             @inlinable public static 
-            func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> (key:String, value:JSON)
-                where   Diagnostics:ParsingDiagnostics,
-                        Diagnostics.Source.Index == Location,
-                        Diagnostics.Source.Element == Terminal
+            func parse<Source>(_ input:inout ParsingInput<some ParsingDiagnostics<Source>>)
+                throws -> (key:JSON.Key, value:JSON)
+                where Source.Index == Location, Source.Element == Terminal
             {
                 let key:String  = try input.parse(as: StringLiteral.self)
                 try input.parse(as: Padded<ASCII.Colon>.self)
                 let value:JSON  = try input.parse(as: Value.self)
-                return (key, value)
+                return (.init(rawValue: key), value)
             }
         }
         public 
         typealias Terminal = UInt8
         @inlinable public static 
-        func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> [(key:String, value:JSON)]
-            where   Diagnostics:ParsingDiagnostics,
-                    Diagnostics.Source.Index == Location,
-                    Diagnostics.Source.Element == Terminal
+        func parse<Source>(_ input:inout ParsingInput<some ParsingDiagnostics<Source>>)
+            throws -> [(key:JSON.Key, value:JSON)]
+            where Source.Index == Location, Source.Element == Terminal
         {
             try input.parse(as: Padded<ASCII.BraceLeft>.self)
-            var items:[(key:String, value:JSON)]
-            if let head:(key:String, value:JSON) = try? input.parse(as: Item.self)
+            var items:[(key:JSON.Key, value:JSON)]
+            if let head:(key:JSON.Key, value:JSON) = try? input.parse(as: Item.self)
             {
                 items = [head]
-                while let (_, next):(Void, (key:String, value:JSON)) = try? input.parse(as: (Padded<ASCII.Comma>, Item).self)
+                while   let (_, next):(Void, (key:JSON.Key, value:JSON)) = try? input.parse(
+                            as: (Padded<ASCII.Comma>, Item).self)
                 {
                     items.append(next)
                 }

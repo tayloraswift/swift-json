@@ -13,8 +13,8 @@ extension JSON.Object:RandomAccessCollection
     @inlinable public
     subscript(index:Int) -> JSON.ExplicitField<String>
     {
-        let field:(key:String, value:JSON) = self.fields[index]
-        return .init(key: field.key, value: field.value)
+        let field:(key:JSON.Key, value:JSON) = self.fields[index]
+        return .init(key: field.key.rawValue, value: field.value)
     }
 }
 extension JSON.Object:JSONDecodable

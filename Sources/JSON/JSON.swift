@@ -113,7 +113,7 @@ extension JSON
     /// >   Important: This function should *not* be called on an input to the ``string(_:)``
     ///     case  constructor. The library performs string escaping lazily; calling this
     ///     function explicitly will double-escape the input. 
-    public static 
+    static 
     func escape<S>(_ string:S) -> String where S:StringProtocol
     {
         var escaped:String = "\""
@@ -185,7 +185,7 @@ extension JSON:CustomStringConvertible
 extension JSON:ExpressibleByDictionaryLiteral 
 {
     @inlinable public 
-    init(dictionaryLiteral:(String, Self)...) 
+    init(dictionaryLiteral:(Key, Self)...) 
     {
         self = .object(.init(dictionaryLiteral))
     }

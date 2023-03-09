@@ -20,15 +20,6 @@ extension JSON
 }
 extension JSON.Array
 {
-    @inlinable public
-    init(with populate:(inout Self) throws -> ()) rethrows
-    {
-        self.init()
-        try populate(&self)
-    }
-}
-extension JSON.Array
-{
     /// Attempts to parse a JSON array from a string.
     @inlinable public 
     init(parsing string:some StringProtocol) throws

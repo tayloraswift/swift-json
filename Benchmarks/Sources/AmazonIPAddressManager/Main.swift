@@ -1,7 +1,6 @@
 import ArgumentParser
 import Foundation
 import Grammar
-import JSON
 import JSONDecoding
 import SystemExtras
 
@@ -22,16 +21,15 @@ struct Log:Decodable
         case message
     }
 }
-extension Log:JSONDecodable
+extension Log:JSONObjectDecodable
 {
-    init(json:JSON) throws 
+    init(json:JSON.ObjectDecoder<CodingKeys>) throws 
     {
-        let json:JSON.Dictionary = try .init(json: json)
-        self.timestamp  = try json[CodingKeys.timestamp.rawValue].decode(to: String.self)
-        self.level      = try json[CodingKeys.level.rawValue].decode(to: String.self)
-        self.thread     = try json[CodingKeys.thread.rawValue].decode(to: String.self)
-        self.logger     = try json[CodingKeys.logger.rawValue].decode(to: String.self)
-        self.message    = try json[CodingKeys.message.rawValue].decode(to: String.self)
+        self.timestamp  = try json[.timestamp].decode()
+        self.level      = try json[.level].decode()
+        self.thread     = try json[.thread].decode()
+        self.logger     = try json[.logger].decode()
+        self.message    = try json[.message].decode()
     }
 }
 

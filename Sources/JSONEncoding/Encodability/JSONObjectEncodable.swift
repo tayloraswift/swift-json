@@ -2,13 +2,15 @@
 public
 protocol JSONObjectEncodable:JSONEncodable
 {
-    func encode(to json:inout JSON.Object)
+    associatedtype CodingKeys:RawRepresentable<String> & Hashable
+
+    func encode(to json:inout JSON.ObjectEncoder<CodingKeys>)
 }
 extension JSONObjectEncodable
 {
     @inlinable public
     func encoded(as _:JSON.Type) -> JSON
     {
-        .object(.init(with: self.encode(to:)))
+        .object(.init(encoding: self))
     }
 }

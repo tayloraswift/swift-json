@@ -4,13 +4,13 @@ extension JSON
     {
         let codingPath:[any CodingKey]
         let allKeys:[Key]
-        let items:[String: JSON]
+        let items:[JSON.Key: JSON]
         
-        init(_ dictionary:JSON.ObjectDecoder<String>, path:[any CodingKey]) 
+        init(_ dictionary:JSON.ObjectDecoder<JSON.Key>, path:[any CodingKey]) 
         {
             self.codingPath = path
             self.items = dictionary.index
-            self.allKeys = self.items.keys.compactMap(Key.init(stringValue:))
+            self.allKeys = self.items.keys.compactMap { .init(stringValue: $0.rawValue) }
         }
     }
 }
@@ -19,7 +19,7 @@ extension JSON.KeyedDecoder
     public
     func contains(_ key:Key) -> Bool 
     {
-        self.items.keys.contains(key.stringValue)
+        self.items.keys.contains(.init(key))
     }
     // local `Key` type may be different from the dictionary’s `Key` type
     func diagnose<T>(_ key:some CodingKey,
@@ -29,7 +29,7 @@ extension JSON.KeyedDecoder
         { 
             self.codingPath + CollectionOfOne<any CodingKey>.init(key) 
         }
-        guard let value:JSON = self.items[key.stringValue]
+        guard let value:JSON = self.items[.init(key)]
         else 
         {
             let context:DecodingError.Context = .init(codingPath: path, 

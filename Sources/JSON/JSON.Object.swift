@@ -28,23 +28,22 @@ extension JSON
     struct Object
     {
         public
-        var fields:[(key:String, value:JSON)]
+        var fields:[(key:Key, value:JSON)]
 
         @inlinable public
-        init(_ fields:[(key:String, value:JSON)] = [])
+        init(_ fields:[(key:Key, value:JSON)])
         {
             self.fields = fields
+        }
+        @inlinable public
+        init()
+        {
+            self.init([])
         }
     }
 }
 extension JSON.Object
 {
-    @inlinable public
-    init(with populate:(inout Self) throws -> ()) rethrows
-    {
-        self.init()
-        try populate(&self)
-    }
     /// Creates a pseudo-object containing integral ``Number`` values taken
     /// from the supplied `number`, keyed by `"units"` and `"places"` and
     /// wrapped in containers of type ``Self``.
@@ -91,13 +90,13 @@ extension JSON.Object:CustomStringConvertible
     public
     var description:String
     {
-        "{\(self.fields.map{ "\(JSON.escape($0.key)):\($0.value)" }.joined(separator: ","))}"
+        "{\(self.fields.map{ "\($0.key.escaped):\($0.value)" }.joined(separator: ","))}"
     }
 }
 extension JSON.Object:ExpressibleByDictionaryLiteral 
 {
     @inlinable public 
-    init(dictionaryLiteral:(String, JSON)...) 
+    init(dictionaryLiteral:(JSON.Key, JSON)...) 
     {
         self.init(dictionaryLiteral)
     }
