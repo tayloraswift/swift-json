@@ -1,10 +1,9 @@
 <div align="center">
   
-***`json`***<br>`0.3.0`
+***`json`***<br>`0.4.0`
   
 [![ci build status](https://github.com/kelvin13/swift-json/actions/workflows/build.yml/badge.svg)](https://github.com/kelvin13/swift-json/actions/workflows/build.yml)
 [![ci devices build status](https://github.com/kelvin13/swift-json/actions/workflows/build-devices.yml/badge.svg)](https://github.com/kelvin13/swift-json/actions/workflows/build-devices.yml)
-[![ci windows build status](https://github.com/kelvin13/swift-json/actions/workflows/build-windows.yml/badge.svg)](https://github.com/kelvin13/swift-json/actions/workflows/build-windows.yml)
 [![ci benchmarks status](https://github.com/kelvin13/swift-json/actions/workflows/benchmarks.yml/badge.svg)](https://github.com/kelvin13/swift-json/actions/workflows/benchmarks.yml)
 
 [![swift package index versions](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fkelvin13%2Fswift-json%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/kelvin13/swift-json)
@@ -24,7 +23,7 @@ The `JSON` module in `swift-json` enables you to express JSON parsing tasks as *
 
 To parse a complete JSON message, use its [`init(parsing:)`](https://swiftinit.org/reference/swift-json/json/json.init%28parsing:%29) initializer, or for more flexibility, the [`JSON.Rule<Location>.Root`](https://swiftinit.org/reference/swift-json/json/json/rule/root) parsing rule:
 
-> [`BasicDecoding.swift`](_Snippets/BasicDecoding.swift)
+> [`DecodingWithCodable.swift`](Snippets/DecodingWithCodable.swift)
 
 ```swift
 import JSON 
@@ -51,7 +50,7 @@ print(response)
 ```
 
 ```text
-$ swift run BasicDecoding
+$ swift run DecodingWithCodable
 Response(success: true, value: Decimal(units: 1, places: 1))
 ```
 
@@ -60,7 +59,7 @@ Like most `swift-grammar`-based [parsers](https://swiftinit.org/reference/swift-
 
 `swift-json`’s constructive parsing engine also allows you to get diagnostics for invalid JSON messages:
 
-> [`Diagnostics.swift`](_Snippets/Diagnostics.swift)
+> [`ParsingDiagnostics.swift`](Snippets/ParsingDiagnostics.swift)
 
 ```swift
 import Grammar
@@ -76,31 +75,30 @@ do
 }
 catch let error as ParsingError<String.Index> 
 {
-    let debug:String = error.annotate(source: invalid, 
-        line: String.init(_:), newline: \.isNewline)
-    print(debug)
+    let annotated:String = error.annotate(source: invalid, 
+        renderer: String.init(_:),
+        newline: \.isNewline)
+    print(annotated)
 }
 ```
 ```text
-$ swift run Diagnostics
-Grammar.Expected<Grammar.Encoding<String.Index, UInt8>.Quote>: expected construction by rule 'Quote'
+$ swift run ParsingDiagnostics
+UnexpectedValueError: (no description available)
 {"success":true,value:0.1}
                 ^
-note: expected pattern 'Grammar.Encoding<String.Index, UInt8>.Quote'
+note: while parsing pattern 'DoubleQuote'
 {"success":true,value:0.1}
                 ^
-note: while parsing value of type 'String' by rule 'JSON.Rule<String.Index>.StringLiteral'
+note: while parsing pattern 'StringLiteral'
 {"success":true,value:0.1}
                 ^
-note: while parsing value of type '((), (key: String, value: JSON))' 
-by rule '(Grammar.Pad<Grammar.Encoding<String.Index, UInt8>.Comma, 
-JSON.Rule<String.Index>.Whitespace>, JSON.Rule<String.Index>.Object.Item)'
+note: while parsing pattern '(Pad<Comma, Whitespace>, Item)'
 {"success":true,value:0.1}
                ^~
-note: while parsing value of type 'Array<(key: String, value: JSON)>' by rule 'JSON.Rule<String.Index>.Object'
+note: while parsing pattern 'Object'
 {"success":true,value:0.1}
 ^~~~~~~~~~~~~~~~~
-note: while parsing value of type 'JSON' by rule 'JSON.Rule<String.Index>.Root'
+note: while parsing pattern 'Root'
 {"success":true,value:0.1}
 ^~~~~~~~~~~~~~~~~
 ```
@@ -131,7 +129,7 @@ let package = Package(
     dependencies: 
     [
         // other dependencies
-        .package(url: "https://github.com/kelvin13/swift-json", from: "0.2.2"),
+        .package(url: "https://github.com/kelvin13/swift-json", from: "0.4.0"),
     ],
     targets: 
     [
