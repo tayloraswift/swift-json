@@ -2,18 +2,17 @@ name: build-windows
 
 on:
     push:
-        branches: [ master, release/0.2 ]
+        branches: [ master ]
     pull_request:
-        branches: [ master, release/0.2 ]
+        branches: [ master ]
 
 jobs:
     windows:
         runs-on: ${{ matrix.os }}
-        name: ${{ matrix.os }} (${{ matrix.swift }})
         strategy:
             matrix:
-                os: [windows-2022, windows-2019]
-                swift: [5.6.2]
+                os: [windows-2022]
+                swift: [5.7.3]
         steps:
             -   name: checkout 
                 uses: actions/checkout@v2
@@ -26,4 +25,6 @@ jobs:
             -   name: build 
                 run: | 
                     swift --version
-                    swift build
+                    swift build --target JSON
+                    swift build --target JSONDecoding
+                    swift build --target JSONEncoding
