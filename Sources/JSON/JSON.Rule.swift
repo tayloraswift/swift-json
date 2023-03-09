@@ -2,14 +2,6 @@ import Grammar
 
 extension JSON 
 {
-    /// Attempts to parse a complete JSON message (either an ``Rule//Array`` or an 
-    /// ``Rule//Object``) from UTF-8-encoded text.
-    @inlinable public 
-    init<UTF8>(parsing utf8:UTF8) throws where UTF8:Collection, UTF8.Element == UInt8
-    {
-        self = try JSON.Rule<UTF8.Index>.Root.parse(utf8)
-    }
-
     /// All of the parsing rules in this library are defined at the UTF-8 level. 
     /// 
     /// To parse *any* JSON value, including fragment values, use the ``JSON/Rule//Value`` 
@@ -81,13 +73,13 @@ extension JSON
                         Diagnostics.Source.Index == Location,
                         Diagnostics.Source.Element == Terminal
             {
-                if let items:[(key:String, value:JSON)] = input.parse(as: Object?.self)
+                if let items:[(key:JSON.Key, value:JSON)] = input.parse(as: Object?.self)
                 {
-                    return .object(items)
+                    return .object(.init(items))
                 }
                 else 
                 {
-                    return .array(try input.parse(as: Array.self))
+                    return .array(.init(try input.parse(as: Array.self)))
                 }
             }
         }
@@ -135,7 +127,8 @@ extension JSON.Rule
         }
     }
     
-    @available(*, deprecated, message: "nested types have been moved into the outer `JSON` namespace.")
+    @available(*, deprecated,
+        message: "nested types have been moved into the outer `JSON` namespace.")
     public 
     enum Keyword
     {
@@ -175,11 +168,11 @@ extension JSON.Rule
             }
             else if let elements:[JSON] = input.parse(as: Array?.self)
             {
-                return .array(elements)
+                return .array(.init(elements))
             }
-            else if let items:[(key:String, value:JSON)] = input.parse(as: Object?.self)
+            else if let items:[(key:JSON.Key, value:JSON)] = input.parse(as: Object?.self)
             {
-                return .object(items)
+                return .object(.init(items))
             }
             else if let _:Void = input.parse(as: True?.self)
             {
@@ -260,56 +253,65 @@ extension JSON.Rule
             {
                 while true 
                 {
-                    guard   case (let shifted, false) = units.multipliedReportingOverflow(by: 10), 
-                            case (let refined, false) = shifted.addingReportingOverflow(remainder)
+                    if  case (let shifted, false) = units.multipliedReportingOverflow(by: 10), 
+                        case (let refined, false) = shifted.addingReportingOverflow(remainder)
+                    {
+                        places += 1
+                        units = refined
+                    }
                     else 
                     {
                         throw Pattern.IntegerOverflowError<UInt64>.init()
                     }
-                    places += 1
-                    units   = refined
                     
-                    guard let next:UInt64 = input.parse(as: DecimalDigit<UInt64>?.self)
+                    if let next:UInt64 = input.parse(as: DecimalDigit<UInt64>?.self)
+                    {
+                        remainder = next
+                    }
                     else 
                     {
                         break 
                     }
-                    remainder = next
                 }
             }
-            if  let _:Void                  =     input.parse(as: ASCII.E?.self) 
+            if  let _:Void = input.parse(as: ASCII.E?.self) 
             {
-                let sign:FloatingPointSign? =     input.parse(as: PlusOrMinus?.self)
-                let exponent:UInt32         = try input.parse(as: Pattern.UnsignedInteger<DecimalDigit<UInt32>>.self)
+                let sign:FloatingPointSign? = input.parse(as: PlusOrMinus?.self)
+                let exponent:UInt32 = try input.parse(
+                    as: Pattern.UnsignedInteger<DecimalDigit<UInt32>>.self)
                 // you too, can exploit the vulnerabilities below
                 switch sign
                 {
                 case .minus?:
-                    places         += exponent 
+                    places += exponent
+                
                 case .plus?, nil:
-                    guard places    < exponent
+                    guard places < exponent
                     else 
                     {
-                        places     -= exponent
+                        places -= exponent
                         break 
                     }
                     defer 
                     {
-                        places      = 0
+                        places = 0
                     }
-                    guard units    != 0 
+                    guard units != 0 
                     else 
                     {
                         break 
                     }
-                    let shift:Int   = .init(exponent - places) 
-                    guard shift     < JSON.Base10.Exp.endIndex, case (let shifted, false) = 
-                        units.multipliedReportingOverflow(by: JSON.Base10.Exp[shift])
+                    let shift:Int = .init(exponent - places) 
+                    if  shift < JSON.Number.Base10.Exp.endIndex,
+                        case (let shifted, false) = units.multipliedReportingOverflow(
+                            by: JSON.Number.Base10.Exp[shift])
+                    {
+                        units = shifted
+                    }
                     else 
                     {
                         throw Pattern.IntegerOverflowError<UInt64>.init()
                     }
-                    units           = shifted
                 }
             }
             return .init(sign: sign, units: units, places: places)
@@ -401,7 +403,7 @@ extension JSON.Rule
                     }
                     else 
                     {
-                        try input.parse(as: ASCII.U.Lowercase.self) 
+                        try input.parse(as: ASCII.LowercaseU.self) 
                         let value:UInt16 = 
                             (try input.parse(as: HexDigit<UInt16>.self) << 12) |
                             (try input.parse(as: HexDigit<UInt16>.self) <<  8) |
@@ -555,31 +557,30 @@ extension JSON.Rule
             public 
             typealias Terminal = UInt8
             @inlinable public static 
-            func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> (key:String, value:JSON)
-                where   Diagnostics:ParsingDiagnostics,
-                        Diagnostics.Source.Index == Location,
-                        Diagnostics.Source.Element == Terminal
+            func parse<Source>(_ input:inout ParsingInput<some ParsingDiagnostics<Source>>)
+                throws -> (key:JSON.Key, value:JSON)
+                where Source.Index == Location, Source.Element == Terminal
             {
                 let key:String  = try input.parse(as: StringLiteral.self)
                 try input.parse(as: Padded<ASCII.Colon>.self)
                 let value:JSON  = try input.parse(as: Value.self)
-                return (key, value)
+                return (.init(rawValue: key), value)
             }
         }
         public 
         typealias Terminal = UInt8
         @inlinable public static 
-        func parse<Diagnostics>(_ input:inout ParsingInput<Diagnostics>) throws -> [(key:String, value:JSON)]
-            where   Diagnostics:ParsingDiagnostics,
-                    Diagnostics.Source.Index == Location,
-                    Diagnostics.Source.Element == Terminal
+        func parse<Source>(_ input:inout ParsingInput<some ParsingDiagnostics<Source>>)
+            throws -> [(key:JSON.Key, value:JSON)]
+            where Source.Index == Location, Source.Element == Terminal
         {
             try input.parse(as: Padded<ASCII.BraceLeft>.self)
-            var items:[(key:String, value:JSON)]
-            if let head:(key:String, value:JSON) = try? input.parse(as: Item.self)
+            var items:[(key:JSON.Key, value:JSON)]
+            if let head:(key:JSON.Key, value:JSON) = try? input.parse(as: Item.self)
             {
                 items = [head]
-                while let (_, next):(Void, (key:String, value:JSON)) = try? input.parse(as: (Padded<ASCII.Comma>, Item).self)
+                while   let (_, next):(Void, (key:JSON.Key, value:JSON)) = try? input.parse(
+                            as: (Padded<ASCII.Comma>, Item).self)
                 {
                     items.append(next)
                 }

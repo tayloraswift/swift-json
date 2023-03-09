@@ -1,7 +1,7 @@
 import ArgumentParser
 import Foundation
 import Grammar
-import JSON
+import JSONDecoding
 import SystemExtras
 
 struct Log:Decodable 
@@ -20,25 +20,16 @@ struct Log:Decodable
         case logger = "logger_name"
         case message
     }
-
-    init(from json:JSON) throws 
+}
+extension Log:JSONObjectDecodable
+{
+    init(json:JSON.ObjectDecoder<CodingKeys>) throws 
     {
-        (
-            timestamp:  self.timestamp,
-            level:      self.level,
-            thread:     self.thread,
-            logger:     self.logger,
-            message:    self.message
-        ) = try json.lint 
-        {
-            (
-                timestamp:  try $0.remove(CodingKeys.timestamp.rawValue, as: String.self),
-                level:      try $0.remove(CodingKeys.level.rawValue, as: String.self),
-                thread:     try $0.remove(CodingKeys.thread.rawValue, as: String.self),
-                logger:     try $0.remove(CodingKeys.logger.rawValue, as: String.self),
-                message:    try $0.remove(CodingKeys.message.rawValue, as: String.self)
-            )
-        }
+        self.timestamp  = try json[.timestamp].decode()
+        self.level      = try json[.level].decode()
+        self.thread     = try json[.thread].decode()
+        self.logger     = try json[.logger].decode()
+        self.message    = try json[.message].decode()
     }
 }
 
@@ -79,10 +70,10 @@ struct Main:ParsableCommand
     {
         var logs:[Log] = []
         var input:ParsingInput<NoDiagnostics<String.UTF8View>> = .init(string.utf8)
-        while let log:[(key:String, value:JSON)] = 
+        while let log:[(key:JSON.Key, value:JSON)] = 
             input.parse(as: JSON.Rule<String.Index>.Object?.self)
         {
-            logs.append(try .init(from: .object(log)))
+            logs.append(try .init(json: .object(.init(log))))
         }
         return logs
     }
@@ -92,10 +83,10 @@ struct Main:ParsableCommand
     {
         var logs:[Log] = []
         var input:ParsingInput<NoDiagnostics<String.UTF8View>> = .init(string.utf8)
-        while let log:[(key:String, value:JSON)] = 
+        while let log:[(key:JSON.Key, value:JSON)] = 
             input.parse(as: JSON.Rule<String.Index>.Object?.self)
         {
-            logs.append(try .init(from: JSON.object(log) as any Decoder))
+            logs.append(try .init(from: JSON.object(.init(log)) as any Decoder))
         }
         return logs
     }

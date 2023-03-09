@@ -11,12 +11,21 @@
         }
       },
       {
+        "package": "swift-atomics",
+        "repositoryURL": "https://github.com/apple/swift-atomics.git",
+        "state": {
+          "branch": null,
+          "revision": "ff3d2212b6b093db7f177d0855adbc4ef9c5f036",
+          "version": "1.0.3"
+        }
+      },
+      {
         "package": "swift-grammar",
         "repositoryURL": "https://github.com/kelvin13/swift-grammar",
         "state": {
           "branch": null,
-          "revision": "733ca5e74fb3722f3229a5ae055508da82b338b3",
-          "version": "0.2.0"
+          "revision": "69613825b2ad1d0538c59d72e548867ce7568cc2",
+          "version": "0.3.1"
         }
       },
       {

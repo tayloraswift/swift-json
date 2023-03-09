@@ -5,8 +5,6 @@ let package:Package = .init(
     name: "swift-json-benchmarks",
     products: 
     [
-        .executable(name: "benchmark", targets: ["GeneralDecoding"]),
-        .executable(name: "benchmark-aws-ipam", targets: ["AmazonIPAddressManager"]),
     ],
     dependencies: 
     [
@@ -17,19 +15,21 @@ let package:Package = .init(
     ],
     targets: 
     [
-        .executableTarget(name: "GeneralDecoding",
+        .executableTarget(name: "GeneralDecodingBenchmark",
             dependencies: 
             [
-                .product(name: "JSON", package: "swift-json"),
+                .product(name: "JSONDecoding", package: "swift-json"),
                 .product(name: "SystemExtras", package: "swift-system-extras"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-            ]),
-        .executableTarget(name: "AmazonIPAddressManager",
+            ],
+            path: "Sources/GeneralDecoding"),
+        .executableTarget(name: "AmazonIPAddressManagerBenchmark",
             dependencies: 
             [
-                .product(name: "JSON", package: "swift-json"),
+                .product(name: "JSONDecoding", package: "swift-json"),
                 .product(name: "SystemExtras", package: "swift-system-extras"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-            ]),
+            ],
+            path: "Sources/AmazonIPAddressManager"),
     ]
 )

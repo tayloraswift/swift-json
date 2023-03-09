@@ -1,4 +1,4 @@
-name: benchmarks
+name: benchmark
 
 on:
     push:
@@ -7,72 +7,29 @@ on:
         branches: [ master ]
 
 jobs:
-    # benchmark-macos:
-    #     runs-on: ${{ matrix.os }}
-    #     strategy:
-    #         matrix:
-    #             os: [macos-12]
-    #     steps:
-    #         -   uses: actions/checkout@v2
-    #         -   name: run-benchmarks 
-    #             run: |
-    #                 cd Benchmarks
-    #                 mkdir .data && tar -xf data.tar.xz -C .data
-    #                 swift --version
-    #                 swift run -c release benchmark .data/ftx.json
-    #                 swift run -c release benchmark-aws-ipam .data/aws-ipamd.jsonl
-    benchmark-linux:
-        runs-on: ${{ matrix.os.runner }}
-        name: ${{ matrix.os.runner }} (${{ matrix.swift.toolchain }})
+    linux:
+        runs-on: ubuntu-22.04
+        name: ${{ matrix.image }}
+
         strategy:
             matrix:
-                os: 
-                    -   runner: ubuntu-22.04
-                        prefix: ubuntu2204
-                        suffix: ubuntu22.04
-                    -   runner: ubuntu-20.04
-                        prefix: ubuntu2004
-                        suffix: ubuntu20.04
-                swift: 
-                    -   toolchain:  DEVELOPMENT-SNAPSHOT-2022-08-18-a
-                        branch:     development
-                    -   toolchain:  DEVELOPMENT-SNAPSHOT-2022-08-15-a
-                        branch:     development
-
+                image:
+                -   swiftlang/swift:nightly-5.8-amazonlinux2
+                -   swiftlang/swift:nightly-5.8-jammy
+                -   swift:5.7.3-amazonlinux2
+                -   swift:5.7.3-jammy
         steps:
-            -   uses: actions/checkout@v2
+            -   name: checkout repository
+                uses: actions/checkout@v3
             
-            -   name: cache swift toolchains
-                uses: actions/cache@v2
-                with:
-                    path: swift-${{ matrix.swift.toolchain }}.tar.gz
-                    key: ${{ matrix.os.runner }}:swift:${{ matrix.swift.toolchain }}
-                    
-            -   name: cache status
-                id:   cache_status
-                uses: andstor/file-existence-action@v1
-                with:
-                    files: swift-${{ matrix.swift.toolchain }}.tar.gz
-            
-            -   name: download swift toolchain 
-                if: steps.cache_status.outputs.files_exists == 'false'
-                run:   "curl https://download.swift.org/\
-                        ${{ matrix.swift.branch }}/\
-                        ${{ matrix.os.prefix }}/\
-                        swift-${{ matrix.swift.toolchain }}/\
-                        swift-${{ matrix.swift.toolchain }}-${{ matrix.os.suffix }}.tar.gz \
-                        --output swift-${{ matrix.swift.toolchain }}.tar.gz"
-            
-            -   name: set up swift
-                run: |
-                    mkdir -p $GITHUB_WORKSPACE/swift-${{ matrix.swift.toolchain }}
-                    tar -xzf swift-${{ matrix.swift.toolchain }}.tar.gz -C $GITHUB_WORKSPACE/swift-${{ matrix.swift.toolchain }} --strip 1
-                    echo "$GITHUB_WORKSPACE/swift-${{ matrix.swift.toolchain }}/usr/bin" >> $GITHUB_PATH
-            
-            -   name: run benchmarks 
+            -   name: build and test
                 run: |
                     cd Benchmarks
                     mkdir .data && tar -xf data.tar.xz -C .data
-                    swift --version
-                    swift run -c release benchmark .data/ftx.json
-                    swift run -c release benchmark-aws-ipam .data/aws-ipamd.jsonl
+                    cd ..
+                    docker run -t --rm \
+                        --name swift-environment \
+                        -v $PWD:/swift-json \
+                        -w /swift-json \
+                        ${{ matrix.image }} \
+                        /bin/bash $(echo .github/benchmark)

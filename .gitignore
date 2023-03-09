@@ -9,6 +9,7 @@
 
 /Benchmarks/.build
 /Benchmarks/.data
+/Benchmarks/.vscode
 
 /FlameGraph
 *.folded
