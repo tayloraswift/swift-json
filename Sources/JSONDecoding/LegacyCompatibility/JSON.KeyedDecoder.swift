@@ -172,7 +172,7 @@ extension JSON.KeyedDecoder:KeyedDecodingContainerProtocol
     {
         let path:[any CodingKey] = self.codingPath + CollectionOfOne<any CodingKey>.init(key)
         let container:JSON.KeyedDecoder<NestedKey> =
-            .init(try .init(object: try self.diagnose(key, \.object)), path: path)
+            .init(try .init(indexing: try self.diagnose(key, \.object)), path: path)
         return .init(container)
     }
 }

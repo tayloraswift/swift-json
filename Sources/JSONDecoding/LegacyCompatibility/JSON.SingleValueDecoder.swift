@@ -62,7 +62,7 @@ extension JSON.SingleValueDecoder:Decoder
         where Key:CodingKey 
     {
         let container:JSON.KeyedDecoder<Key> = 
-            .init(try .init(object: try self.diagnose(\.object)), path: self.codingPath)
+            .init(try .init(indexing: try self.diagnose(\.object)), path: self.codingPath)
         return .init(container)
     }
 }
