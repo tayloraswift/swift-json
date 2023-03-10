@@ -9,6 +9,11 @@ protocol JSONObjectDecodable<CodingKeys>:JSONDecodable
 extension JSONObjectDecodable
 {
     @inlinable public
+    init(json:JSON.Object) throws
+    {
+        try self.init(json: try .init(indexing: json))
+    }
+    @inlinable public
     init(json:JSON) throws
     {
         try self.init(json: try .init(json: json))

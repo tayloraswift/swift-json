@@ -181,7 +181,7 @@ extension JSON.UnkeyedDecoder:UnkeyedDecodingContainer
         let path:[any CodingKey] = self.codingPath + 
             CollectionOfOne<any CodingKey>.init(Index.init(intValue: self.currentIndex))
         let container:JSON.KeyedDecoder<NestedKey> = 
-            .init(try .init(object: try self.diagnose(\.object)), path: path)
+            .init(try .init(indexing: try self.diagnose(\.object)), path: path)
         return .init(container)
     }
 }

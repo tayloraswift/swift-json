@@ -120,10 +120,13 @@ extension Dictionary:JSONDecodable where Key == String, Value:JSONDecodable
     @inlinable public
     init(json:JSON) throws
     {
-        let object:JSON.Object = try .init(json: json)
-
-        self.init(minimumCapacity: object.count)
-        for field:JSON.ExplicitField<String> in object
+        try self.init(json: try .init(json: json))
+    }
+    @inlinable public
+    init(json:JSON.Object) throws
+    {
+        self.init(minimumCapacity: json.count)
+        for field:JSON.ExplicitField<String> in json
         {
             if case _? = self.updateValue(try field.decode(to: Value.self), forKey: field.key)
             {
@@ -137,8 +140,12 @@ extension Array:JSONDecodable where Element:JSONDecodable
     @inlinable public
     init(json:JSON) throws
     {
-        let array:JSON.Array = try .init(json: json)
-        self = try array.map { try $0.decode(to: Element.self) }
+        try self.init(json: try .init(json: json))
+    }
+    @inlinable public
+    init(json:JSON.Array) throws
+    {
+        self = try json.map { try $0.decode(to: Element.self) }
     }
 }
 extension Set:JSONDecodable where Element:JSONDecodable

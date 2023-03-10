@@ -20,13 +20,13 @@ extension JSON.ObjectDecoder:JSONDecodable
     @inlinable public
     init(json:JSON) throws
     {
-        try self.init(object: try .init(json: json))
+        try self.init(indexing: try .init(json: json))
     }
 }
 extension JSON.ObjectDecoder where CodingKey:RawRepresentable<String>
 {
     @inlinable public
-    init(object:JSON.Object) throws
+    init(indexing object:JSON.Object) throws
     {
         self.init(.init(minimumCapacity: object.count))
         for field:JSON.ExplicitField<String> in object

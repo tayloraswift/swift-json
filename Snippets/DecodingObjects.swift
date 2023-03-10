@@ -21,7 +21,7 @@ func decode(message:String) throws ->
     // snippet.parse
     let object:JSON.Object = try .init(parsing: message)
     // snippet.index
-    let json:JSON.ObjectDecoder<JSON.Key> = try .init(object: object)
+    let json:JSON.ObjectDecoder<JSON.Key> = try .init(indexing: object)
     // snippet.decode
     enum CodingKeys:String
     {
