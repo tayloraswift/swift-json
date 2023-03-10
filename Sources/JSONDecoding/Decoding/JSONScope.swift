@@ -10,6 +10,23 @@ protocol JSONScope
 extension JSONScope
 {
     @inlinable public
+    func decode<CodingKeys, T>(using _:CodingKeys.Type = CodingKeys.self,
+        with decode:(JSON.ObjectDecoder<CodingKeys>) throws -> T) throws -> T
+    {
+        try self.decode { try decode(try .init(json: $0)) }
+    }
+    @inlinable public
+    func decode<T>(with decode:(JSON.ObjectDecoder<JSON.Key>) throws -> T) throws -> T
+    {
+        try self.decode { try decode(try .init(json: $0)) }
+    }
+    @inlinable public
+    func decode<T>(with decode:(JSON.Array) throws -> T) throws -> T
+    {
+        try self.decode { try decode(try .init(json: $0)) }
+    }
+
+    @inlinable public
     func decode<Decodable, T>(as _:Decodable.Type,
         with decode:(Decodable) throws -> T) throws -> T where Decodable:JSONDecodable
     {
