@@ -46,6 +46,24 @@ extension JSON.ObjectDecoder where CodingKey:RawRepresentable<String>
 extension JSON.ObjectDecoder
 {
     @inlinable public
+    subscript(_:CodingKey.Type) -> JSON.SingleField<CodingKey>
+    {
+        guard let (key, value):(CodingKey, JSON) = self.index.first
+        else
+        {
+            return .failure(.none)
+        }
+        if self.index.count == 1
+        {
+            return .success(.init(key: key, value: value))
+        }
+        else
+        {
+            return .failure(.multiple)
+        }
+    }
+    
+    @inlinable public
     subscript(key:CodingKey) -> JSON.ExplicitField<CodingKey>?
     {
         self.index[key].map { .init(key: key, value: $0) }
