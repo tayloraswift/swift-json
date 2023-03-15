@@ -45,6 +45,24 @@ extension JSON.ObjectDecoder where CodingKey:RawRepresentable<String>
 }
 extension JSON.ObjectDecoder
 {
+    @inlinable public __consuming
+    func single() throws -> JSON.ExplicitField<CodingKey>
+    {
+        guard let (key, value):(CodingKey, JSON) = self.index.first
+        else
+        {
+            throw JSON.SingleKeyError<CodingKey>.none
+        }
+        if self.index.count == 1
+        {
+            return .init(key: key, value: value)
+        }
+        else
+        {
+            throw JSON.SingleKeyError<CodingKey>.multiple
+        }
+    }
+    
     @inlinable public
     subscript(key:CodingKey) -> JSON.ExplicitField<CodingKey>?
     {
