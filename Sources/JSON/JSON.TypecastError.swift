@@ -30,9 +30,22 @@ extension JSON.TypecastError
 }
 extension JSON.TypecastError:CustomStringConvertible
 {
+    private
+    var type:String 
+    {
+        switch self
+        {
+        case .null:     return "null"
+        case .bool:     return "bool"
+        case .number:   return "number"
+        case .string:   return "string"
+        case .array:    return "array"
+        case .object:   return "object"
+        }
+    }
     public
     var description:String 
     {
-        "cannot cast variant of type '\(self)' to type '\(Value.self)'"
+        "cannot cast variant of type '\(self.type)' to type '\(Value.self)'"
     }
 }
