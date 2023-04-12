@@ -14,8 +14,8 @@ jobs:
         strategy:
             matrix:
                 image:
-                -   swiftlang/swift:nightly-5.8-amazonlinux2
-                -   swiftlang/swift:nightly-5.8-jammy
+                -   swift:5.8.0-amazonlinux2
+                -   swift:5.8.0-jammy
                 -   swift:5.7.3-amazonlinux2
                 -   swift:5.7.3-jammy
         steps:
