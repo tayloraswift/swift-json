@@ -4,14 +4,12 @@
 public
 protocol JSONStringDecodable:JSONDecodable
 {
+    /// Converts a string to an instance of this type. This requirement
+    /// restates its counterpart in ``LosslessStringConvertible`` if
+    /// [`Self`]() also conforms to it.
+    init?(_ description:String)
 }
 extension JSONStringDecodable
-{
-    /// Attempts to cast the given variant value to a string, and then
-    /// delegates to this type’s ``init(json:)`` witness.
-
-}
-extension JSONStringDecodable where Self:LosslessStringConvertible
 {
     /// Attempts to cast the given variant value to a string, and then
     /// delegates to this type’s ``init(_:)`` witness.

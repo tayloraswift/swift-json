@@ -5,7 +5,7 @@ public
 protocol JSONStringEncodable:JSONEncodable
 {
     /// Converts an instance of this type to a string. This requirement
-    /// restates its counterpart in ``LosslessStringConvertible`` if
+    /// restates its counterpart in ``CustomStringConvertible`` if
     /// [`Self`]() also conforms to it.
     var description:String { get }
 }
