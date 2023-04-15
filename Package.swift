@@ -15,7 +15,7 @@ import PackageDescription
 // nightly toolchains.
 var plugins:[Package.Dependency] = []
 #if swift(>=5.7) && (os(Linux) || os(macOS))
-    plugins.append(.package(url: "https://github.com/kelvin13/swift-package-catalog", 
+    plugins.append(.package(url: "https://github.com/tayloraswift/swift-package-catalog", 
         from: "0.4.0"))
 #endif
 
@@ -29,8 +29,8 @@ let package:Package = .init(
     ],
     dependencies: plugins +
     [
-        .package(url: "https://github.com/kelvin13/swift-grammar", .upToNextMinor(
-            from: "0.3.1")),
+        .package(url: "https://github.com/tayloraswift/swift-grammar", .upToNextMinor(
+            from: "0.3.2")),
     ],
     targets:
     [

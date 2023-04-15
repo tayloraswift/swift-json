@@ -5,23 +5,23 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-atomics.git",
       "state" : {
-        "revision" : "ff3d2212b6b093db7f177d0855adbc4ef9c5f036",
-        "version" : "1.0.3"
+        "revision" : "6c89474e62719ddcc1e9614989fff2f68208fe10",
+        "version" : "1.1.0"
       }
     },
     {
       "identity" : "swift-grammar",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kelvin13/swift-grammar",
+      "location" : "https://github.com/tayloraswift/swift-grammar",
       "state" : {
-        "revision" : "69613825b2ad1d0538c59d72e548867ce7568cc2",
-        "version" : "0.3.1"
+        "revision" : "3ed94966b1fd8145c2624a5955a9f0d17663280b",
+        "version" : "0.3.2"
       }
     },
     {
       "identity" : "swift-package-catalog",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kelvin13/swift-package-catalog",
+      "location" : "https://github.com/tayloraswift/swift-package-catalog",
       "state" : {
         "revision" : "6e71dba093cf72a8a697309401ef5be52d42ddf3",
         "version" : "0.4.0"
