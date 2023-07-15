@@ -9,7 +9,7 @@ extension JSON.Object
 extension JSON.Object
 {
     @inlinable internal
-    subscript<CodingKeys>(using _:CodingKeys.Type) -> JSON.ObjectEncoder<CodingKeys>
+    subscript<NestedKey>(using _:NestedKey.Type) -> JSON.ObjectEncoder<NestedKey>
     {
         get
         {
@@ -17,7 +17,7 @@ extension JSON.Object
         }
         _modify
         {
-            var encoder:JSON.ObjectEncoder<CodingKeys> = self[using: CodingKeys.self]
+            var encoder:JSON.ObjectEncoder<NestedKey> = self[using: NestedKey.self]
             self.fields = []
             defer { self.fields = encoder.fields }
             yield &encoder
@@ -36,11 +36,11 @@ extension JSON.Object
         try populate(&self[using: JSON.Key.self])
     }
     @inlinable public
-    init<CodingKeys>(_:CodingKeys.Type = CodingKeys.self,
-        with populate:(inout JSON.ObjectEncoder<CodingKeys>) throws -> ()) rethrows
+    init<CodingKey>(_:CodingKey.Type = CodingKey.self,
+        with populate:(inout JSON.ObjectEncoder<CodingKey>) throws -> ()) rethrows
     {
         self.init()
-        try populate(&self[using: CodingKeys.self])
+        try populate(&self[using: CodingKey.self])
     }
 }
 extension JSON.Object:JSONBuilder
@@ -94,9 +94,9 @@ extension JSON.Object
         }
     }
     @inlinable public
-    subscript<CodingKeys>(key:some RawRepresentable<String>,
-        using _:CodingKeys.Type = CodingKeys.self,
-        with encode:(inout JSON.ObjectEncoder<CodingKeys>) -> ()) -> Void
+    subscript<NestedKey>(key:some RawRepresentable<String>,
+        using _:NestedKey.Type = NestedKey.self,
+        with encode:(inout JSON.ObjectEncoder<NestedKey>) -> ()) -> Void
     {
         mutating get
         {

@@ -44,9 +44,9 @@ extension JSONBuilder
         }
     }
     @inlinable public
-    subscript<CodingKeys>(key:CodingKey,
-        using _:CodingKeys.Type = CodingKeys.self,
-        with encode:(inout JSON.ObjectEncoder<CodingKeys>) -> ()) -> Void
+    subscript<NestedKey>(key:CodingKey,
+        using _:NestedKey.Type = NestedKey.self,
+        with encode:(inout JSON.ObjectEncoder<NestedKey>) -> ()) -> Void
     {
         mutating get
         {
