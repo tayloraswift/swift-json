@@ -2,20 +2,20 @@ import JSON
 import JSONDecoding
 
 // snippet.market-enum-definition
-enum Market:String 
+enum Market:String
 {
-    case spot 
-    case future 
+    case spot
+    case future
 }
 extension Market:JSONDecodable
 {
 }
 // snippet.main
-func decode(message:String) throws -> 
+func decode(message:String) throws ->
 (
-    name:String, 
-    market:Market, 
-    isPerpetual:Bool 
+    name:String,
+    market:Market,
+    isPerpetual:Bool
 )
 {
     // snippet.parse
@@ -23,29 +23,29 @@ func decode(message:String) throws ->
     // snippet.index
     let json:JSON.ObjectDecoder<JSON.Key> = try .init(indexing: object)
     // snippet.decode
-    enum CodingKeys:String
+    enum CodingKey:String
     {
         case name
         case type
         case perpetual
     }
-    return try json["market"].decode(using: CodingKeys.self)
+    return try json["market"].decode(using: CodingKey.self)
     {
         // snippet.decode-string
         let name:String = try $0[.name].decode(to: String.self)
         // snippet.decode-enum
         let market:Market = try $0[.type].decode(to: Market.self)
         // snippet.decode-elided
-        let isPerpetual:Bool = try $0[.perpetual]?.decode(to: Bool.self) ?? false 
+        let isPerpetual:Bool = try $0[.perpetual]?.decode(to: Bool.self) ?? false
         // snippet.return
         return (name, market, isPerpetual)
     }
     // snippet.hide
 }
-print(try decode(message: 
+print(try decode(message:
 """
 {
-    "market": 
+    "market":
     {
         "name": "BTC-PERP",
         "type": "future",
@@ -54,10 +54,10 @@ print(try decode(message:
 }
 """))
 
-print(try decode(message: 
+print(try decode(message:
 """
 {
-    "market": 
+    "market":
     {
         "name": "BTC-PERP",
         "type": "spot"

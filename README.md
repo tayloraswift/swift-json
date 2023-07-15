@@ -1,7 +1,7 @@
 <div align="center">
-  
-***`json`***<br>`0.5.0`
-  
+
+***`json`***<br>`0.6.0`
+
 [![ci build status](https://github.com/tayloraswift/swift-json/actions/workflows/build.yml/badge.svg)](https://github.com/tayloraswift/swift-json/actions/workflows/build.yml)
 [![ci devices build status](https://github.com/tayloraswift/swift-json/actions/workflows/build-devices.yml/badge.svg)](https://github.com/tayloraswift/swift-json/actions/workflows/build-devices.yml)
 [![ci benchmarks status](https://github.com/tayloraswift/swift-json/actions/workflows/benchmarks.yml/badge.svg)](https://github.com/tayloraswift/swift-json/actions/workflows/benchmarks.yml)
@@ -26,20 +26,20 @@ To parse a complete JSON message, use its [`init(parsing:)`](https://swiftinit.o
 > [`DecodingWithCodable.swift`](Snippets/DecodingWithCodable.swift)
 
 ```swift
-import JSON 
+import JSON
 
-struct Decimal:Codable  
+struct Decimal:Codable
 {
-    let units:Int 
-    let places:Int 
+    let units:Int
+    let places:Int
 }
-struct Response:Codable 
+struct Response:Codable
 {
-    let success:Bool 
+    let success:Bool
     let value:Decimal
 }
 
-let string:String = 
+let string:String =
 """
 {"success":true,"value":0.1}
 """
@@ -54,7 +54,7 @@ $ swift run DecodingWithCodable
 Response(success: true, value: Decimal(units: 1, places: 1))
 ```
 
-The rule is called “[`Root`](https://swiftinit.org/reference/swift-json/json/json/rule/root)” because it will match only complete JSON messages (objects or arrays). 
+The rule is called “[`Root`](https://swiftinit.org/reference/swift-json/json/json/rule/root)” because it will match only complete JSON messages (objects or arrays).
 Like most `swift-grammar`-based [parsers](https://swiftinit.org/reference/swift-grammar/grammar/parsingrule), [`JSON.Rule`](https://swiftinit.org/reference/swift-json/json/json/rule) is generic over its input, which means you can parse directly from some [`Collection`](https://swiftinit.org/reference/swift/collection) of [`UInt8`](https://swiftinit.org/reference/swift/uint8).
 
 `swift-json`’s constructive parsing engine also allows you to get diagnostics for invalid JSON messages:
@@ -65,17 +65,17 @@ Like most `swift-grammar`-based [parsers](https://swiftinit.org/reference/swift-
 import Grammar
 import JSON
 
-let invalid:String = 
+let invalid:String =
 """
 {"success":true,value:0.1}
 """
-do 
+do
 {
     let _:JSON = try JSON.Rule<String.Index>.Root.parse(diagnosing: invalid.utf8)
 }
-catch let error as ParsingError<String.Index> 
+catch let error as ParsingError<String.Index>
 {
-    let annotated:String = error.annotate(source: invalid, 
+    let annotated:String = error.annotate(source: invalid,
         renderer: String.init(_:),
         newline: \.isNewline)
     print(annotated)
@@ -115,26 +115,26 @@ You can be more selective about the form of the JSON you expect to receive by us
 *   [`Array`](https://swiftinit.org/reference/swift-json/json/json/rule/array)
 
 
-The [`JSON`](https://swiftinit.org/reference/swift-json/json) module supports parsing arbitrary JSON fragments using the [`JSON.Rule<Location>.Value`](https://swiftinit.org/reference/swift-json/json/json/rule/value) rule. 
+The [`JSON`](https://swiftinit.org/reference/swift-json/json) module supports parsing arbitrary JSON fragments using the [`JSON.Rule<Location>.Value`](https://swiftinit.org/reference/swift-json/json/json/rule/value) rule.
 
 The nature of constructive parsing also means it is straightforward to parse *multiple* concatenated JSON messages, as is commonly encountered when interfacing with streaming JSON APIs.
 
-## adding `swift-json` as a dependency 
+## adding `swift-json` as a dependency
 
 To use `swift-json` in a project, add the following to your `Package.swift` file:
 
 ```swift
 let package = Package(
     ...
-    dependencies: 
+    dependencies:
     [
         // other dependencies
         .package(url: "https://github.com/tayloraswift/swift-json", from: "0.5.0"),
     ],
-    targets: 
+    targets:
     [
-        .target(name: "example", 
-            dependencies: 
+        .target(name: "example",
+            dependencies:
             [
                 .product(name: "JSON", package: "swift-json"),
                 // other dependencies
@@ -144,13 +144,13 @@ let package = Package(
 )
 ```
 
-## building and previewing documentation 
+## building and previewing documentation
 
 `swift-json` is DocC-compatible. However, its documentation is a lot more useful when built with a documentation engine like [`swift-biome`](https://github.com/tayloraswift/swift-biome).
 
 ### 1. gather the documentation files
 
-`swift-json` uses the [`swift-package-catalog`](https://github.com/tayloraswift/swift-package-catalog) plugin to gather its documentation. 
+`swift-json` uses the [`swift-package-catalog`](https://github.com/tayloraswift/swift-package-catalog) plugin to gather its documentation.
 
 Run the `catalog` plugin command, and store its output in a file named `Package.catalog`.
 
@@ -160,16 +160,16 @@ $ swift package catalog > Package.catalog
 
 The catalog file must be named `Package.catalog`; Biome parses it (and the `Package.resolved` file generated by the Swift Package Manager) in order to find `swift-json`’s symbolgraphs and DocC archives.
 
-### 2. build [`swift-biome`](https://github.com/tayloraswift/swift-biome) 
+### 2. build [`swift-biome`](https://github.com/tayloraswift/swift-biome)
 
-[`swift-biome`](https://github.com/tayloraswift/swift-biome) is a normal SPM package. There’s lots of ways to build it. 
+[`swift-biome`](https://github.com/tayloraswift/swift-biome) is a normal SPM package. There’s lots of ways to build it.
 
 ```bash
 $ git clone git@github.com:tayloraswift/swift-biome.git
 $ git submodule update --init --recursive
 
-$ cd swift-biome 
-$ swift build -c release 
+$ cd swift-biome
+$ swift build -c release
 $ cd ..
 ```
 
@@ -180,7 +180,7 @@ Don’t forget the `git submodule update`!
 [`swift-biome`](https://github.com/tayloraswift/swift-biome) includes an executable target called **`preview`**. Pass it the path to the `swift-json` repository (in this example, `..`), and it will start up a server on `localhost:8080`.
 
 ```bash
-$ cd swift-biome 
+$ cd swift-biome
 $ .build/release/preview --swift 5.6.2 ..
 ```
 

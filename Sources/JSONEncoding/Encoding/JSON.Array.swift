@@ -52,8 +52,8 @@ extension JSON.Array
         self.append(JSON.Object.init(with: encode))
     }
     @inlinable public mutating
-    func append<CodingKeys>(using _:CodingKeys.Type = CodingKeys.self,
-        with encode:(inout JSON.ObjectEncoder<CodingKeys>) -> ())
+    func append<CodingKey>(using _:CodingKey.Type = CodingKey.self,
+        with encode:(inout JSON.ObjectEncoder<CodingKey>) -> ())
     {
         self.append(JSON.Object.init(with: encode))
     }

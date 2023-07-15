@@ -2,9 +2,9 @@
 public
 protocol JSONObjectEncodable:JSONEncodable
 {
-    associatedtype CodingKeys:RawRepresentable<String> & Hashable
+    associatedtype CodingKey:RawRepresentable<String> & Hashable
 
-    func encode(to json:inout JSON.ObjectEncoder<CodingKeys>)
+    func encode(to json:inout JSON.ObjectEncoder<CodingKey>)
 }
 extension JSONObjectEncodable
 {

@@ -1,10 +1,10 @@
 /// A type that can be decoded from a BSON dictionary-decoder.
 public
-protocol JSONObjectDecodable<CodingKeys>:JSONDecodable
+protocol JSONObjectDecodable<CodingKey>:JSONDecodable
 {
-    associatedtype CodingKeys:RawRepresentable<String> & Hashable = JSON.Key
+    associatedtype CodingKey:RawRepresentable<String> & Hashable = JSON.Key
 
-    init(json:JSON.ObjectDecoder<CodingKeys>) throws
+    init(json:JSON.ObjectDecoder<CodingKey>) throws
 }
 extension JSONObjectDecodable
 {
