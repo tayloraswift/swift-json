@@ -4,7 +4,7 @@ extension JSON
 {
     /// An error occurred while decoding a document field.
     @frozen public
-    struct DecodingError<Location>:Error
+    struct DecodingError<Location>:Error where Location:Sendable
     {
         /// The location (key or index) where the error occurred.
         public
@@ -38,8 +38,8 @@ extension JSON.DecodingError:TraceableError
 {
     /// Returns a single note that says
     /// [`"while decoding value for field '_'"`]().
-    public 
-    var notes:[String] 
+    public
+    var notes:[String]
     {
         ["while decoding value for field '\(self.location)'"]
     }

@@ -1,0 +1,3 @@
+extension Substring:JSONEncodable
+{
+}

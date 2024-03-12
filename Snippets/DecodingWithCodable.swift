@@ -1,22 +1,21 @@
 import JSON
-import JSONDecoding
+import JSONLegacy
 
-struct Decimal:Codable  
+struct Decimal:Codable
 {
-    let units:Int 
-    let places:Int 
+    let units:Int
+    let places:Int
 }
-struct Response:Codable 
+struct Response:Codable
 {
-    let success:Bool 
+    let success:Bool
     let value:Decimal
 }
 
-let string:String = 
-"""
+let string:String = """
 {"success":true,"value":0.1}
 """
-let decoder:JSON = try .init(parsing: string)
+let decoder:JSON.Node = try .init(parsing: string)
 let response:Response = try .init(from: decoder)
 
 print(response)

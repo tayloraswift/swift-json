@@ -1,12 +1,13 @@
 {
+  "originHash" : "5ddfb8541f67e34a9b45a91addcf30609b7d07afb93f2c45457a9bca81ebbe9b",
   "pins" : [
     {
       "identity" : "swift-atomics",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-atomics.git",
       "state" : {
-        "revision" : "6c89474e62719ddcc1e9614989fff2f68208fe10",
-        "version" : "1.1.0"
+        "revision" : "cd142fd2f64be2100422d658e7411e39489da985",
+        "version" : "1.2.0"
       }
     },
     {
@@ -14,19 +15,28 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tayloraswift/swift-grammar",
       "state" : {
-        "revision" : "3ed94966b1fd8145c2624a5955a9f0d17663280b",
-        "version" : "0.3.2"
+        "revision" : "6db3dd8912fc7acb821021cd96677b2e0eeb09f0",
+        "version" : "0.3.4"
       }
     },
     {
-      "identity" : "swift-package-catalog",
+      "identity" : "swift-syntax",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tayloraswift/swift-package-catalog",
+      "location" : "https://github.com/apple/swift-syntax.git",
       "state" : {
-        "revision" : "6e71dba093cf72a8a697309401ef5be52d42ddf3",
-        "version" : "0.4.0"
+        "revision" : "64889f0c732f210a935a0ad7cda38f77f876262d",
+        "version" : "509.1.1"
+      }
+    },
+    {
+      "identity" : "swift-testing",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-testing",
+      "state" : {
+        "revision" : "3ed2f90058afe4437369aee4880890e7fa65d1ec",
+        "version" : "0.5.1"
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }

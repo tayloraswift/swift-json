@@ -1,0 +1,3 @@
+extension String:JSONEncodable
+{
+}

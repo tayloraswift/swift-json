@@ -15,9 +15,9 @@ extension JSON.SingleKeyError:CustomStringConvertible
         switch self
         {
         case .none:
-            return "no keys in single-field object"
+            "no keys in single-field object"
         case .multiple:
-            return "multiple keys in single-field object"
+            "multiple keys in single-field object"
         }
     }
 }

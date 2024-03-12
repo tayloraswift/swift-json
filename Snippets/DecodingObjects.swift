@@ -1,52 +1,67 @@
 import JSON
 import JSONDecoding
 
-// snippet.market-enum-definition
-enum Market:String
+//  snippet.MARKETTYPE_ENUM
+enum MarketType:String
 {
     case spot
     case future
 }
-extension Market:JSONDecodable
+//  snippet.MARKETTYPE_DECODABLE
+extension MarketType:JSONDecodable
 {
 }
-// snippet.main
-func decode(message:String) throws ->
-(
-    name:String,
-    market:Market,
-    isPerpetual:Bool
-)
+//  snippet.MARKET
+struct Market
 {
-    // snippet.parse
-    let object:JSON.Object = try .init(parsing: message)
-    // snippet.index
-    let json:JSON.ObjectDecoder<JSON.Key> = try .init(indexing: object)
-    // snippet.decode
+    let name:String
+    let type:MarketType
+    let isPerpetual:Bool
+
+    private
+    init(name:String, type:MarketType, isPerpetual:Bool)
+    {
+        self.name = name
+        self.type = type
+        self.isPerpetual = isPerpetual
+    }
+}
+// snippet.MARKET_CODING_KEY
+extension Market
+{
     enum CodingKey:String
     {
         case name
         case type
         case perpetual
     }
-    return try json["market"].decode(using: CodingKey.self)
-    {
-        // snippet.decode-string
-        let name:String = try $0[.name].decode(to: String.self)
-        // snippet.decode-enum
-        let market:Market = try $0[.type].decode(to: Market.self)
-        // snippet.decode-elided
-        let isPerpetual:Bool = try $0[.perpetual]?.decode(to: Bool.self) ?? false
-        // snippet.return
-        return (name, market, isPerpetual)
-    }
-    // snippet.hide
 }
-print(try decode(message:
-"""
+//  snippet.MARKET_DECODE
+extension Market:JSONObjectDecodable
 {
-    "market":
+    init(json:JSON.ObjectDecoder<CodingKey>) throws
     {
+        self.init(
+            name: try json[.name].decode(),
+            type: try json[.type].decode(),
+            isPerpetual: try json[.perpetual]?.decode() ?? false)
+    }
+}
+//  snippet.MAIN
+func decode(message:String) throws -> Market
+{
+    // snippet.MAIN_PARSE_AND_INDEX
+    let object:JSON.Object = try .init(parsing: message)
+    let json:JSON.ObjectDecoder<JSON.Key> = try .init(indexing: object)
+
+    // snippet.MAIN_DECODE
+    return try json["market"].decode()
+    // snippet.end
+}
+// snippet.MAIN_CALL
+print(try decode(message: """
+{
+    "market": {
         "name": "BTC-PERP",
         "type": "future",
         "perpetual": true
@@ -54,11 +69,9 @@ print(try decode(message:
 }
 """))
 
-print(try decode(message:
-"""
+print(try decode(message: """
 {
-    "market":
-    {
+    "market": {
         "name": "BTC-PERP",
         "type": "spot"
     }

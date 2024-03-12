@@ -1,5 +1,0 @@
-#!/bin/bash
-
-swift package catalog Grammar JSON > Package.catalog 
-rm -f *.ss 
-swift-biome/.build/release/preview --resources swift-biome/resources/ --swift 5.6.2 .

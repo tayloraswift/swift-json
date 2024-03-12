@@ -3,13 +3,14 @@ extension JSON
     /// A thin wrapper around a native Swift dictionary providing an efficient decoding
     /// interface for a JSON object.
     @frozen public
-    struct ObjectDecoder<CodingKey> where CodingKey:RawRepresentable<String> & Hashable
+    struct ObjectDecoder<CodingKey>
+        where CodingKey:RawRepresentable<String> & Hashable & Sendable
     {
         public
-        var index:[CodingKey: JSON]
-        
+        var index:[CodingKey: JSON.Node]
+
         @inlinable public
-        init(_ index:[CodingKey: JSON] = [:])
+        init(_ index:[CodingKey: JSON.Node] = [:])
         {
             self.index = index
         }
@@ -18,7 +19,7 @@ extension JSON
 extension JSON.ObjectDecoder:JSONDecodable
 {
     @inlinable public
-    init(json:JSON) throws
+    init(json:JSON.Node) throws
     {
         try self.init(indexing: try .init(json: json))
     }
@@ -29,7 +30,7 @@ extension JSON.ObjectDecoder where CodingKey:RawRepresentable<String>
     init(indexing object:JSON.Object) throws
     {
         self.init(.init(minimumCapacity: object.count))
-        for field:JSON.ExplicitField<String> in object
+        for field:JSON.FieldDecoder<String> in object
         {
             guard let key:CodingKey = .init(rawValue: field.key)
             else
@@ -46,9 +47,9 @@ extension JSON.ObjectDecoder where CodingKey:RawRepresentable<String>
 extension JSON.ObjectDecoder
 {
     @inlinable public __consuming
-    func single() throws -> JSON.ExplicitField<CodingKey>
+    func single() throws -> JSON.FieldDecoder<CodingKey>
     {
-        guard let (key, value):(CodingKey, JSON) = self.index.first
+        guard let (key, value):(CodingKey, JSON.Node) = self.index.first
         else
         {
             throw JSON.SingleKeyError<CodingKey>.none
@@ -62,15 +63,15 @@ extension JSON.ObjectDecoder
             throw JSON.SingleKeyError<CodingKey>.multiple
         }
     }
-    
+
     @inlinable public
-    subscript(key:CodingKey) -> JSON.ExplicitField<CodingKey>?
-    {
-        self.index[key].map { .init(key: key, value: $0) }
-    }
-    @inlinable public
-    subscript(key:CodingKey) -> JSON.ImplicitField<CodingKey>
+    subscript(key:CodingKey) -> JSON.OptionalDecoder<CodingKey>
     {
         .init(key: key, value: self.index[key])
+    }
+    @inlinable public
+    subscript(key:CodingKey) -> JSON.FieldDecoder<CodingKey>?
+    {
+        self.index[key].map { .init(key: key, value: $0) }
     }
 }

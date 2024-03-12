@@ -1,5 +1,0 @@
-#!/bin/bash 
-swift build --target JSON \
-    -Xswiftc -emit-symbol-graph \
-    -Xswiftc -include-spi-symbols \
-    -Xswiftc -emit-symbol-graph-dir -Xswiftc .symbols
