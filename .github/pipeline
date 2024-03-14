@@ -1,3 +1,6 @@
-swift --version &&
-swift build -c release &&
-swift run -c release JSONTests
+#!/bin/bash
+set -e
+swift --version
+swift test
+swift build
+swift build -c release

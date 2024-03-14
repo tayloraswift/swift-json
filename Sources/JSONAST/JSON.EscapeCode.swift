@@ -1,6 +1,6 @@
 extension JSON
 {
-    @frozen @usableFromInline internal
+    @frozen @usableFromInline
     enum EscapeCode:Equatable, Hashable, Comparable, Sendable
     {
         case b
@@ -14,7 +14,7 @@ extension JSON
 }
 extension JSON.EscapeCode
 {
-    @inlinable internal
+    @inlinable
     init?(escaping codeunit:UInt8)
     {
         switch codeunit
@@ -30,7 +30,7 @@ extension JSON.EscapeCode
         }
     }
 
-    @inlinable internal static
+    @inlinable static
     func += (utf8:inout ArraySlice<UInt8>, self:Self)
     {
         utf8.append(0x5C) // '\'

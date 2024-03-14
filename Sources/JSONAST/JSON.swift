@@ -1,3 +1,4 @@
+/// A container for some UTF-8 encoded JSON source text.
 @frozen public
 struct JSON:Sendable
 {

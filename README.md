@@ -11,11 +11,7 @@
 
 </div>
 
-`swift-json` is a pure-Swift JSON parsing library designed for high-performance, high-throughput server-side applications. When compared using the test data [`captured.json`](Benchmarks/), `swift-json` is nearly 7 times faster than `Foundation.JSONDecoder` ([see benchmark source code](Benchmarks/Sources/GeneralDecoding)). This library is powered by [`swift-grammar`](https://github.com/tayloraswift/swift-grammar)!
-
-**Importing this module will expose the following top-level symbol(s)**:
-
-* `enum JSON`
+`swift-json` is a pure-Swift JSON parsing library designed for high-performance, high-throughput server-side applications.
 
 ## example usage
 

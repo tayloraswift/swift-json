@@ -3,140 +3,137 @@ import Testing
 
 struct IntegerOverflow
 {
+}
+extension IntegerOverflow
+{
     private
-    let integer:Int
+    func expect<Signed>(_ value:Int64, overflows:Signed.Type)
+        where Signed:SignedInteger & JSONDecodable
+    {
+        let field:JSON.FieldDecoder<Never?> = .init(key: nil,
+            value: .number(.init(value)))
+
+        #expect(throws: JSON.DecodingError<Never?>.self)
+        {
+            let _:Signed = try field.decode()
+        }
+    }
     private
-    let encoded:JSON
+    func decode<Signed>(_ value:Int64, to:Signed.Type)
+        where Signed:SignedInteger & JSONDecodable
+    {
+        let field:JSON.FieldDecoder<Never?> = .init(key: nil,
+            value: .number(.init(value)))
+
+        #expect(throws: Never.self)
+        {
+            let _:Signed = try field.decode()
+        }
+    }
 
     private
-    init(integer:Int)
+    func expect<Unsigned>(_ value:UInt64, overflows:Unsigned.Type)
+        where Unsigned:UnsignedInteger & JSONDecodable
     {
-        self.integer = integer
-        self.encoded = .encode(integer)
+        let field:JSON.FieldDecoder<Never?> = .init(key: nil,
+            value: .number(.init(value)))
+
+        #expect(throws: JSON.DecodingError<Never?>.self)
+        {
+            let _:Unsigned = try field.decode()
+        }
+    }
+    private
+    func decode<Unsigned>(_ value:UInt64, to:Unsigned.Type)
+        where Unsigned:UnsignedInteger & JSONDecodable
+    {
+        let field:JSON.FieldDecoder<Never?> = .init(key: nil,
+            value: .number(.init(value)))
+
+        #expect(throws: Never.self)
+        {
+            let _:Unsigned = try field.decode()
+        }
     }
 }
 extension IntegerOverflow
 {
-    init()
+    @Test("Int8")
+    func int8()
     {
-        self.init(integer: 256)
+        self.expect(256, overflows: Int8.self)
     }
 
-    @Test("Integer overflow")
-    func main()
+    @Test("Int16")
+    func int16()
     {
-        // let field:JSON.FieldDecoder<Never?> = try .init(key: nil,
-        //     value: try .init(parsing: self.encoded))
+        self.decode(256, to: Int16.self)
+    }
 
-        // let uint8:UInt8 = try field.decode()
-        // guard let tests:TestGroup
-        // else
-        // {
-        //     return
-        // }
+    @Test("Int32")
+    func int32()
+    {
+        self.decode(256, to: Int32.self)
+    }
 
-        // let number:JSON.Number = .init(256)
-        // let json:JSON = .number(number)
+    @Test("Int64")
+    func int64()
+    {
+        self.decode(256, to: Int64.self)
+    }
 
-        // if  let tests:TestGroup = (tests / "int")
-        // {
-        //     tests.do
-        //     {
-        //         tests.expect(try 256 ==? json.as(Int.self))
-        //     }
-        // }
-        // if  let tests:TestGroup = (tests / "int64")
-        // {
-        //     tests.do
-        //     {
-        //         tests.expect(try 256 ==? json.as(Int64.self))
-        //     }
-        // }
-        // if  let tests:TestGroup = (tests / "int32")
-        // {
-        //     tests.do
-        //     {
-        //         tests.expect(try 256 ==? json.as(Int32.self))
-        //     }
-        // }
-        // if  let tests:TestGroup = (tests / "int16")
-        // {
-        //     tests.do
-        //     {
-        //         tests.expect(try 256 ==? json.as(Int16.self))
-        //     }
-        // }
-        // if  let tests:TestGroup = tests / "int8"
-        // {
-        //     tests.do(catching: JSON.IntegerOverflowError.init(number: number,
-        //         overflows: Int8.self))
-        //     {
-        //         let _:Int8? = try json.as(Int8.self)
-        //     }
-        // }
+    @Test("Int64.max")
+    func int64max()
+    {
+        self.decode(Int64.max, to: Int64.self)
+    }
 
-        // if  let tests:TestGroup = (tests / "int64-max")
-        // {
-        //     let json:JSON = .number(.init(Int64.max))
-        //     tests.do
-        //     {
-        //         tests.expect(try Int64.max ==? json.as(Int64.self))
-        //     }
-        // }
-        // if  let tests:TestGroup = (tests / "int64-min")
-        // {
-        //     let json:JSON = .number(.init(Int64.min))
-        //     tests.do
-        //     {
-        //         tests.expect(try Int64.min ==? json.as(Int64.self))
-        //     }
-        // }
+    @Test("Int64.min")
+    func int64min()
+    {
+        self.decode(Int64.min, to: Int64.self)
+    }
 
-        // if  let tests:TestGroup = (tests / "uint")
-        // {
-        //     tests.do
-        //     {
-        //         tests.expect(try 256 ==? json.as(UInt.self))
-        //     }
-        // }
-        // if  let tests:TestGroup = (tests / "uint64")
-        // {
-        //     tests.do
-        //     {
-        //         tests.expect(try 256 ==? json.as(UInt64.self))
-        //     }
-        // }
-        // if  let tests:TestGroup = (tests / "uint32")
-        // {
-        //     tests.do
-        //     {
-        //         tests.expect(try 256 ==? json.as(UInt32.self))
-        //     }
-        // }
-        // if  let tests:TestGroup = (tests / "uint16")
-        // {
-        //     tests.do
-        //     {
-        //         tests.expect(try 256 ==? json.as(UInt16.self))
-        //     }
-        // }
-        // if  let tests:TestGroup = tests / "uint8"
-        // {
-        //     tests.do(catching: JSON.IntegerOverflowError.init(number: number,
-        //         overflows: UInt8.self))
-        //     {
-        //         let _:UInt8? = try json.as(UInt8.self)
-        //     }
-        // }
+    @Test("Int")
+    func int()
+    {
+        self.decode(256, to: Int.self)
+    }
 
-        // if  let tests:TestGroup = (tests / "uint64-max")
-        // {
-        //     let json:JSON = .number(.init(UInt64.max))
-        //     tests.do
-        //     {
-        //         tests.expect(try UInt64.max ==? json.as(UInt64.self))
-        //     }
-        // }
+    @Test("UInt8")
+    func uint8()
+    {
+        self.expect(256, overflows: UInt8.self)
+    }
+
+    @Test("UInt16")
+    func uint16()
+    {
+        self.decode(256, to: UInt16.self)
+    }
+
+    @Test("UInt32")
+    func uint32()
+    {
+        self.decode(256, to: UInt32.self)
+    }
+
+    @Test("UInt64")
+    func uint64()
+    {
+        self.decode(256, to: UInt64.self)
+    }
+
+    @Test("UInt64.max")
+    func uint64max()
+    {
+        self.decode(UInt64.max, to: UInt64.self)
+    }
+
+    @Test("UInt")
+    func uint()
+    {
+        self.decode(256, to: UInt.self)
     }
 }
 

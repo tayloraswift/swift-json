@@ -7,65 +7,19 @@ on:
         branches: [ master ]
 
 jobs:
-    macos-nightly:
-        runs-on: ${{ matrix.os.runner }}
-        name: ${{ matrix.os.runner }} (${{ matrix.swift.toolchain }})
-        env: 
-            SWIFT_TOOLCHAIN_DIRECTORY: /Library/Developer/Toolchains/swift-${{ matrix.swift.toolchain }}.xctoolchain
-        strategy:
-            matrix:
-                os: 
-                    -   runner: macos-12
-                        prefix: xcode
-                swift: 
-                    -   toolchain:  5.8-RELEASE
-                        branch:     swift-5.8-release
-        steps:
-            -   uses: actions/checkout@v2
-
-            -   name: cache swift toolchains
-                uses: actions/cache@v2
-                with:
-                    path: swift-${{ matrix.swift.toolchain }}.pkg
-                    key: ${{ matrix.os.runner }}:swift:${{ matrix.swift.toolchain }}
-            
-            -   name: cache status
-                id:   cache_status
-                uses: andstor/file-existence-action@v1
-                with:
-                    files: swift-${{ matrix.swift.toolchain }}.pkg
-            
-            -   name: download swift toolchain 
-                if: steps.cache_status.outputs.files_exists == 'false'
-                run:   "curl https://download.swift.org/\
-                        ${{ matrix.swift.branch }}/\
-                        ${{ matrix.os.prefix }}/\
-                        swift-${{ matrix.swift.toolchain }}/\
-                        swift-${{ matrix.swift.toolchain }}-osx.pkg \
-                        --output swift-${{ matrix.swift.toolchain }}.pkg"
-            
-            -   name: set up swift
-                run: |
-                    sudo installer -pkg swift-${{ matrix.swift.toolchain }}.pkg -target /
-            
-            -   name: build 
-                run: |
-                    $SWIFT_TOOLCHAIN_DIRECTORY/usr/bin/swift --version
-                    $SWIFT_TOOLCHAIN_DIRECTORY/usr/bin/swift build
-    
     macos:
         runs-on: ${{ matrix.os }}
-        name: ${{ matrix.os }} 
+        name: ${{ matrix.os }}
         strategy:
             matrix:
-                os: 
-                    -   macos-12
+                os:
+                    -   macos-14
         steps:
             -   uses: actions/checkout@v3
 
-            -   name: build 
+            -   name: pipeline
                 run: .github/pipeline
-    
+
     linux:
         runs-on: ubuntu-22.04
         name: ${{ matrix.image }}
@@ -73,19 +27,17 @@ jobs:
         strategy:
             matrix:
                 image:
-                -   swift:5.8.0-amazonlinux2
-                -   swift:5.8.0-jammy
-                -   swift:5.7.3-amazonlinux2
-                -   swift:5.7.3-jammy
+                -   tayloraswift/5.10.0-amazonlinux2023:latest
         steps:
             -   name: checkout repository
                 uses: actions/checkout@v3
-            
+
             -   name: build and test
                 run: |
                     docker run -t --rm \
                         --name swift-environment \
+                        --user root \
                         -v $PWD:/swift-json \
                         -w /swift-json \
                         ${{ matrix.image }} \
-                        /bin/bash $(echo .github/pipeline)
+                        .github/pipeline

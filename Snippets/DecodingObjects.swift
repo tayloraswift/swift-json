@@ -1,5 +1,4 @@
 import JSON
-import JSONDecoding
 
 //  snippet.MARKETTYPE_ENUM
 enum MarketType:String

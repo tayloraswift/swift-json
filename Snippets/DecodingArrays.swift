@@ -1,5 +1,4 @@
 import JSON
-import JSONDecoding
 
 // snippet.POINT
 struct Point

@@ -11,13 +11,12 @@ jobs:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                os: [macos-12]
+                os: [macos-14]
                 device: [ios, tvos, watchos]
         steps:
             -   uses: actions/checkout@v2
-            -   name: build 
+            -   name: build
                 run: |
                     swift --version
                     xcrun xcodebuild build -scheme "JSON" -destination "generic/platform=${{ matrix.device }}"
-                    xcrun xcodebuild build -scheme "JSONDecoding" -destination "generic/platform=${{ matrix.device }}"
-                    xcrun xcodebuild build -scheme "JSONEncoding" -destination "generic/platform=${{ matrix.device }}"
+                    xcrun xcodebuild build -scheme "JSONLegacy" -destination "generic/platform=${{ matrix.device }}"

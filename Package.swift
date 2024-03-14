@@ -13,7 +13,7 @@ let package:Package = .init(
         .package(url: "https://github.com/tayloraswift/swift-grammar", .upToNextMinor(
             from: "0.3.4")),
         .package(url: "https://github.com/apple/swift-testing", .upToNextMinor(
-            from: "0.5.1")),
+            from: "0.6.0")),
     ],
     targets: [
         .target(name: "JSONAST"),
