@@ -15,9 +15,15 @@ jobs:
                 os:
                     -   macos-14
         steps:
+            -   name: Select Xcode
+                uses: maxim-lobanov/setup-xcode@v1
+                with:
+                    xcode-version: '15.3.0'
+
+            -   name: Checkout repository
             -   uses: actions/checkout@v3
 
-            -   name: pipeline
+            -   name: Run pipeline
                 run: .github/pipeline
 
     linux:
