@@ -8,23 +8,51 @@ on:
 
 jobs:
     macos:
-        runs-on: ${{ matrix.os }}
-        name: ${{ matrix.os }}
+        runs-on: macos-14
+        name: macOS
+        env:
+            SWIFT_TOOLCHAIN_DIRECTORY: /Library/Developer/Toolchains/swift-${{ matrix.swift.toolchain }}.xctoolchain
+
         strategy:
             matrix:
-                os:
-                    -   macos-14
+                swift:
+                    -   toolchain:  5.10-RELEASE
+                        branch:     swift-5.10-release
         steps:
-            -   name: Select Xcode
-                uses: maxim-lobanov/setup-xcode@v1
+            -   name: cache swift toolchains
+                uses: actions/cache@v2
                 with:
-                    xcode-version: '15.3.0'
+                    path: swift-${{ matrix.swift.toolchain }}.pkg
+                    key: macos:swift:${{ matrix.swift.toolchain }}
+
+            -   name: cache status
+                id:   cache_status
+                uses: andstor/file-existence-action@v1
+                with:
+                    files: swift-${{ matrix.swift.toolchain }}.pkg
+
+            -   name: download swift toolchain
+                if: steps.cache_status.outputs.files_exists == 'false'
+                run:   "curl https://download.swift.org/\
+                        ${{ matrix.swift.branch }}/xcode/\
+                        swift-${{ matrix.swift.toolchain }}/\
+                        swift-${{ matrix.swift.toolchain }}-osx.pkg \
+                        --output swift-${{ matrix.swift.toolchain }}.pkg"
+
+            -   name: set up swift
+                run: |
+                    sudo installer -pkg swift-${{ matrix.swift.toolchain }}.pkg -target /
 
             -   name: Checkout repository
                 uses: actions/checkout@v3
 
-            -   name: Run pipeline
-                run: .github/pipeline
+            # -   name: build
+            #     run: |
+            #         $SWIFT_TOOLCHAIN_DIRECTORY/usr/bin/swift --version
+            #         $SWIFT_TOOLCHAIN_DIRECTORY/usr/bin/swift build
+
+            # -   name: Run pipeline
+            #     run: .github/pipeline
 
     linux:
         runs-on: ubuntu-22.04
