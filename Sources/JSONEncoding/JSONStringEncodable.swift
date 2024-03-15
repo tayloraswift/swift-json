@@ -8,7 +8,7 @@ protocol JSONStringEncodable:JSONEncodable
 {
     /// Converts an instance of this type to a string. This requirement
     /// restates its counterpart in ``CustomStringConvertible`` if
-    /// [`Self`]() also conforms to it.
+    /// `Self` also conforms to it.
     var description:String { get }
 }
 extension JSONStringEncodable

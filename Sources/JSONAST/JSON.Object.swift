@@ -44,7 +44,7 @@ extension JSON.Object
 {
     /// Creates a pseudo-object containing integral ``Number`` values taken
     /// from the supplied `number`, keyed by `"units"` and `"places"` and
-    /// wrapped in containers of type ``Self``.
+    /// wrapped in containers of type `Self`.
     ///
     /// This pseudo-object is intended for consumption by compiler-generated
     /// ``Codable`` implementations. Decoding it incurs a small but non-zero

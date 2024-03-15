@@ -41,7 +41,7 @@ extension JSON.ArrayEncoder
     /// Creates a nested JSON encoding context.
     ///
     /// This accessor isn’t very useful on its own, rather, you should chain it with a call to
-    /// ``JSON.subscript(_:_:)`` to bind the context to a particular coding key.
+    /// ``JSON.callAsFunction(_:yield:)`` to bind the context to a particular coding key.
     ///
     /// You can also encode values directly with this accessor, via the `encode(to: &$0.next)`
     /// pattern, although the ``subscript(_:)`` setter is probably more convenient for that.

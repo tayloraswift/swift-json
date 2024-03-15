@@ -1,7 +1,7 @@
 extension JSON
 {
     /// A field that may or may not exist in a document. This type is
-    /// the return value of ``Dictionary``’s non-optional subscript, and
+    /// the return value of ``ObjectDecoder``’s non-optional subscript, and
     /// is useful for obtaining structured diagnostics for “key-not-found”
     /// scenarios.
     @frozen public
@@ -37,9 +37,9 @@ extension JSON.OptionalDecoder
 }
 extension JSON.OptionalDecoder
 {
-    /// Gets the value of this key, throwing a ``JSON.ObjectKeyError``
-    /// if it is [`nil`](). This is a distinct condition from an explicit
-    /// ``JSON.null`` value, which will be returned without throwing an error.
+    /// Gets the value of this key, throwing a ``JSON.ObjectKeyError`` if it is nil. This is a
+    /// distinct condition from an explicit ``JSON.Node/null`` value, which will be returned
+    /// without throwing an error.
     @inlinable public
     func decode() throws -> JSON.Node
     {

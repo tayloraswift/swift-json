@@ -6,7 +6,7 @@ protocol JSONStringDecodable:JSONDecodable
 {
     /// Converts a string to an instance of this type. This requirement
     /// restates its counterpart in ``LosslessStringConvertible`` if
-    /// [`Self`]() also conforms to it.
+    /// `Self` also conforms to it.
     init?(_ description:String)
 }
 extension JSONStringDecodable

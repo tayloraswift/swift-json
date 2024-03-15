@@ -140,10 +140,10 @@ extension JSON.Node
     /// Promotes a `nil` result to a thrown ``TypecastError``.
     ///
     /// If `T` conforms to ``JSONDecodable``, prefer calling its throwing
-    /// ``JSONDecodable/init(json:)`` to calling this method directly.
+    /// ``JSONDecodable/init(json:) [9EW6]`` to calling this method directly.
     ///
     /// >   Throws:
-    ///     A ``TypecastError`` if the given closure returns [`nil`]().
+    ///     A ``TypecastError`` if the given closure returns nil.
     ///
     /// >   Complexity: O(1), as long as the closure is O(1).
     @inline(__always)
@@ -167,7 +167,7 @@ extension JSON.Node
     ///
     /// -   Returns:
     ///     The payload of this variant if it matches ``bool(_:) [case]``,
-    ///     [`nil`]() otherwise.
+    ///     nil otherwise.
     ///
     /// >   Complexity: O(1).
     @inlinable public

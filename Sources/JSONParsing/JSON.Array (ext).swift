@@ -24,7 +24,7 @@ extension JSON.Array
 }
 extension JSON.Array:LosslessStringConvertible
 {
-    /// See ``init(parsing:)``.
+    /// See ``init(parsing:) [7F3DT]``.
     public
     init?(_ description:String)
     {
