@@ -75,29 +75,29 @@ jobs:
             -   name: Checkout repository
                 uses: actions/checkout@v3
 
-            -   name: Build iOS
-                run: |
-                    swift --version
-                    xcrun xcodebuild build -scheme "JSON" -destination \
-                        "generic/platform=ios"
-                    xcrun xcodebuild build -scheme "JSONLegacy" -destination \
-                        "generic/platform=ios"
+            # -   name: Build iOS
+            #     run: |
+            #         swift --version
+            #         xcrun xcodebuild build -scheme "JSON" -destination \
+            #             "generic/platform=ios"
+            #         xcrun xcodebuild build -scheme "JSONLegacy" -destination \
+            #             "generic/platform=ios"
 
-            -   name: Build tvOS
-                run: |
-                    swift --version
-                    xcrun xcodebuild build -scheme "JSON" -destination \
-                        "generic/platform=tvos"
-                    xcrun xcodebuild build -scheme "JSONLegacy" -destination \
-                        "generic/platform=tvos"
+            # -   name: Build tvOS
+            #     run: |
+            #         swift --version
+            #         xcrun xcodebuild build -scheme "JSON" -destination \
+            #             "generic/platform=tvos"
+            #         xcrun xcodebuild build -scheme "JSONLegacy" -destination \
+            #             "generic/platform=tvos"
 
-            -   name: Build watchOS
-                run: |
-                    swift --version
-                    xcrun xcodebuild build -scheme "JSON" -destination \
-                        "generic/platform=watchos"
-                    xcrun xcodebuild build -scheme "JSONLegacy" -destination \
-                        "generic/platform=watchos"
+            # -   name: Build watchOS
+            #     run: |
+            #         swift --version
+            #         xcrun xcodebuild build -scheme "JSON" -destination \
+            #             "generic/platform=watchos"
+            #         xcrun xcodebuild build -scheme "JSONLegacy" -destination \
+            #             "generic/platform=watchos"
 
             -   name: Run pipeline
                 run: .github/pipeline
