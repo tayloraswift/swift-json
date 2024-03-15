@@ -69,7 +69,7 @@ jobs:
 
             -   name: Select toolchain
                 run: |
-                    echo "TOOLCHAINS=\$(plutil -extract CFBundleIdentifier raw \
+                    echo "TOOLCHAINS=$(plutil -extract CFBundleIdentifier raw \
                         $SWIFT_TOOLCHAIN_DIRECTORY/Info.plist)" >> $GITHUB_ENV
 
             -   name: Checkout repository
