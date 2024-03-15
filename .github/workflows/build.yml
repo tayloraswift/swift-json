@@ -12,6 +12,7 @@ jobs:
         name: macOS
         env:
             SWIFT_TOOLCHAIN_DIRECTORY: /Library/Developer/Toolchains/swift-${{ matrix.swift.toolchain }}.xctoolchain
+            TOOLCHAINS: /Library/Developer/Toolchains/swift-${{ matrix.swift.toolchain }}.xctoolchain
 
         strategy:
             matrix:
@@ -51,8 +52,8 @@ jobs:
             #         $SWIFT_TOOLCHAIN_DIRECTORY/usr/bin/swift --version
             #         $SWIFT_TOOLCHAIN_DIRECTORY/usr/bin/swift build
 
-            # -   name: Run pipeline
-            #     run: .github/pipeline
+            -   name: Run pipeline
+                run: .github/pipeline
 
     linux:
         runs-on: ubuntu-22.04
