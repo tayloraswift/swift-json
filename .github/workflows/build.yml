@@ -44,6 +44,9 @@ jobs:
                 run: |
                     sudo installer -pkg swift-${{ matrix.swift.toolchain }}.pkg -target /
 
+            -   run: |
+                    plutil -extract CFBundleIdentifier raw $SWIFT_TOOLCHAIN_DIRECTORY
+
             -   name: Checkout repository
                 uses: actions/checkout@v3
 
