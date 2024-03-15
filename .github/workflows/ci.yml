@@ -9,7 +9,7 @@ on:
 jobs:
     linux:
         runs-on: ubuntu-22.04
-        name: ${{ matrix.image }}
+        name: Amazon Linux 2023
 
         strategy:
             matrix:
@@ -19,7 +19,7 @@ jobs:
             -   name: Checkout repository
                 uses: actions/checkout@v3
 
-            -   name: Build and test
+            -   name: Run pipeline
                 run: |
                     docker run -t --rm \
                         --name swift-environment \
@@ -40,8 +40,6 @@ jobs:
 
         env:
             SWIFT_TOOLCHAIN_DIRECTORY: >-
-                /Library/Developer/Toolchains/swift-${{ matrix.swift.toolchain }}.xctoolchain
-            TOOLCHAINS: >-
                 /Library/Developer/Toolchains/swift-${{ matrix.swift.toolchain }}.xctoolchain
 
         steps:
@@ -65,10 +63,14 @@ jobs:
                         swift-${{ matrix.swift.toolchain }}-osx.pkg \
                         --output swift-${{ matrix.swift.toolchain }}.pkg"
 
-            -   name: Set up swift
+            -   name: Install toolchain
                 run: |
                     sudo installer -pkg swift-${{ matrix.swift.toolchain }}.pkg -target /
 
+            -   name: Select toolchain
+                run: |
+                    echo "TOOLCHAINS=\$(plutil -extract CFBundleIdentifier raw \
+                        $SWIFT_TOOLCHAIN_DIRECTORY/Info.plist)" >> $GITHUB_ENV
 
             -   name: Checkout repository
                 uses: actions/checkout@v3
@@ -98,7 +100,4 @@ jobs:
                         "generic/platform=watchos"
 
             -   name: Run pipeline
-                run: |
-                    export TOOLCHAINS=\$(plutil -extract CFBundleIdentifier raw \
-                        $SWIFT_TOOLCHAIN_DIRECTORY/Info.plist) \
-                    && .github/pipeline
+                run: .github/pipeline
