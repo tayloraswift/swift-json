@@ -25,13 +25,13 @@ extension JSON.ArrayShapeError:CustomStringConvertible
         switch self.expected
         {
         case nil:
-            return "Invalid element count (\(self.count))."
+            "Invalid element count (\(self.count))."
         
         case .count(let count)?:
-            return "Invalid element count (\(self.count)), expected \(count) elements."
+            "Invalid element count (\(self.count)), expected \(count) elements."
         
         case .multiple(of: let stride)?:
-            return "Invalid element count (\(self.count)), expected multiple of \(stride)."
+            "Invalid element count (\(self.count)), expected multiple of \(stride)."
         }
     }
 }

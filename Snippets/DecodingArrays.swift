@@ -1,32 +1,29 @@
 import JSON
-import JSONDecoding
 
-// snippet.point-definition
+// snippet.POINT
 struct Point
 {
     let x:Double
     let y:Double
 }
-// snippet.point-decoder
+// snippet.POINT_DECODE
 extension Point:JSONDecodable
 {
-    init(json:JSON) throws
+    init(json:JSON.Node) throws
     {
         let array:JSON.Array = try .init(json: json)
         try array.shape.expect(count: 2)
-        self.init(
-            x: try array[0].decode(to: Double.self),
-            y: try array[1].decode(to: Double.self))
+        self.init(x: try array[0].decode(), y: try array[1].decode())
     }
 }
-// snippet.main
+// snippet.MAIN
 func decode(message:String) throws -> [(Point, Point, Point)]
 {
-    // snippet.parse
+    // snippet.MAIN_PARSE
     let json:JSON.Array = try .init(parsing: message)
-    // snippet.check-shape
+    // snippet.MAIN_CHECK_SHAPE
     try json.shape.expect(multipleOf: 3)
-    // snippet.decode
+    // snippet.MAIN_DECODE
     return try stride(from: json.startIndex, to: json.endIndex, by: 3).map
     {
         (
@@ -35,13 +32,7 @@ func decode(message:String) throws -> [(Point, Point, Point)]
             try json[$0 + 2].decode(to: Point.self)
         )
     }
-    // snippet.hide
+    // snippet.end
 }
-print(try decode(message: 
-"""
-[
-    [0, 0],
-    [0, 1],
-    [1, 0]
-]
-"""))
+// snippet.MAIN_CALL
+print(try decode(message: "[[0, 0], [0, 1], [1, 0]]"))

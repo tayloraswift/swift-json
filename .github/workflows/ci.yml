@@ -1,0 +1,103 @@
+name: build
+
+on:
+    push:
+        branches: [ master ]
+    pull_request:
+        branches: [ master ]
+
+jobs:
+    linux:
+        runs-on: ubuntu-22.04
+        name: Amazon Linux 2023
+
+        strategy:
+            matrix:
+                image:
+                -   tayloraswift/5.10.0-amazonlinux2023:latest
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v3
+
+            -   name: Run pipeline
+                run: |
+                    docker run -t --rm \
+                        --name swift-environment \
+                        --user root \
+                        -v $PWD:/swift-json \
+                        -w /swift-json \
+                        ${{ matrix.image }} \
+                        .github/pipeline
+
+    macos:
+        runs-on: macos-14
+        name: macOS
+        strategy:
+            matrix:
+                swift:
+                    -   toolchain:  5.10-RELEASE
+                        branch:     swift-5.10-release
+
+        env:
+            SWIFT_TOOLCHAIN_DIRECTORY: >-
+                /Library/Developer/Toolchains/swift-${{ matrix.swift.toolchain }}.xctoolchain
+
+        steps:
+            -   name: Cache swift toolchains
+                uses: actions/cache@v2
+                with:
+                    path: swift-${{ matrix.swift.toolchain }}.pkg
+                    key: macos:swift:${{ matrix.swift.toolchain }}
+
+            -   name: Cache status
+                id:   cache_status
+                uses: andstor/file-existence-action@v1
+                with:
+                    files: swift-${{ matrix.swift.toolchain }}.pkg
+
+            -   name: Download toolchain
+                if: steps.cache_status.outputs.files_exists == 'false'
+                run:   "curl https://download.swift.org/\
+                        ${{ matrix.swift.branch }}/xcode/\
+                        swift-${{ matrix.swift.toolchain }}/\
+                        swift-${{ matrix.swift.toolchain }}-osx.pkg \
+                        --output swift-${{ matrix.swift.toolchain }}.pkg"
+
+            -   name: Install toolchain
+                run: |
+                    sudo installer -pkg swift-${{ matrix.swift.toolchain }}.pkg -target /
+
+            -   name: Select toolchain
+                run: |
+                    echo "TOOLCHAINS=$(plutil -extract CFBundleIdentifier raw \
+                        $SWIFT_TOOLCHAIN_DIRECTORY/Info.plist)" >> $GITHUB_ENV
+
+            -   name: Checkout repository
+                uses: actions/checkout@v3
+
+            # -   name: Build iOS
+            #     run: |
+            #         swift --version
+            #         xcrun xcodebuild build -scheme "JSON" -destination \
+            #             "generic/platform=ios"
+            #         xcrun xcodebuild build -scheme "JSONLegacy" -destination \
+            #             "generic/platform=ios"
+
+            # -   name: Build tvOS
+            #     run: |
+            #         swift --version
+            #         xcrun xcodebuild build -scheme "JSON" -destination \
+            #             "generic/platform=tvos"
+            #         xcrun xcodebuild build -scheme "JSONLegacy" -destination \
+            #             "generic/platform=tvos"
+
+            # -   name: Build watchOS
+            #     run: |
+            #         swift --version
+            #         xcrun xcodebuild build -scheme "JSON" -destination \
+            #             "generic/platform=watchos"
+            #         xcrun xcodebuild build -scheme "JSONLegacy" -destination \
+            #             "generic/platform=watchos"
+
+            -   name: Run pipeline
+                run: .github/pipeline

@@ -2,7 +2,7 @@ extension JSON
 {
     /// An object had an invalid key scheme.
     @frozen public
-    enum ObjectKeyError<CodingKey>:Error
+    enum ObjectKeyError<CodingKey>:Error where CodingKey:Sendable
     {
         /// An object contained more than one field with the same key.
         case duplicate(CodingKey)
@@ -21,9 +21,9 @@ extension JSON.ObjectKeyError:CustomStringConvertible
         switch self
         {
         case .duplicate(let key):
-            return "duplicate key '\(key)'"
+            "duplicate key '\(key)'"
         case .undefined(let key):
-            return "undefined key '\(key)'"
+            "undefined key '\(key)'"
         }
     }
 }

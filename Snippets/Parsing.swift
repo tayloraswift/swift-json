@@ -1,10 +1,9 @@
-import Grammar
 import JSON
 
-let string:String = 
-"""
+let string:String = """
 {"success": true, "value": 0.1}
 """
 
-let json:JSON = try JSON.Rule<String.Index>.Root.parse(diagnosing: string.utf8)
+let json:JSON.Node = try .init(parsing: string)
+
 print(json)

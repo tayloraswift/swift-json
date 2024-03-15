@@ -1,5 +1,0 @@
-#!/bin/bash 
-sudo perf record -g --call-graph dwarf .build/release/benchmarks -o perf.data
-sudo perf script > perf.txt
-FlameGraph/stackcollapse-perf.pl perf.txt | swift demangle > out.folded
-FlameGraph/flamegraph.pl out.folded > out.svg

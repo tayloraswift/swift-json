@@ -1,4 +1,0 @@
-cd Benchmarks &&
-swift --version &&
-swift run -c release GeneralDecodingBenchmark .data/ftx.json &&
-swift run -c release AmazonIPAddressManagerBenchmark .data/aws-ipamd.jsonl
