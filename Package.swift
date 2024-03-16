@@ -56,5 +56,11 @@ let package:Package = .init(
                 .target(name: "JSON"),
                 .product(name: "Testing", package: "swift-testing"),
             ]),
+        
+        .target(name: "_BSON", 
+            dependencies: 
+            [
+                .product(name: "Grammar", package: "swift-grammar"),
+            ]),
     ]
 )
