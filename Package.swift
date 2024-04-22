@@ -11,9 +11,9 @@ let package:Package = .init(
     ],
     dependencies: [
         .package(url: "https://github.com/tayloraswift/swift-grammar", .upToNextMinor(
-            from: "0.3.4")),
+            from: "0.4.0")),
         .package(url: "https://github.com/apple/swift-testing", .upToNextMinor(
-            from: "0.6.0")),
+            from: "0.7.0")),
     ],
     targets: [
         .target(name: "JSONAST"),
@@ -21,9 +21,7 @@ let package:Package = .init(
         .target(name: "JSONDecoding",
             dependencies: [
                 .target(name: "JSONAST"),
-                .product(name: "Grammar",
-                    package: "swift-grammar",
-                    moduleAliases: ["Testing": "_Testing"]),
+                .product(name: "Grammar", package: "swift-grammar"),
             ]),
 
         .target(name: "JSONEncoding",
@@ -39,9 +37,7 @@ let package:Package = .init(
         .target(name: "JSONParsing",
             dependencies: [
                 .target(name: "JSONAST"),
-                .product(name: "Grammar",
-                    package: "swift-grammar",
-                    moduleAliases: ["Testing": "_Testing"]),
+                .product(name: "Grammar", package: "swift-grammar"),
             ]),
 
         .target(name: "JSON",
