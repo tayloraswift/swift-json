@@ -1,6 +1,6 @@
 <div align="center">
 
-***`json`***<br>`1.0.0`
+***`json`***<br>`1.0`
 
 [![ci status](https://github.com/tayloraswift/swift-json/actions/workflows/ci.yml/badge.svg)](https://github.com/tayloraswift/swift-json/actions/workflows/ci.yml)
 
