@@ -5,6 +5,9 @@ extension Array:JSONDecodable where Element:JSONDecodable
     {
         try self.init(json: try .init(json: json))
     }
+}
+extension Array where Element:JSONDecodable
+{
     @inlinable public
     init(json:JSON.Array) throws
     {
