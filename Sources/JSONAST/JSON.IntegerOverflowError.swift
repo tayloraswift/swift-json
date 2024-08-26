@@ -3,7 +3,7 @@ extension JSON
     /// An integer overflow occurred while converting a number literal to a desired type.
     ///
     /// This error is thrown by decoders, and is different from
-    /// ``Pattern.IntegerOverflowError``, which is thrown by the parser.
+    /// `Grammar.Pattern.IntegerOverflowError`, which is thrown by the parser.
     public
     struct IntegerOverflowError:Error, Sendable
     {
