@@ -11,6 +11,12 @@ jobs:
         runs-on: ubuntu-24.04
         name: Ubuntu 24.04
         steps:
+            -   name: Install Swift
+                uses: tayloraswift/swift-install-action@master
+                with:
+                    swift-prefix: "swift-5.10.1-release/ubuntu2404/swift-5.10.1-RELEASE"
+                    swift-id: "swift-5.10.1-RELEASE-ubuntu24.04"
+
             -   name: Checkout repository
                 uses: actions/checkout@v3
 
