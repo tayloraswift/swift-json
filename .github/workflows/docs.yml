@@ -23,8 +23,6 @@ jobs:
 
             -   name: Install Unidoc
                 uses: tayloraswift/swift-unidoc-action@master
-                with:
-                    unidoc-version: "master"
 
             #   This clobbers everything in the current directory!
             -   name: Checkout repository
@@ -46,8 +44,6 @@ jobs:
         steps:
             -   name: Install Unidoc
                 uses: tayloraswift/swift-unidoc-action@master
-                with:
-                    unidoc-version: "master"
 
             -   name: Checkout repository
                 uses: actions/checkout@v3
