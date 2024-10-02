@@ -12,8 +12,6 @@ let package:Package = .init(
     dependencies: [
         .package(url: "https://github.com/tayloraswift/swift-grammar", .upToNextMinor(
             from: "0.4.0")),
-        .package(url: "https://github.com/apple/swift-testing", .upToNextMinor(
-            from: "0.7.0")),
     ],
     targets: [
         .target(name: "JSONAST"),
@@ -50,7 +48,6 @@ let package:Package = .init(
         .testTarget(name: "JSONTests",
             dependencies: [
                 .target(name: "JSON"),
-                .product(name: "Testing", package: "swift-testing"),
             ]),
     ]
 )
