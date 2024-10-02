@@ -30,10 +30,10 @@ jobs:
 
             -   name: Validate documentation
                 run: |
-                    unidoc compile -I .. \
+                    unidoc compile \
                     --swift-toolchain $SWIFT_INSTALLATION \
                     --ci fail-on-errors \
-                    --package-name swift-json
+                    --project-path .
 
     macos:
         runs-on: macos-15
