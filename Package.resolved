@@ -1,5 +1,5 @@
 {
-  "originHash" : "fa8595a7a58cb38d39f9bd6abb6912c607ba46b9b6016a4994549056615f9b7f",
+  "originHash" : "a820be717504b61ea192be01bc8752905534bf092258ad7bf97af285b1aacb8b",
   "pins" : [
     {
       "identity" : "swift-atomics",
@@ -17,24 +17,6 @@
       "state" : {
         "revision" : "642d5957896f06b03e35c48fc439488367d3fd21",
         "version" : "0.4.0"
-      }
-    },
-    {
-      "identity" : "swift-syntax",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-syntax.git",
-      "state" : {
-        "revision" : "2bc86522d115234d1f588efe2bcb4ce4be8f8b82",
-        "version" : "510.0.3"
-      }
-    },
-    {
-      "identity" : "swift-testing",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-testing",
-      "state" : {
-        "revision" : "97d1f8a4e91794ec6bbf1ecb252ab31b1e255052",
-        "version" : "0.7.0"
       }
     }
   ],

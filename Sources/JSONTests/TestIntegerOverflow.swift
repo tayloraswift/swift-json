@@ -3,9 +3,6 @@ import Testing
 
 struct IntegerOverflow
 {
-}
-extension IntegerOverflow
-{
     private
     func expect<Signed>(_ value:Int64, overflows:Signed.Type)
         where Signed:SignedInteger & JSONDecodable
