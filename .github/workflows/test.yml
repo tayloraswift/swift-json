@@ -14,8 +14,8 @@ jobs:
             -   name: Install Swift
                 uses: tayloraswift/swift-install-action@master
                 with:
-                    swift-prefix: "swift-5.10.1-release/ubuntu2404/swift-5.10.1-RELEASE"
-                    swift-id: "swift-5.10.1-RELEASE-ubuntu24.04"
+                    swift-prefix: "swift-6.0.1-release/ubuntu2404/swift-6.0.1-RELEASE"
+                    swift-id: "swift-6.0.1-RELEASE-ubuntu24.04"
 
             -   name: Checkout repository
                 uses: actions/checkout@v3
@@ -24,10 +24,8 @@ jobs:
                 run: .github/pipeline
 
     macos:
-        runs-on: macos-14
+        runs-on: macos-15
         name: macOS
-        env:
-            DEVELOPER_DIR: "/Applications/Xcode_15.3.app/Contents/Developer"
         steps:
             -   name: Checkout repository
                 uses: actions/checkout@v3
@@ -36,14 +34,11 @@ jobs:
                 run: .github/pipeline
 
     devices:
-        runs-on: macos-14
+        runs-on: macos-15
         name: macOS
         strategy:
             matrix:
                 device: [ios, tvos, watchos]
-        env:
-            DEVELOPER_DIR: "/Applications/Xcode_15.3.app/Contents/Developer"
-
         steps:
             -   name: Checkout repository
                 uses: actions/checkout@v3
