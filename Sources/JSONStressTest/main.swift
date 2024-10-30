@@ -1,4 +1,4 @@
-import FoundationEssentials
+import Foundation
 import JSON
 
 @main
