@@ -1,5 +1,5 @@
 /.build
 /.build.*
+/.ssgc
 /.vscode
-/.swiftinit
 /.swift-version

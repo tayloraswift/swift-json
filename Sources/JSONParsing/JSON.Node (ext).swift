@@ -27,7 +27,7 @@ extension JSON.Node
 }
 extension JSON.Node:LosslessStringConvertible
 {
-    /// See ``init(parsing:) [3C9YH]``.
+    /// See ``init(parsing:) (String)``.
     public
     init?(_ description:String)
     {

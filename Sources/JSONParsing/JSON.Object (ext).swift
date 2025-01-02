@@ -33,7 +33,7 @@ extension JSON.Object
 }
 extension JSON.Object:LosslessStringConvertible
 {
-    /// See ``init(parsing:) [GSH7]``.
+    /// See ``init(parsing:) (String)``.
     public
     init?(_ description:String)
     {
