@@ -140,7 +140,7 @@ extension JSON.Node
     /// Promotes a `nil` result to a thrown ``TypecastError``.
     ///
     /// If `T` conforms to ``JSONDecodable``, prefer calling its throwing
-    /// ``JSONDecodable/init(json:) [9EW6]`` to calling this method directly.
+    /// ``JSONDecodable/init(json:) [requirement]`` to calling this method directly.
     ///
     /// >   Throws:
     ///     A ``TypecastError`` if the given closure returns nil.

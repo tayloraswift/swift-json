@@ -5,7 +5,7 @@ Swift JSON is a Foundation-free JSON parser and encoder written in pure Swift. I
 
 ## Getting started
 
-Many users only need to parse simple JSON messages, which you can do with the ``JSON.Node.init(parsing:) [3C9YH]`` initializer:
+Many users only need to parse simple JSON messages, which you can do with the ``JSON.Node.init(parsing:) (String)`` initializer:
 
 @Snippet(id: Parsing)
 

@@ -14,7 +14,7 @@ Another reason is code organization. You may find protocol conformances to be a 
 
 ### Decodability protocols
 
-Most decodable types have a particular type of AST ``JSON/Node`` that they are decoded from. Although the ``JSONDecodable.init(json:) [9EW6]`` requirement is the ultimate witness that will be called by the decoder, it is often more convenient to decode from a ``String`` or a typed ``JSON.ObjectDecoder``.
+Most decodable types have a particular type of AST ``JSON/Node`` that they are decoded from. Although the ``JSONDecodable.init(json:) [requirement]`` requirement is the ultimate witness that will be called by the decoder, it is often more convenient to decode from a ``String`` or a typed ``JSON.ObjectDecoder``.
 
 -   ``JSONDecodable``
 -   ``JSONStringDecodable``
