@@ -10,8 +10,7 @@ let package:Package = .init(
         .library(name: "JSONLegacy", targets: ["JSONLegacy"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/tayloraswift/swift-grammar", .upToNextMinor(
-            from: "0.4.0")),
+        .package(url: "https://github.com/tayloraswift/swift-grammar", from: "0.5.0"),
     ],
     targets: [
         .target(name: "JSONAST"),
