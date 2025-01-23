@@ -24,14 +24,27 @@ extension JSON.Node
     {
         self = try JSON.RootRule<String.Index>.parse(string.utf8)
     }
+
+    /// Attempts to parse a a JSON fragment from a string.
+    public
+    init(parsingFragment string:String) throws
+    {
+        self = try JSON.NodeRule<String.Index>.parse(string.utf8)
+    }
+    /// Attempts to parse a a JSON fragment from a substring.
+    public
+    init(parsingFragment string:Substring) throws
+    {
+        self = try JSON.NodeRule<String.Index>.parse(string.utf8)
+    }
 }
 extension JSON.Node:LosslessStringConvertible
 {
-    /// See ``init(parsing:) (String)``.
+    /// See ``init(parsingFragment:) (String)``.
     public
     init?(_ description:String)
     {
-        do      { try self.init(parsing: description) }
+        do      { try self.init(parsingFragment: description) }
         catch   { return nil }
     }
 }
