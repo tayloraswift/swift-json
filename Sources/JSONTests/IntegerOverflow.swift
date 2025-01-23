@@ -1,7 +1,8 @@
 import JSON
 import Testing
 
-extension IntegerOverflow
+@Suite
+enum IntegerOverflow
 {
     @Test
     static func AsInt8()
@@ -81,7 +82,7 @@ extension IntegerOverflow
         Self.decode(256, to: UInt.self)
     }
 }
-struct IntegerOverflow
+extension IntegerOverflow
 {
     private
     static func expect<Signed>(_ value:Int64, overflows:Signed.Type)
