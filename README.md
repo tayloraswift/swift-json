@@ -19,7 +19,7 @@ A pure Swift JSON parsing and encoding library designed for high-performance, hi
 
 ## Requirements
 
-The swift-json library requires Swift 5.10 or later.
+The swift-json library requires Swift 5.9 or later.
 
 
 | Platform | Status |
