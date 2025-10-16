@@ -1,0 +1,2 @@
+extension Double: JSONEncodable {
+}

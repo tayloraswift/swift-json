@@ -1,0 +1,2 @@
+extension Float: JSONEncodable {
+}

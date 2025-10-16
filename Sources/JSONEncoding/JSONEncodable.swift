@@ -9,7 +9,7 @@ extension JSONEncodable where Self: StringProtocol {
         json += JSON.Literal<Self>.init(self)
     }
 }
-extension JSONEncodable where Self: BinaryInteger {
+extension JSONEncodable where Self: Numeric & CustomStringConvertible {
     @inlinable public func encode(to json: inout JSON) {
         json += JSON.Literal<Self>.init(self)
     }

@@ -12,8 +12,8 @@ extension JSON.Literal<Bool> {
         json.utf8 += (self.value ? "true" : "false").utf8
     }
 }
-extension JSON.Literal where Value: BinaryInteger {
-    /// Encodes this literal’s integer ``value`` to the provided JSON stream. The value’s
+extension JSON.Literal where Value: Numeric & CustomStringConvertible {
+    /// Encodes this literal’s numeric ``value`` to the provided JSON stream. The value’s
     /// ``CustomStringConvertible description`` witness must format the value in base-10.
     @inlinable internal static func += (json: inout JSON, self: Self) {
         json.utf8 += self.value.description.utf8
