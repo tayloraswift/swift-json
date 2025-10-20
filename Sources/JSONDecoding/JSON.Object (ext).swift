@@ -1,3 +1,12 @@
+extension JSON.Object {
+    @inlinable public subscript(key: JSON.Key) -> JSON.OptionalDecoder<JSON.Key> {
+        JSON.OptionalDecoder(key: key, value: fields.first { $0.key == key }?.value)
+    }
+
+    @inlinable public subscript(key: JSON.Key) -> JSON.FieldDecoder<JSON.Key>? {
+        (fields.first { $0.key == key }?.value).map { JSON.FieldDecoder(key: key, value: $0) }
+    }
+}
 extension JSON.Object: RandomAccessCollection {
     @inlinable public var startIndex: Int {
         self.fields.startIndex
