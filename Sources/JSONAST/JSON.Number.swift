@@ -158,6 +158,12 @@ extension JSON.Number {
     public func `as`(_: Float.Type) -> Float {
         self.nearest(Float.self)
     }
+    /// Converts this numeric literal to a ``Float16`` value, or its closest
+    /// floating-point representation.
+    @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
+    public func `as`(_: Float16.Type) -> Float16 {
+        self.nearest(Float16.self)
+    }
 
     /// Converts this numeric literal to a floating-point value, or its closest
     /// floating-point representation.

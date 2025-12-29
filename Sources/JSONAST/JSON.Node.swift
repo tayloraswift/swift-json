@@ -231,6 +231,15 @@ extension JSON.Node {
     @inlinable public func `as`(_: Float.Type) -> Float? {
         self.as(JSON.Number.self)?.as(Float.self)
     }
+    /// Attempts to load an instance of ``Float16`` from this variant.
+    ///
+    /// -   Returns:
+    ///     The closest value of ``Float16`` to the payload of this variant if it matches
+    ///     ``number(_:) [case]``, `nil` otherwise.
+    @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
+    @inlinable public func `as`(_: Float16.Type) -> Float16? {
+        self.as(JSON.Number.self)?.as(Float16.self)
+    }
     /// Attempts to load an instance of ``Number`` from this variant.
     ///
     /// -   Returns:

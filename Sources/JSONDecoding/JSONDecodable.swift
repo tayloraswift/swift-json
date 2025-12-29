@@ -15,6 +15,29 @@ extension JSONDecodable where Self: UnsignedInteger & FixedWidthInteger {
         self = try json.cast { try $0.as(Self.self) }
     }
 }
+#if (os(Linux) || os(macOS)) && arch(x86_64)
+extension JSONDecodable where Self == Float80 {
+    @inlinable public init(json: JSON.Node) throws {
+        self = try json.cast { $0.as(Self.self) }
+    }
+}
+#endif
+extension JSONDecodable where Self == Double {
+    @inlinable public init(json: JSON.Node) throws {
+        self = try json.cast { $0.as(Self.self) }
+    }
+}
+extension JSONDecodable where Self == Float {
+    @inlinable public init(json: JSON.Node) throws {
+        self = try json.cast { $0.as(Self.self) }
+    }
+}
+@available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
+extension JSONDecodable where Self == Float16 {
+    @inlinable public init(json: JSON.Node) throws {
+        self = try json.cast { $0.as(Self.self) }
+    }
+}
 extension JSONDecodable where Self: RawRepresentable, RawValue: JSONDecodable & Sendable {
     @inlinable public init(json: JSON.Node) throws {
         let rawValue: RawValue = try .init(json: json)
