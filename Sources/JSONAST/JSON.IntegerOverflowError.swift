@@ -3,39 +3,12 @@ extension JSON {
     ///
     /// This error is thrown by decoders, and is different from
     /// `Grammar.Pattern.IntegerOverflowError`, which is thrown by the parser.
-    public struct IntegerOverflowError: Error, Sendable {
+    public struct IntegerOverflowError<Representation>: Error, Equatable, Sendable {
         /// The number literal that could not be converted.
         public let number: Number
-        /// The metatype of the desired integer type.
-        public let overflows: any (FixedWidthInteger & SendableMetatype).Type
 
-        public init(
-            number: Number,
-            overflows: any (FixedWidthInteger & SendableMetatype).Type
-        ) {
+        public init(number: Number) {
             self.number = number
-            self.overflows = overflows
         }
-    }
-}
-extension JSON.IntegerOverflowError {
-    @available(
-        swift, deprecated: 5.7,
-        message: "use the more strongly-typed 'overflows' property"
-    ) public var type: Any.Type { self.overflows }
-}
-extension JSON.IntegerOverflowError: Equatable {
-    public static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.equals(number: rhs.number, overflows: rhs.overflows)
-    }
-
-    private func equals<Integer>(number: JSON.Number, overflows _: Integer.Type) -> Bool
-        where Integer: FixedWidthInteger {
-        self.number == number && self.overflows is Integer.Type
-    }
-}
-extension JSON.IntegerOverflowError: CustomStringConvertible {
-    public var description: String {
-        "integer literal '\(number)' overflows decoded type '\(self.overflows)'"
     }
 }

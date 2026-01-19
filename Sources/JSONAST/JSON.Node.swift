@@ -167,14 +167,14 @@ extension JSON.Node {
     ///
     /// >   Complexity: O(1).
     @inlinable public func `as`<Integer>(_: Integer.Type) throws -> Integer?
-        where Integer: FixedWidthInteger & SignedInteger & SendableMetatype {
+        where Integer: FixedWidthInteger & SignedInteger {
         // do not use init(exactly:) with decimal value directly, as this
         // will also accept values like 1.0, which we want to reject
         guard case .number(let number) = self else {
             return nil
         }
         guard let integer: Integer = number.as(Integer.self) else {
-            throw JSON.IntegerOverflowError.init(number: number, overflows: Integer.self)
+            throw JSON.IntegerOverflowError<Integer>.init(number: number)
         }
         return integer
     }
@@ -196,12 +196,12 @@ extension JSON.Node {
     ///
     /// >   Complexity: O(1).
     @inlinable public func `as`<Integer>(_: Integer.Type) throws -> Integer?
-        where Integer: FixedWidthInteger & UnsignedInteger & SendableMetatype {
+        where Integer: FixedWidthInteger & UnsignedInteger {
         guard case .number(let number) = self else {
             return nil
         }
         guard let integer: Integer = number.as(Integer.self) else {
-            throw JSON.IntegerOverflowError.init(number: number, overflows: Integer.self)
+            throw JSON.IntegerOverflowError<Integer>.init(number: number)
         }
         return integer
     }
