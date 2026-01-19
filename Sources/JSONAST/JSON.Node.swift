@@ -167,7 +167,7 @@ extension JSON.Node {
     ///
     /// >   Complexity: O(1).
     @inlinable public func `as`<Integer>(_: Integer.Type) throws -> Integer?
-        where Integer: FixedWidthInteger & SignedInteger {
+        where Integer: FixedWidthInteger & SignedInteger & SendableMetatype {
         // do not use init(exactly:) with decimal value directly, as this
         // will also accept values like 1.0, which we want to reject
         guard case .number(let number) = self else {
@@ -196,7 +196,7 @@ extension JSON.Node {
     ///
     /// >   Complexity: O(1).
     @inlinable public func `as`<Integer>(_: Integer.Type) throws -> Integer?
-        where Integer: FixedWidthInteger & UnsignedInteger {
+        where Integer: FixedWidthInteger & UnsignedInteger & SendableMetatype {
         guard case .number(let number) = self else {
             return nil
         }

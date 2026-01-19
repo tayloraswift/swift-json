@@ -6,11 +6,13 @@ extension JSON {
     public struct IntegerOverflowError: Error, Sendable {
         /// The number literal that could not be converted.
         public let number: Number
-
         /// The metatype of the desired integer type.
-        public let overflows: any FixedWidthInteger.Type
+        public let overflows: any (FixedWidthInteger & SendableMetatype).Type
 
-        public init(number: Number, overflows: any FixedWidthInteger.Type) {
+        public init(
+            number: Number,
+            overflows: any (FixedWidthInteger & SendableMetatype).Type
+        ) {
             self.number = number
             self.overflows = overflows
         }
