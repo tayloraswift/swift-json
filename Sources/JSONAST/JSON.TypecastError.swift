@@ -12,12 +12,13 @@ extension JSON {
 extension JSON.TypecastError {
     @inlinable public init(invalid json: __shared JSON.Node) {
         switch json {
-        case .null:     self = .null
-        case .bool:     self = .bool
-        case .number:   self = .number
-        case .string:   self = .string
-        case .array:    self = .array
-        case .object:   self = .object
+        case .null: self = .null
+        case .bool: self = .bool
+        case .number: self = .number
+        case .numberExtension_: self = .number
+        case .string: self = .string
+        case .array: self = .array
+        case .object: self = .object
         }
     }
 }
