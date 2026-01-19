@@ -3,7 +3,7 @@ extension JSON {
     ///
     /// This error is thrown by decoders, and is different from
     /// `Grammar.Pattern.IntegerOverflowError`, which is thrown by the parser.
-    public struct IntegerOverflowError<Representation>: Error, Equatable, Sendable {
+    public struct IntegerOverflowError<Representation>: NumericOverflowError, Equatable {
         /// The number literal that could not be converted.
         public let number: Number
 
