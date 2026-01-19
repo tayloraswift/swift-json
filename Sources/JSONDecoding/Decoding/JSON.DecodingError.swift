@@ -16,8 +16,8 @@ extension JSON {
 }
 extension JSON.DecodingError: Equatable where Location: Equatable {
     /// Compares the ``location`` properties and the ``underlying``
-    /// errors of the operands for equality, returning [`true`]()
-    /// if they are equal. Always returns [`false`]() if (any of)
+    /// errors of the operands for equality, returning `true`
+    /// if they are equal. Always returns `false` if (any of)
     /// the underlying ``Error`` existentials are not ``Equatable``.
     public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.location == rhs.location &&
@@ -26,7 +26,7 @@ extension JSON.DecodingError: Equatable where Location: Equatable {
 }
 extension JSON.DecodingError: TraceableError {
     /// Returns a single note that says
-    /// [`"while decoding value for field '_'"`]().
+    /// `"while decoding value for field '_'"`.
     public var notes: [String] {
         ["while decoding value for field '\(self.location)'"]
     }

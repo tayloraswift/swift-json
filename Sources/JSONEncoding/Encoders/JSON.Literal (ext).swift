@@ -19,3 +19,21 @@ extension JSON.Literal where Value: BinaryInteger {
         json.utf8 += self.value.description.utf8
     }
 }
+extension JSON.Literal where Value: BinaryFloatingPoint & LosslessStringConvertible {
+    /// Encodes this literal’s floating-point ``value`` to the provided JSON stream.
+    @inlinable internal static func += (json: inout JSON, self: Self) {
+        if  self.value.isSignalingNaN {
+            json.utf8 += "snan".utf8
+        } else if self.value.isNaN {
+            json.utf8 += "nan".utf8
+        } else if self.value.isInfinite {
+            if case .minus = self.value.sign {
+                json.utf8.append(0x2D) // "-"
+            }
+
+            json.utf8 += "inf".utf8
+        } else {
+            json.utf8 += self.value.description.utf8
+        }
+    }
+}

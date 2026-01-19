@@ -34,11 +34,8 @@ extension JSON.NodeRule: ParsingRule {
             let _: Void = input.parse(as: False?.self) {
             return .bool(false)
         } else if
-            let _: Void = input.parse(as: JSON.NodeRule<Location>.NaN?.self) {
-            return .numberExtension_(.NaN)
-        } else if
-            let sign: FloatingPointSign = input.parse(as: JSON.NodeRule<Location>.Infinity?.self) {
-            return .numberExtension_(.infinity(sign))
+            let number: JSON.Number = input.parse(as: JSON.NodeRule<Location>.Nonfinite?.self) {
+            return .number(number)
         } else {
             try input.parse(as: Null.self)
             return .null

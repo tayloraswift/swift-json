@@ -5,7 +5,7 @@ extension Character: JSONStringDecodable {
     ///
     /// This is needed because its ``LosslessStringConvertible.init(_:)``
     /// witness traps on invalid input instead of returning nil, which
-    /// causes its default implementation (where [`Self:LosslessStringConvertible`]())
+    /// causes its default implementation (where `Self: LosslessStringConvertible`)
     /// to do the same.
     @inlinable public init(json: JSON.Node) throws {
         let string: String = try .init(json: json)

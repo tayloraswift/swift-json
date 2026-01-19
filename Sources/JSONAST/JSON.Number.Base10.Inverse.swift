@@ -1,10 +1,10 @@
 extension JSON.Number.Base10 {
-    /// Negative powers of 10, down to [`1e-19`]().
+    /// Negative powers of 10, down to `1e-19`.
     enum Inverse {
         /// Returns the inverse of the given power of 10.
         /// -   Parameters:
-        ///     - x: A positive exponent. If `x` is [`2`](), this subscript
-        ///         will return [`1e-2`]().
+        ///     - x: A positive exponent. If `x` is `2`, this subscript
+        ///         will return `1e-2`.
         ///     - _: A ``BinaryFloatingPoint`` type.
         static subscript<T>(x: Int, as _: T.Type) -> T
             where T: BinaryFloatingPoint {

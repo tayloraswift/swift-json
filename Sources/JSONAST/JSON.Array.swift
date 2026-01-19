@@ -1,6 +1,6 @@
 extension JSON {
     /// A JSON array, which can recursively contain instances of ``JSON``.
-    /// This type is a transparent wrapper around a native [`[JSON]`]()
+    /// This type is a transparent wrapper around a native `[JSON]`
     /// array.
     @frozen public struct Array {
         public var elements: [JSON.Node]
