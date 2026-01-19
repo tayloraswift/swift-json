@@ -22,8 +22,8 @@ extension JSON.Number {
         }
         /// The magnitude of this numeric literal, expressed in units of ``places``.
         ///
-        /// If ``units`` is [`123`](), and ``places`` is [`2`](), that would represent
-        /// a magnitude of [`1.23`]().
+        /// If ``units`` is `123`, and ``places`` is `2`, that would represent
+        /// a magnitude of `1.23`.
         public var units: UInt64
         /// Creates a numeric literal.
         /// -   Parameters:
@@ -100,8 +100,8 @@ extension JSON.Number.Inline: CustomStringConvertible {
     /// Returns a zero-padded string representation of this numeric literal.
     ///
     /// This property always formats the number with full precision.
-    /// If ``units`` is [`100`]() and ``places`` is [`2`](), this will return
-    /// [`"1.00"`]().
+    /// If ``units`` is `100` and ``places`` is `2`, this will return
+    /// `"1.00"`.
     ///
     /// This string is guaranteed to be round-trippable; reparsing it
     /// will always return the same value.

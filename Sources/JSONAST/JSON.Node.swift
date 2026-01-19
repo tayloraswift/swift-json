@@ -40,7 +40,7 @@ extension JSON.Node {
     ///
     /// -   Parameters:
     ///     - string: A string to escape.
-    /// -   Returns: A string literal, which includes the [`""`]() delimiters.
+    /// -   Returns: A string literal, which includes the `""` delimiters.
     ///
     /// This function escapes the following characters: `"`, `\`, `\b`, `\t`, `\n`,
     /// `\f`, and `\r`. It does not escape forward slashes (`/`).

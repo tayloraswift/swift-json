@@ -31,7 +31,7 @@ extension JSON {
     try JSON.RootRule<Array<UInt8>.Index>.parse(utf8)
     ```
     */
-    /// The generic [`Location`]()
+    /// The generic `Location`
     /// parameter provides this flexibility as a zero-cost abstraction.
     ///
     /// >   Tip:

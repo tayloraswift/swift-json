@@ -1,7 +1,7 @@
 extension JSON {
     /// A string-keyed JSON object, which can recursively contain instances of
     /// ``JSON``. This type is a transparent wrapper around a native
-    /// [`[(key:String, value:JSON)]`]() array.
+    /// `[(key: String, value: JSON)]` array.
     ///
     /// JSON objects are more closely-related to ``KeyValuePairs`` than to
     /// ``Dictionary``, since object keys can occur more than once in the same
