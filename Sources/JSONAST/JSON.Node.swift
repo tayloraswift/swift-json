@@ -12,6 +12,8 @@ extension JSON {
         case string(Literal<String>)
         /// A numerical value.
         case number(Number)
+        /// A numerical value that is not a finite number.
+        case numberExtension_(NumberExtension_)
 
         /// An array container.
         case array(Array)
@@ -82,13 +84,14 @@ extension JSON.Node: CustomStringConvertible {
     /// same string.
     public var description: String {
         switch self {
-        case .null:                 "null"
-        case .bool(true):           "true"
-        case .bool(false):          "false"
-        case .string(let literal):  .init(literal)
-        case .number(let value):    value.description
-        case .array(let array):     array.description
-        case .object(let object):   object.description
+        case .null: "null"
+        case .bool(true): "true"
+        case .bool(false): "false"
+        case .string(let self): .init(self)
+        case .number(let self): "\(self)"
+        case .numberExtension_(let self): "\(self)"
+        case .array(let self): "\(self)"
+        case .object(let self): "\(self)"
         }
     }
 }
