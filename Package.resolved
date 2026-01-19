@@ -1,6 +1,23 @@
 {
-  "originHash" : "35cbb9f0ead3c79119f3802da30b23934a23684e0f0ff19bd4fab5d106f27af0",
   "pins" : [
+    {
+      "identity" : "dollup",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tayloraswift/dollup",
+      "state" : {
+        "revision" : "e9adfb0e165aad9e47e936d43d60682589ca47bf",
+        "version" : "0.7.0"
+      }
+    },
+    {
+      "identity" : "swift-argument-parser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-argument-parser",
+      "state" : {
+        "revision" : "c5d11a805e765f52ba34ec7284bd4fcd6ba68615",
+        "version" : "1.7.0"
+      }
+    },
     {
       "identity" : "swift-grammar",
       "kind" : "remoteSourceControl",
@@ -9,7 +26,34 @@
         "revision" : "0dac977b50bf677b2c3adabd7d5586a7b6e09b17",
         "version" : "0.5.0"
       }
+    },
+    {
+      "identity" : "swift-io",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tayloraswift/swift-io",
+      "state" : {
+        "revision" : "1cbe8b229f4dd2dd758183b1dc377b39f474c070",
+        "version" : "0.1.0"
+      }
+    },
+    {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-syntax",
+      "state" : {
+        "revision" : "4799286537280063c85a32f09884cfbca301b1a1",
+        "version" : "602.0.0"
+      }
+    },
+    {
+      "identity" : "swift-system",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-system",
+      "state" : {
+        "revision" : "7c6ad0fc39d0763e0b699210e4124afd5041c5df",
+        "version" : "1.6.4"
+      }
     }
   ],
-  "version" : 3
+  "version" : 2
 }

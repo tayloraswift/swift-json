@@ -1,3 +1,2 @@
-extension Int16:JSONEncodable
-{
+extension Int16: JSONEncodable {
 }

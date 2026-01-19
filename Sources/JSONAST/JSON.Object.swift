@@ -1,5 +1,4 @@
-extension JSON
-{
+extension JSON {
     /// A string-keyed JSON object, which can recursively contain instances of
     /// ``JSON``. This type is a transparent wrapper around a native
     /// [`[(key:String, value:JSON)]`]() array.
@@ -22,26 +21,18 @@ extension JSON
     /// >   Warning:
     ///     Object keys can contain arbitrary unicode text. Don’t assume the
     ///     keys are ASCII.
-    @frozen public
-    struct Object
-    {
-        public
-        var fields:[(key:Key, value:JSON.Node)]
+    @frozen public struct Object {
+        public var fields: [(key: Key, value: JSON.Node)]
 
-        @inlinable public
-        init(_ fields:[(key:Key, value:JSON.Node)])
-        {
+        @inlinable public init(_ fields: [(key: Key, value: JSON.Node)]) {
             self.fields = fields
         }
-        @inlinable public
-        init()
-        {
+        @inlinable public init() {
             self.init([])
         }
     }
 }
-extension JSON.Object
-{
+extension JSON.Object {
     /// Creates a pseudo-object containing integral ``Number`` values taken
     /// from the supplied `number`, keyed by `"units"` and `"places"` and
     /// wrapped in containers of type `Self`.
@@ -50,36 +41,27 @@ extension JSON.Object
     /// ``Codable`` implementations. Decoding it incurs a small but non-zero
     /// overhead when compared with calling ``Number``’s numeric casting
     /// methods directly.
-    public
-    init(encoding number:JSON.Number)
-    {
-        let units:JSON.Number = .init(sign: number.sign, units: number.units,  places: 0),
-            places:JSON.Number = .init(sign:      .plus, units: number.places, places: 0)
+    public init(encoding number: JSON.Number) {
+        let units: JSON.Number = .init(sign: number.sign, units: number.units,  places: 0),
+        places: JSON.Number = .init(sign: .plus, units: number.places, places: 0)
         self.init([("units", .number(units)), ("places", .number(places))])
     }
 }
-extension JSON.Object:CustomStringConvertible
-{
+extension JSON.Object: CustomStringConvertible {
     /// Returns this object serialized as a minified string.
     ///
     /// Reparsing and reserializing this string is guaranteed to return the
     /// same string.
-    public
-    var description:String
-    {
+    public var description: String {
         """
-        {\(self.fields.map
-        {
-            "\(String.init(JSON.Literal<String>.init($0.key.rawValue))):\($0.value)"
-        }.joined(separator: ","))}
+        {\(self.fields.map {
+                "\(String.init(JSON.Literal<String>.init($0.key.rawValue))):\($0.value)"
+            }.joined(separator: ","))}
         """
     }
 }
-extension JSON.Object:ExpressibleByDictionaryLiteral
-{
-    @inlinable public
-    init(dictionaryLiteral:(JSON.Key, JSON.Node)...)
-    {
+extension JSON.Object: ExpressibleByDictionaryLiteral {
+    @inlinable public init(dictionaryLiteral: (JSON.Key, JSON.Node)...) {
         self.init(dictionaryLiteral)
     }
 }

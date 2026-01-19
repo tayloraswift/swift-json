@@ -1,7 +1,6 @@
 import Grammar
 
-extension JSON
-{
+extension JSON {
     /// Matches the whitespace characters U+0020, `\t`, `\n`, and `\r`.
     ///
     /// This rule matches a *single* whitespace character.
@@ -17,20 +16,16 @@ extension JSON
     */
     /// >   Note: Unicode space characters, like U+2009, are not
     ///     considered whitespace characters in the context of JSON parsing.
-    enum WhitespaceRule<Location>:TerminalRule
-    {
+    enum WhitespaceRule<Location>: TerminalRule {
         typealias Terminal = UInt8
         typealias Construction = Void
 
-        static
-        func parse(terminal:UInt8) -> Void?
-        {
-            switch terminal
-            {
+        static func parse(terminal: UInt8) -> Void? {
+            switch terminal {
             case    0x20, // ' '
-                    0x09, // '\t'
-                    0x0a, // '\n'
-                    0x0d: // '\r'
+                0x09, // '\t'
+                0x0a, // '\n'
+                0x0d: // '\r'
                 ()
             default:
                 nil
