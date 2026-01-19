@@ -95,38 +95,6 @@ extension JSON.Number.Inline {
             return (units: units, places: places)
         }
     }
-
-    /// Converts this numeric literal to a floating-point value, or its closest
-    /// floating-point representation.
-    ///
-    /// -   Parameters:
-    ///     - _: A type conforming to ``BinaryFloatingPoint``.
-    /// -   Returns:
-    ///     The value of this numeric literal as an instance of
-    ///     [`T`](), or the value of [`T`]() closest to it.
-    private func nearest<T>(_: T.Type) -> T where T: BinaryFloatingPoint {
-        var places: Int      = .init(self.places),
-        units: UInt64    =       self.units
-        // steve canon, feel free to submit a PR
-        while places > 0 {
-            guard case (let quotient, remainder: 0) = units.quotientAndRemainder(
-                dividingBy: 10
-            ) else {
-                switch self.sign {
-                case .minus:
-                    return -T.init(units) * JSON.Number.Base10.Inverse[places, as: T.self]
-                case  .plus:
-                    return  T.init(units) * JSON.Number.Base10.Inverse[places, as: T.self]
-                }
-            }
-            units   = quotient
-            places -= 1
-        }
-        switch self.sign {
-        case .minus: return -T.init(units)
-        case  .plus: return  T.init(units)
-        }
-    }
 }
 extension JSON.Number.Inline: CustomStringConvertible {
     /// Returns a zero-padded string representation of this numeric literal.
