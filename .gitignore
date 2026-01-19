@@ -3,3 +3,5 @@
 /.ssgc
 /.vscode
 /.swift-version
+
+/Package.resolved

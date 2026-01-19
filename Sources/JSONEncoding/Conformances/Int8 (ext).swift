@@ -1,3 +1,2 @@
-extension Int8:JSONEncodable
-{
+extension Int8: JSONEncodable {
 }

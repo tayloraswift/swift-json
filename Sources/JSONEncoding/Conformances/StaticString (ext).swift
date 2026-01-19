@@ -1,3 +1,2 @@
-extension StaticString:JSONStringEncodable
-{
+extension StaticString: JSONStringEncodable {
 }

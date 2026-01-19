@@ -1,7 +1,6 @@
 import Grammar
 
-extension JSON
-{
+extension JSON {
     /// All of the parsing rules in this library are defined at the UTF-8 level.
     ///
     /// To parse *any* JSON value, including fragment values, use ``JSON.NodeRule`` instead.
@@ -40,29 +39,29 @@ extension JSON
     ///     This means that its parsing rules are always zero-cost abstractions,
     ///     even when applied to third-party collection types, like
     ///     ``/swift-nio/NIOCore/ByteBufferView``.
-    enum RootRule<Location>
-    {
+    enum RootRule<Location> {
     }
 }
-extension JSON.RootRule:ParsingRule
-{
+extension JSON.RootRule: ParsingRule {
     typealias Terminal = UInt8
 
-    static
-    func parse<Source>(
-        _ input:inout ParsingInput<some ParsingDiagnostics<Source>>) throws -> JSON.Node
+    static func parse<Source>(
+        _ input: inout ParsingInput<some ParsingDiagnostics<Source>>
+    ) throws -> JSON.Node
         where   Source.Element == Terminal,
-                Source.Index == Location
-    {
-        if  let items:[(JSON.Key, JSON.Node)] = input.parse(
-                as: JSON.NodeRule<Location>.Object?.self)
-        {
+        Source.Index == Location {
+        if  let items: [(JSON.Key, JSON.Node)] = input.parse(
+                as: JSON.NodeRule<Location>.Object?.self
+            ) {
             return .object(.init(items))
-        }
-        else
-        {
-            return .array(.init(try input.parse(
-                as: JSON.NodeRule<Location>.Array.self)))
+        } else {
+            return .array(
+                .init(
+                    try input.parse(
+                        as: JSON.NodeRule<Location>.Array.self
+                    )
+                )
+            )
         }
     }
 }

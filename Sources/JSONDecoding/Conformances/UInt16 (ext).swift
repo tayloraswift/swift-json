@@ -1,3 +1,2 @@
-extension UInt16:JSONDecodable
-{
+extension UInt16: JSONDecodable {
 }

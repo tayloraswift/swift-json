@@ -1,7 +1,5 @@
-extension JSON.KeyedDecoder
-{
-    enum Super:String, CodingKey 
-    {
+extension JSON.KeyedDecoder {
+    enum Super: String, CodingKey {
         case `super`
     }
 }

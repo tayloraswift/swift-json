@@ -1,3 +1,2 @@
-extension Int32:JSONEncodable
-{
+extension Int32: JSONEncodable {
 }

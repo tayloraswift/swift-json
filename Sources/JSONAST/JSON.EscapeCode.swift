@@ -1,8 +1,5 @@
-extension JSON
-{
-    @frozen @usableFromInline
-    enum EscapeCode:Equatable, Hashable, Comparable, Sendable
-    {
+extension JSON {
+    @frozen @usableFromInline enum EscapeCode: Equatable, Hashable, Comparable, Sendable {
         case b
         case t
         case n
@@ -12,13 +9,9 @@ extension JSON
         case backslash
     }
 }
-extension JSON.EscapeCode
-{
-    @inlinable
-    init?(escaping codeunit:UInt8)
-    {
-        switch codeunit
-        {
+extension JSON.EscapeCode {
+    @inlinable init?(escaping codeunit: UInt8) {
+        switch codeunit {
         case 0x08:  self = .b
         case 0x09:  self = .t
         case 0x0A:  self = .n
@@ -30,19 +23,16 @@ extension JSON.EscapeCode
         }
     }
 
-    @inlinable static
-    func += (utf8:inout ArraySlice<UInt8>, self:Self)
-    {
+    @inlinable static func += (utf8: inout ArraySlice<UInt8>, self: Self) {
         utf8.append(0x5C) // '\'
-        switch self
-        {
+        switch self {
         case .b:        utf8.append(0x62) // 'b'
         case .t:        utf8.append(0x74) // 't'
         case .n:        utf8.append(0x6E) // 'n'
         case .f:        utf8.append(0x66) // 'f'
         case .r:        utf8.append(0x72) // 'r'
         case .quote:    utf8.append(0x22) // '"'
-        case .backslash:utf8.append(0x5C) // '\'
+        case .backslash: utf8.append(0x5C) // '\'
         }
     }
 }

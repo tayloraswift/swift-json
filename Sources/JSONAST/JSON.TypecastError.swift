@@ -1,9 +1,6 @@
-extension JSON
-{
+extension JSON {
     /// A decoder failed to cast a variant to an expected value type.
-    @frozen public
-    enum TypecastError<Value>:Equatable, Error
-    {
+    @frozen public enum TypecastError<Value>: Equatable, Error {
         case null
         case bool
         case number
@@ -12,13 +9,9 @@ extension JSON
         case object
     }
 }
-extension JSON.TypecastError
-{
-    @inlinable public
-    init(invalid json:__shared JSON.Node)
-    {
-        switch json
-        {
+extension JSON.TypecastError {
+    @inlinable public init(invalid json: __shared JSON.Node) {
+        switch json {
         case .null:     self = .null
         case .bool:     self = .bool
         case .number:   self = .number
@@ -28,13 +21,9 @@ extension JSON.TypecastError
         }
     }
 }
-extension JSON.TypecastError:CustomStringConvertible
-{
-    private
-    var type:String
-    {
-        switch self
-        {
+extension JSON.TypecastError: CustomStringConvertible {
+    private var type: String {
+        switch self {
         case .null:     "null"
         case .bool:     "bool"
         case .number:   "number"
@@ -43,9 +32,7 @@ extension JSON.TypecastError:CustomStringConvertible
         case .object:   "object"
         }
     }
-    public
-    var description:String
-    {
+    public var description: String {
         "cannot cast variant of type '\(self.type)' to type '\(Value.self)'"
     }
 }

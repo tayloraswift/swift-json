@@ -1,3 +1,2 @@
-extension Character:JSONStringEncodable
-{
+extension Character: JSONStringEncodable {
 }

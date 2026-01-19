@@ -1,3 +1,2 @@
-extension Substring:JSONEncodable
-{
+extension Substring: JSONEncodable {
 }

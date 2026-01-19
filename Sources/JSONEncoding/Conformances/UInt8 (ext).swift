@@ -1,3 +1,2 @@
-extension UInt8:JSONEncodable
-{
+extension UInt8: JSONEncodable {
 }

@@ -1,7 +1,7 @@
 // swift-tools-version:5.9
 import PackageDescription
 
-let package:Package = .init(
+let package: Package = .init(
     name: "swift-json",
     platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6)],
     products: [
@@ -11,42 +11,55 @@ let package:Package = .init(
     ],
     dependencies: [
         .package(url: "https://github.com/tayloraswift/swift-grammar", from: "0.5.0"),
+        .package(url: "https://github.com/tayloraswift/dollup", from: "0.7.0"),
     ],
     targets: [
         .target(name: "JSONAST"),
 
-        .target(name: "JSONDecoding",
+        .target(
+            name: "JSONDecoding",
             dependencies: [
                 .target(name: "JSONAST"),
                 .product(name: "Grammar", package: "swift-grammar"),
-            ]),
+            ]
+        ),
 
-        .target(name: "JSONEncoding",
+        .target(
+            name: "JSONEncoding",
             dependencies: [
                 .target(name: "JSONAST"),
-            ]),
+            ]
+        ),
 
-        .target(name: "JSONLegacy",
+        .target(
+            name: "JSONLegacy",
             dependencies: [
                 .target(name: "JSONDecoding"),
-            ]),
+            ]
+        ),
 
-        .target(name: "JSONParsing",
+        .target(
+            name: "JSONParsing",
             dependencies: [
                 .target(name: "JSONAST"),
                 .product(name: "Grammar", package: "swift-grammar"),
-            ]),
+            ]
+        ),
 
-        .target(name: "JSON",
+        .target(
+            name: "JSON",
             dependencies: [
                 .target(name: "JSONDecoding"),
                 .target(name: "JSONEncoding"),
                 .target(name: "JSONParsing"),
-            ]),
+            ]
+        ),
 
-        .testTarget(name: "JSONTests",
+        .testTarget(
+            name: "JSONTests",
             dependencies: [
                 .target(name: "JSON"),
-            ]),
+            ]
+        ),
     ]
 )

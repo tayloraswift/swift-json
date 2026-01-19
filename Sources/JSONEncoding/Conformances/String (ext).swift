@@ -1,3 +1,2 @@
-extension String:JSONEncodable
-{
+extension String: JSONEncodable {
 }
