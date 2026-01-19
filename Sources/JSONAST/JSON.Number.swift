@@ -51,7 +51,7 @@ extension JSON.Number {
     ///     The value of this numeric literal as an instance of [`T`](), or
     ///     nil if it is negative, fractional, or would overflow [`T`]().
     /// >   Note:
-    ///     This type conversion will fail if ``places`` is non-zero, even if
+    ///     This type conversion will fail if ``Inline/places`` is non-zero, even if
     ///     the fractional part is zero. For example, you can convert
     ///     [`5`]() to an integer, but not [`5.0`](). This matches the behavior
     ///     of ``ExpressibleByIntegerLiteral``.
@@ -71,7 +71,7 @@ extension JSON.Number {
     ///     The value of this numeric literal as an instance of [`T`](), or
     ///     nil if it is fractional or would overflow [`T`]().
     /// >   Note:
-    ///     This type conversion will fail if ``places`` is non-zero, even if
+    ///     This type conversion will fail if ``Inline/places`` is non-zero, even if
     ///     the fractional part is zero. For example, you can convert
     ///     [`5`]() to an integer, but not [`5.0`](). This matches the behavior
     ///     of ``ExpressibleByIntegerLiteral``.

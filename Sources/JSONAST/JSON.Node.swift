@@ -160,7 +160,7 @@ extension JSON.Node {
     /// matches ``number(_:) [case]``, but it could not be represented exactly by `T`.
     ///
     /// >   Note:
-    ///     This type conversion will fail if ``Number.places`` is non-zero, even if
+    ///     This type conversion will fail if ``Number.Inline/places`` is non-zero, even if
     ///     the fractional part is zero. For example, you can convert `5` to an
     ///     integer, but not `5.0`. This matches the behavior of
     ///     ``ExpressibleByIntegerLiteral``.
@@ -189,7 +189,7 @@ extension JSON.Node {
     /// matches ``number(_:) [case]``, but it could not be represented exactly by `T`.
     ///
     /// >   Note:
-    ///     This type conversion will fail if ``Number.places`` is non-zero, even if
+    ///     This type conversion will fail if ``Number.Inline/places`` is non-zero, even if
     ///     the fractional part is zero. For example, you can convert `5` to an
     ///     integer, but not `5.0`. This matches the behavior of
     ///     ``ExpressibleByIntegerLiteral``.
