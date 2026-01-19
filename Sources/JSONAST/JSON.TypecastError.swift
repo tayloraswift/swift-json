@@ -15,7 +15,6 @@ extension JSON.TypecastError {
         case .null: self = .null
         case .bool: self = .bool
         case .number: self = .number
-        case .numberExtension_: self = .number
         case .string: self = .string
         case .array: self = .array
         case .object: self = .object

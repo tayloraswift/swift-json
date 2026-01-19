@@ -32,21 +32,6 @@ extension JSON {
         }
     }
 }
-extension JSON.Object {
-    /// Creates a pseudo-object containing integral ``Number`` values taken
-    /// from the supplied `number`, keyed by `"units"` and `"places"` and
-    /// wrapped in containers of type `Self`.
-    ///
-    /// This pseudo-object is intended for consumption by compiler-generated
-    /// ``Codable`` implementations. Decoding it incurs a small but non-zero
-    /// overhead when compared with calling ``Number``’s numeric casting
-    /// methods directly.
-    public init(encoding number: JSON.Number) {
-        let units: JSON.Number = .init(sign: number.sign, units: number.units,  places: 0),
-        places: JSON.Number = .init(sign: .plus, units: number.places, places: 0)
-        self.init([("units", .number(units)), ("places", .number(places))])
-    }
-}
 extension JSON.Object: CustomStringConvertible {
     /// Returns this object serialized as a minified string.
     ///

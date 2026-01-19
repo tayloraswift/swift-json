@@ -12,8 +12,6 @@ extension JSON {
         case string(Literal<String>)
         /// A numerical value.
         case number(Number)
-        /// A numerical value that is not a finite number.
-        case numberExtension_(NumberExtension_)
 
         /// An array container.
         case array(Array)
@@ -89,7 +87,6 @@ extension JSON.Node: CustomStringConvertible {
         case .bool(false): "false"
         case .string(let self): .init(self)
         case .number(let self): "\(self)"
-        case .numberExtension_(let self): "\(self)"
         case .array(let self): "\(self)"
         case .object(let self): "\(self)"
         }
@@ -234,6 +231,16 @@ extension JSON.Node {
     @inlinable public func `as`(_: Float.Type) -> Float? {
         self.as(JSON.Number.self)?.as(Float.self)
     }
+    /// Attempts to load an instance of ``Float16`` from this variant.
+    ///
+    /// -   Returns:
+    ///     The closest value of ``Float16`` to the payload of this variant if it matches
+    ///     ``number(_:) [case]``, `nil` otherwise.
+    @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
+    public func `as`(_: Float16.Type) -> Float16? {
+        self.as(JSON.Number.self)?.as(Float16.self)
+    }
+
     /// Attempts to load an instance of ``Number`` from this variant.
     ///
     /// -   Returns:
@@ -299,21 +306,12 @@ extension JSON.Node {
     /// source object. For more details about the payload, see the documentation
     /// for ``object(_:)``.
     ///
-    /// To facilitate interoperability with decimal types, this method will also
-    /// return a pseudo-object containing the values of ``Number.units`` and
-    /// ``Number.places``, if this variant is a ``number(_:) [case]``. This function
-    /// creates the pseudo-object by calling ``Object.init(encoding:)``.
-    ///
     /// >   Complexity:
     ///     O(1). This method does *not* perform any elementwise work.
     @inlinable public var object: JSON.Object? {
         switch self {
-        case .object(let items):
-            items
-        case .number(let number):
-            .init(encoding: number)
-        default:
-            nil
+        case .object(let items): items
+        default: nil
         }
     }
 }
