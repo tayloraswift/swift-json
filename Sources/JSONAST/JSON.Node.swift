@@ -174,7 +174,7 @@ extension JSON.Node {
             return nil
         }
         guard let integer: Integer = number.as(Integer.self) else {
-            throw JSON.IntegerOverflowError.init(number: number, overflows: Integer.self)
+            throw JSON.IntegerOverflowError<Integer>.init(number: number)
         }
         return integer
     }
@@ -201,7 +201,7 @@ extension JSON.Node {
             return nil
         }
         guard let integer: Integer = number.as(Integer.self) else {
-            throw JSON.IntegerOverflowError.init(number: number, overflows: Integer.self)
+            throw JSON.IntegerOverflowError<Integer>.init(number: number)
         }
         return integer
     }
