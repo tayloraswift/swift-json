@@ -8,6 +8,7 @@ let package: Package = .init(
         .library(name: "JSON", targets: ["JSON"]),
         .library(name: "JSONAST", targets: ["JSONAST"]),
         .library(name: "JSONLegacy", targets: ["JSONLegacy"]),
+        .library(name: "JavaScriptPersistence", targets: ["JavaScriptPersistence"]),
     ],
     dependencies: [
         .package(url: "https://github.com/tayloraswift/swift-grammar", from: "0.5.0"),
@@ -52,6 +53,13 @@ let package: Package = .init(
                 .target(name: "JSONDecoding"),
                 .target(name: "JSONEncoding"),
                 .target(name: "JSONParsing"),
+            ]
+        ),
+
+        .target(
+            name: "JavaScriptPersistence",
+            dependencies: [
+                .target(name: "JSON"),
             ]
         ),
 
