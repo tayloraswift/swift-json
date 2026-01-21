@@ -1,2 +1,1 @@
-extension UInt: JSONDecodable {
-}
+extension UInt: JSONDecodable {}

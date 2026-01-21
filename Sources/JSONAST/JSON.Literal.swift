@@ -7,12 +7,9 @@ extension JSON {
         }
     }
 }
-extension JSON.Literal: Sendable where Value: Sendable {
-}
-extension JSON.Literal: Equatable where Value: Equatable {
-}
-extension JSON.Literal: Hashable where Value: Hashable {
-}
+extension JSON.Literal: Sendable where Value: Sendable {}
+extension JSON.Literal: Equatable where Value: Equatable {}
+extension JSON.Literal: Hashable where Value: Hashable {}
 extension JSON.Literal where Value: StringProtocol {
     /// Encodes this literal’s string ``value``, with surrounding quotes, to the provided JSON
     /// stream. This function escapes any special characters in the string.

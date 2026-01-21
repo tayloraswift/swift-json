@@ -38,9 +38,11 @@ extension JSON.Number {
     }
 }
 extension JSON.Number.Inline {
+    @available(*, deprecated, message: "prefer initializing 'JSON.Number' directly")
     @inlinable public init<T>(_ signed: T) where T: SignedInteger {
         self.init(sign: signed < 0 ? .minus : .plus, units: UInt64.init(signed.magnitude))
     }
+    @available(*, deprecated, message: "prefer initializing 'JSON.Number' directly")
     @inlinable public init<T>(_ unsigned: T) where T: UnsignedInteger {
         self.init(sign: .plus, units: UInt64.init(unsigned))
     }
@@ -68,8 +70,18 @@ extension JSON.Number.Inline {
         }
         switch self.sign {
         case .minus:
+            /// fast path, try to fit in 64 bits
             let negated: Int64 = .init(bitPattern: 0 &- self.units)
-            return negated <= 0 ? T.init(exactly: negated) : nil
+            if  negated <= 0 {
+                return T.init(exactly: negated)
+            }
+
+            // slow path, underflow occured
+            if  T.bitWidth > 64 {
+                return T.init(exactly: -Int128.init(self.units))
+            } else {
+                return nil
+            }
         case .plus:
             return T.init(exactly: self.units)
         }
@@ -83,11 +95,19 @@ extension JSON.Number.Inline {
         switch self.sign {
         case .minus:
             let negated: Int64 = Int64.init(bitPattern: 0 &- self.units)
-            guard negated      <= 0,
-            let units: T = T.init(exactly: negated) else {
+            if  negated <= 0 {
+                guard let units: T = .init(exactly: negated) else {
+                    return nil
+                }
+                return (units: units, places: places)
+            }
+            if  T.bitWidth > 64,
+                let units: T = .init(exactly: -Int128.init(self.units)) {
+                return (units: units, places: places)
+            } else {
                 return nil
             }
-            return (units: units, places: places)
+
         case .plus:
             guard let units: T = T.init(exactly: self.units) else {
                 return nil

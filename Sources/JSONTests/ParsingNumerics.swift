@@ -68,4 +68,33 @@ import Testing
         #expect("\(json)" == "{\"value\":\(string)}")
         #expect(encoded.value.bitPattern == decoded.value.bitPattern)
     }
+
+    @Test(
+        arguments: [
+            Int128.min,
+            0,
+            Int128.max,
+        ] as [Int128],
+    ) static func BigIntRoundtripping(_ value: Int128) throws {
+        let encoded: Wrapper<Int128> = .init(value: value)
+        let json: JSON = .encode(encoded)
+        let decoded: Wrapper<Int128> = try json.decode()
+
+        #expect("\(json)" == "{\"value\":\(value)}")
+        #expect(encoded.value == decoded.value)
+    }
+
+    @Test(
+        arguments: [
+            0,
+            UInt128.max,
+        ] as [UInt128],
+    ) static func BigIntRoundtrippingUnsigned(_ value: UInt128) throws {
+        let encoded: Wrapper<UInt128> = .init(value: value)
+        let json: JSON = .encode(encoded)
+        let decoded: Wrapper<UInt128> = try json.decode()
+
+        #expect("\(json)" == "{\"value\":\(value)}")
+        #expect(encoded.value == decoded.value)
+    }
 }
