@@ -1,2 +1,1 @@
-extension Unicode.Scalar: JSONStringEncodable {
-}
+extension Unicode.Scalar: JSONStringEncodable {}

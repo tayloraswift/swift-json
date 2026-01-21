@@ -1,2 +1,1 @@
-extension Int: JSONEncodable {
-}
+extension Int: JSONEncodable {}

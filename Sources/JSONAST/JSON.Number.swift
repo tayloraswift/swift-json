@@ -22,10 +22,18 @@ extension JSON.Number: CustomStringConvertible {
 }
 extension JSON.Number {
     @inlinable public init<T>(_ value: T) where T: SignedInteger {
-        self = .inline(.init(value))
+        if  let uint64: UInt64 = .init(exactly: value.magnitude) {
+            self = .inline(.init(sign: value < 0 ? .minus : .plus, units: uint64))
+        } else {
+            self = .fallback("\(value)")
+        }
     }
     @inlinable public init<T>(_ value: T) where T: UnsignedInteger {
-        self = .inline(.init(value))
+        if  let uint64: UInt64 = .init(exactly: value) {
+            self = .inline(.init(sign: .plus, units: uint64))
+        } else {
+            self = .fallback("\(value)")
+        }
     }
     @inlinable public init<T>(
         _ value: T
@@ -58,10 +66,14 @@ extension JSON.Number {
     @inlinable public func `as`<T>(
         _: T.Type
     ) -> T? where T: FixedWidthInteger & UnsignedInteger {
-        guard case .inline(let self) = self else {
+        switch self {
+        case .fallback(let self):
+            return T.init(self)
+        case .inline(let self):
+            return self.as(T.self)
+        default:
             return nil
         }
-        return self.as(T.self)
     }
     /// Converts this numeric literal to a signed integer, if it can be
     /// represented exactly.
@@ -78,13 +90,22 @@ extension JSON.Number {
     @inlinable public func `as`<T>(
         _: T.Type
     ) -> T? where T: FixedWidthInteger & SignedInteger {
-        guard case .inline(let self) = self else {
+        switch self {
+        case .fallback(let self):
+            return T.init(self)
+        case .inline(let self):
+            return self.as(T.self)
+        default:
             return nil
         }
-        return self.as(T.self)
     }
     /// Converts this numeric literal to a fixed-point decimal, if it can be
-    /// represented exactly.
+    /// represented exactly, and `units` would not overflow ``Int64``.
+    ///
+    /// >   Bug:
+    ///     This conversion may fail if the `units` field would overflow ``Int64``, even if
+    ///     `T` is ``Int128``.
+    ///
     /// -   Parameters:
     ///     - _: A tuple type with fields conforming to ``SignedInteger``
     ///         (and ``FixedWidthInteger``).
