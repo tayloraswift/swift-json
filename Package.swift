@@ -9,6 +9,8 @@ let package: Package = .init(
         .library(name: "JSONAST", targets: ["JSONAST"]),
         .library(name: "JSONLegacy", targets: ["JSONLegacy"]),
         .library(name: "JavaScriptPersistence", targets: ["JavaScriptPersistence"]),
+
+        .library(name: "_JSON_SnippetsAnchor", targets: ["_JSON_SnippetsAnchor"]),
     ],
     dependencies: [
         .package(url: "https://github.com/tayloraswift/swift-grammar", from: "0.5.0"),
@@ -68,6 +70,18 @@ let package: Package = .init(
             dependencies: [
                 .target(name: "JSON"),
             ]
+        ),
+
+
+        .target(
+            name: "_JSON_SnippetsAnchor",
+            dependencies: [
+                .target(name: "JSON"),
+            ],
+            path: "Snippets/_Anchor",
+            linkerSettings: [
+                .linkedLibrary("m"),
+            ],
         ),
     ]
 )

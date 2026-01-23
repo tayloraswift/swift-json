@@ -12,26 +12,38 @@ public final class JSObject {
     }
 }
 extension JSObject {
-    @inlinable public static func object(_ properties: [String: JSValue] = [:]) -> JSObject {
-        return JSObject(object: properties, buffer: [], isArray: false)
+    @inlinable convenience public init(object: [String: JSValue]) {
+        self.init(object: object, buffer: [], isArray: false)
     }
-    @inlinable public static func array(_ elements: [JSValue] = []) -> JSObject {
-        return JSObject(object: [:], buffer: elements, isArray: true)
+    @inlinable convenience public init(buffer: [JSValue]) {
+        self.init(object: [:], buffer: buffer, isArray: true)
     }
 }
 extension JSObject {
-    public static func json(_ json: JSON.Object) throws -> JSObject {
+    private convenience init(json: borrowing JSON.Object) throws {
         var object: [String: JSValue] = .init(minimumCapacity: json.fields.count)
         for (key, value): (JSON.Key, JSON.Node) in json.fields {
-            if case _? = object.updateValue(try .json(value), forKey: key.rawValue) {
+            if case _? = object.updateValue(try .init(json: value), forKey: key.rawValue) {
                 throw JSON.ObjectKeyError<JSON.Key>.duplicate(key)
             }
         }
-        return .object(object)
+        self.init(object: object)
     }
-    public static func json(_ json: JSON.Array) throws -> JSObject {
-        return .array(try json.elements.map(JSValue.json(_:)))
+
+    private convenience init(json: borrowing JSON.Array) throws {
+        self.init(buffer: try json.elements.map(JSValue.init(json:)))
     }
+}
+extension JSObject {
+    @inlinable public static func object(_ properties: [String: JSValue] = [:]) -> JSObject {
+        .init(object: properties)
+    }
+    @inlinable public static func array(_ elements: [JSValue] = []) -> JSObject {
+        .init(buffer: elements)
+    }
+
+    public static func json(_ json: JSON.Object) throws -> JSObject { try .init(json: json) }
+    public static func json(_ json: JSON.Array) throws -> JSObject { try .init(json: json) }
 }
 extension JSObject: ConvertibleToJSValue {
     @inlinable public var jsValue: JSValue { .object(self) }
@@ -88,6 +100,33 @@ extension JSObject {
             } else {
                 self.object[key.string] = value
             }
+        }
+    }
+}
+extension JSObject: JSONEncodable {
+    public func encode(to json: inout JSON) {
+        if  self.isArray {
+            self.buffer.encode(to: &json)
+        } else {
+            json(JSON.Key.self) {
+                let fields: [(String, JSValue)] = self.object.sorted { $0.key < $1.key }
+                for (key, value): (String, JSValue) in fields {
+                    let key: JSON.Key = .init(rawValue: key)
+                    $0[key] = value
+                }
+            }
+        }
+    }
+}
+extension JSObject: JSONDecodable {
+    public convenience init(json: borrowing JSON.Node) throws {
+        switch json {
+        case .object(let json):
+            try self.init(json: json)
+        case .array(let json):
+            try self.init(json: json)
+        default:
+            throw JSON.TypecastError<Self>.init(invalid: json)
         }
     }
 }

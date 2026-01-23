@@ -1,5 +1,5 @@
 extension Set: JSONDecodable where Element: JSONDecodable {
-    @inlinable public init(json: JSON.Node) throws {
+    @inlinable public init(json: borrowing JSON.Node) throws {
         let array: JSON.Array = try .init(json: json)
 
         self.init()

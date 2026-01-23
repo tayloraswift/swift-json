@@ -11,14 +11,14 @@ extension JSON {
     }
 }
 extension JSON.ObjectDecoder: JSONDecodable {
-    @inlinable public init(json: JSON.Node) throws {
+    @inlinable public init(json: borrowing JSON.Node) throws {
         try self.init(indexing: try .init(json: json))
     }
 }
 extension JSON.ObjectDecoder where CodingKey: RawRepresentable<String> {
-    @inlinable public init(indexing object: JSON.Object) throws {
+    @inlinable public init(indexing object: borrowing JSON.Object) throws {
         self.init(.init(minimumCapacity: object.count))
-        for field: JSON.FieldDecoder<String> in object {
+        for field: JSON.FieldDecoder<String> in copy object {
             guard let key: CodingKey = .init(rawValue: field.key) else {
                 continue
             }

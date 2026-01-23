@@ -7,7 +7,7 @@ extension Character: JSONStringDecodable {
     /// witness traps on invalid input instead of returning nil, which
     /// causes its default implementation (where `Self: LosslessStringConvertible`)
     /// to do the same.
-    @inlinable public init(json: JSON.Node) throws {
+    @inlinable public init(json: borrowing JSON.Node) throws {
         let string: String = try .init(json: json)
         if  string.startIndex < string.endIndex,
             string.index(after: string.startIndex) == string.endIndex {
