@@ -16,7 +16,7 @@ extension JSONStringDecodable {
     /// itself to prevent unexpected behavior for types (such as ``Int``)
     /// who implement ``LosslessStringConvertible``, but expect to be
     /// decoded from a variant value that is not a string.
-    @inlinable public init(json: JSON.Node) throws {
+    @inlinable public init(json: borrowing JSON.Node) throws {
         let string: String = try .init(json: json)
         if  let value: Self = .init(string) {
             self = value

@@ -10,54 +10,94 @@ import JSON
     case symbol(JSSymbol)
     case bigInt(JSBigInt)
 }
-extension JSValue {
-    public static func json(_ json: JSON.Node) throws -> JSValue {
-        switch json {
+extension JSValue: JSONEncodable {
+    public func encode(to json: inout JSON) {
+        switch self {
         case .null:
-            return .null
-        case .bool(let json):
-            return .boolean(json)
-        case .string(let json):
-            return .string(JSString.init(json.value))
-        case .number(let json):
-            switch json {
-            case .fallback(let self):
-                return .number(Int128.init(self), else: self)
-            case .infinity(.plus):
-                return .number(.infinity)
-            case .infinity(.minus):
-                return .number(-.infinity)
-            case .inline(let self):
-                return .number(self.as(Int128.self), else: "\(self)")
-            case .nan:
-                return .number(.nan)
-            case .snan:
-                return .number(.signalingNaN)
+            (nil as Never?).encode(to: &json)
+        case .boolean(let js):
+            js.encode(to: &json)
+
+        case .string(let js):
+            js.string.encode(to: &json)
+
+        case .number(let double):
+            // ``Double`` can only represent integers up to 2^53, so any integer larger than
+            // that would have been represented as ``JSBigInt`` instead
+            if  let integer: Int64 = .init(exactly: double) {
+                integer.encode(to: &json)
+            } else {
+                double.encode(to: &json)
             }
-        case .object(let json):
-            return .object(try JSObject.json(json))
-        case .array(let json):
-            return .object(try JSObject.json(json))
+
+        case .object(let js):
+            js.encode(to: &json)
+        case .bigInt(let js):
+            js.int128.encode(to: &json)
+        case .undefined:
+            // we wouldn’t want to encode null here, that’s different, and we can’t throw an
+            // error either. doing nothing would still produce invalid JSON though. so trapping
+            // is the least bad behavior.
+            fatalError("undefined is not a valid JSON value")
+        case .symbol:
+            // the initializer for ``JSSymbol`` is internal, so it should be unreachable
+            fatalError("symbols are not a valid JSON value")
         }
     }
-
-    private static func number(
-        _ int128: Int128?,
-        else string: @autoclosure () -> String
-    ) -> JSValue {
-        if  let int128: Int128 {
-            if  let double: Double = .init(exactly: int128) {
-                return .number(double)
-            } else {
-                return .bigInt(JSBigInt.init(int128: int128))
+}
+extension JSValue: JSONDecodable {
+    public init(json: borrowing JSON.Node) throws {
+        switch json {
+        case .null:
+            self = .null
+        case .bool(let json):
+            self = .boolean(json)
+        case .string(let json):
+            self = .string(JSString.init(json.value))
+        case .number(let json):
+            switch json {
+            case .fallback(let string):
+                if  let int128: Int128 = .init(string) {
+                    self = .number(int128)
+                } else {
+                    self = .number(parsing: string)
+                }
+            case .infinity(.plus):
+                self = .number(.infinity)
+            case .infinity(.minus):
+                self = .number(-.infinity)
+            case .inline(let json):
+                if  let int128: Int128 = json.as(Int128.self) {
+                    self = .number(int128)
+                } else {
+                    self = .number(parsing: "\(json)")
+                }
+            case .nan:
+                self = .number(.nan)
+            case .snan:
+                self = .number(.signalingNaN)
             }
+        case .object(let json):
+            self = .object(try JSObject.json(json))
+        case .array(let json):
+            self = .object(try JSObject.json(json))
+        }
+    }
+}
+extension JSValue {
+    private static func number(_ int128: Int128) -> JSValue {
+        if  let double: Double = .init(exactly: int128) {
+            return .number(double)
         } else {
-            if  let double: Double = .init(string()) {
-                return .number(double)
-            } else {
-                // this should have never passed parser validation in the first place
-                fatalError("Unable to reparse JSON number to Double?!")
-            }
+            return .bigInt(JSBigInt.init(int128: int128))
+        }
+    }
+    private static func number(parsing string: String) -> JSValue {
+        if  let double: Double = .init(string) {
+            return .number(double)
+        } else {
+            // this should have never passed parser validation in the first place
+            fatalError("Unable to reparse JSON number to Double?!")
         }
     }
 }

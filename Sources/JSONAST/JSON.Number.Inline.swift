@@ -10,7 +10,7 @@ extension JSON.Number {
         /// The sign of this numeric literal.
         public var sign: FloatingPointSign
         // cannot have an inlinable property wrapper
-        @usableFromInline internal var _places: UInt32
+        @usableFromInline var _places: UInt32
         /// The number of decimal places this numeric literal has.
         ///
         /// >   Note:

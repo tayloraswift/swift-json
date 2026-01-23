@@ -11,7 +11,7 @@ extension JSON.Object: RandomAccessCollection {
     }
 }
 extension JSON.Object: JSONDecodable {
-    @inlinable public init(json: JSON.Node) throws {
+    @inlinable public init(json: borrowing JSON.Node) throws {
         self = try json.cast(with: \.object)
     }
 }

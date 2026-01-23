@@ -15,7 +15,7 @@ extension JSON.Array: RandomAccessCollection {
     }
 }
 extension JSON.Array: JSONDecodable {
-    @inlinable public init(json: JSON.Node) throws {
+    @inlinable public init(json: borrowing JSON.Node) throws {
         self = try json.cast(with: \.array)
     }
 }

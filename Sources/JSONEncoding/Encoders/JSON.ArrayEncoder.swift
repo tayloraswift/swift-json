@@ -2,22 +2,22 @@ import JSONAST
 
 extension JSON {
     @frozen public struct ArrayEncoder: Sendable {
-        @usableFromInline internal var first: Bool
-        @usableFromInline internal var json: JSON
+        @usableFromInline var first: Bool
+        @usableFromInline var json: JSON
 
-        @inlinable internal init(json: JSON) {
+        @inlinable init(json: JSON) {
             self.first = true
             self.json = json
         }
     }
 }
 extension JSON.ArrayEncoder: JSON.InlineEncoder {
-    @inlinable internal static func move(_ json: inout JSON) -> Self {
+    @inlinable static func move(_ json: inout JSON) -> Self {
         json.utf8.append(0x5B) // '['
         defer { json.utf8 = [] }
         return .init(json: json)
     }
-    @inlinable internal mutating func move() -> JSON {
+    @inlinable mutating func move() -> JSON {
         self.first = true
         self.json.utf8.append(0x5D) // ']'
         defer { self.json.utf8 = [] }
