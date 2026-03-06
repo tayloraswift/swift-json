@@ -9,6 +9,22 @@ extension JSON.Object {
     public init(parsing json: JSON) throws {
         self.init(try JSON.NodeRule<Int>.Object.parse(json.utf8))
     }
+    /// Attempts to parse a JSON object from a span.
+    public init(parsing span: Span<UInt8>) throws {
+        self.init(
+            try span.withUnsafeBufferPointer { buffer in
+                try JSON.NodeRule<Int>.Object.parse(buffer)
+            }
+        )
+    }
+    /// Attempts to parse a JSON object from a raw span.
+    public init(parsing span: RawSpan) throws {
+        self.init(
+            try span.withUnsafeBytes { buffer in
+                try JSON.NodeRule<Int>.Object.parse(buffer)
+            }
+        )
+    }
     /// Attempts to parse a JSON object from a string.
     ///
     /// >   Note:
