@@ -8,13 +8,6 @@ extension JSON.Node {
         self = try JSON.RootRule<Int>.parse(json.utf8)
     }
     /// Attempts to parse a complete JSON message (either an ``Array`` or an
-    /// ``Object``) from a span.
-    public init(parsing span: Span<UInt8>) throws {
-        self = try span.withUnsafeBufferPointer { buffer in
-            try JSON.RootRule<Int>.parse(buffer)
-        }
-    }
-    /// Attempts to parse a complete JSON message (either an ``Array`` or an
     /// ``Object``) from a raw span.
     public init(parsing span: RawSpan) throws {
         self = try span.withUnsafeBytes { buffer in
