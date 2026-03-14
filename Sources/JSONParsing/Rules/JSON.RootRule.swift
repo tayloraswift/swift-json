@@ -1,4 +1,4 @@
-import Grammar
+internal import Grammar
 
 extension JSON {
     /// All of the parsing rules in this library are defined at the UTF-8 level.

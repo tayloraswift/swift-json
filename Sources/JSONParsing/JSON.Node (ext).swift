@@ -1,4 +1,4 @@
-import Grammar
+internal import Grammar
 import JSONAST
 
 extension JSON.Node {

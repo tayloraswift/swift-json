@@ -1,4 +1,4 @@
-import Grammar
+internal import Grammar
 
 extension JSON {
     /// Matches the whitespace characters U+0020, `\t`, `\n`, and `\r`.

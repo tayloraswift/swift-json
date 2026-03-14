@@ -1,4 +1,5 @@
 // swift-tools-version:6.2
+import class Foundation.ProcessInfo
 import PackageDescription
 
 let package: Package = .init(
@@ -85,6 +86,14 @@ let package: Package = .init(
         ),
     ]
 )
+
+var WarningsAsErrors: Bool {
+    switch ProcessInfo.processInfo.environment["WARNINGS_AS_ERRORS"] {
+    case "true"?: true
+    case "1"?: true
+    default: false
+    }
+}
 package.targets = package.targets.map {
     switch $0.type {
     case .plugin: return $0
@@ -95,8 +104,12 @@ package.targets = package.targets.map {
         var settings: [SwiftSetting] = $0 ?? []
 
         settings.append(.enableUpcomingFeature("ExistentialAny"))
-        settings.append(.treatWarning("ExistentialAny", as: .error))
-        settings.append(.treatWarning("MutableGlobalVariable", as: .error))
+        settings.append(.enableUpcomingFeature("InternalImportsByDefault"))
+
+        if  WarningsAsErrors {
+            settings.append(.treatWarning("ExistentialAny", as: .error))
+            settings.append(.treatWarning("MutableGlobalVariable", as: .error))
+        }
 
         $0 = settings
     } (&$0.swiftSettings)
