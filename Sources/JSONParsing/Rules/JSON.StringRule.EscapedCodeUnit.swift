@@ -1,4 +1,4 @@
-import Grammar
+internal import Grammar
 
 extension JSON.StringRule {
     /// Matches an ASCII character (besides `u`) that is allowed to

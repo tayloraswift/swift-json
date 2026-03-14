@@ -1,4 +1,4 @@
-import JSON
+public import JSON
 
 @frozen public struct JSValue {
     @usableFromInline let storage: Storage

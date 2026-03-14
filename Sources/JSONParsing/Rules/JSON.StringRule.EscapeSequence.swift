@@ -1,4 +1,4 @@
-import Grammar
+internal import Grammar
 
 extension JSON.StringRule {
     /// Matches a sequence of escaped UTF-16 code units.

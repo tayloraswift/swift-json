@@ -1,4 +1,4 @@
-import Grammar
+internal import Grammar
 
 extension JSON.NodeRule {
     /// A literal `true` expression.

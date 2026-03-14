@@ -1,4 +1,4 @@
-import Grammar
+internal import Grammar
 
 extension JSON.NumberRule {
     /// Matches an ASCII `+` or `-` sign.
