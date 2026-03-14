@@ -156,10 +156,12 @@ extension JSON.Number {
 
     /// Converts this numeric literal to a ``Float16`` value, or its closest
     /// floating-point representation.
+    #if arch(arm64)
     @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public func `as`(_: Float16.Type) -> Float16? {
         self.parsed(as: Float16.self)
     }
+    #endif
 }
 extension JSON.Number {
     /// We want floating point types to roundtrip losslessly, the only way to guarantee that is
