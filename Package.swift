@@ -85,20 +85,3 @@ let package: Package = .init(
         ),
     ]
 )
-package.targets = package.targets.map {
-    switch $0.type {
-    case .plugin: return $0
-    case .binary: return $0
-    default: break
-    }
-    {
-        var settings: [SwiftSetting] = $0 ?? []
-
-        settings.append(.enableUpcomingFeature("ExistentialAny"))
-        settings.append(.treatWarning("ExistentialAny", as: .error))
-        settings.append(.treatWarning("MutableGlobalVariable", as: .error))
-
-        $0 = settings
-    } (&$0.swiftSettings)
-    return $0
-}
