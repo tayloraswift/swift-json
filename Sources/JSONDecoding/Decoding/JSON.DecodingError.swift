@@ -1,4 +1,4 @@
-import TraceableErrors
+public import TraceableErrors
 
 extension JSON {
     /// An error occurred while decoding a document field.

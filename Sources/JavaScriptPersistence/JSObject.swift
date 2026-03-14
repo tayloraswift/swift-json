@@ -1,4 +1,4 @@
-import JSON
+public import JSON
 
 public final class JSObject {
     @usableFromInline var object: [String: JSValue]

@@ -1,4 +1,4 @@
-import Grammar
+internal import Grammar
 import JSONAST
 
 extension JSON.Object {
@@ -8,6 +8,14 @@ extension JSON.Object {
     ///    Unlike BSON lists, you cannot reparse JSON arrays as objects.
     public init(parsing json: JSON) throws {
         self.init(try JSON.NodeRule<Int>.Object.parse(json.utf8))
+    }
+    /// Attempts to parse a JSON object from a raw span.
+    public init(parsing span: RawSpan) throws {
+        self.init(
+            try span.withUnsafeBytes { buffer in
+                try JSON.NodeRule<Int>.Object.parse(buffer)
+            }
+        )
     }
     /// Attempts to parse a JSON object from a string.
     ///

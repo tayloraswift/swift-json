@@ -15,20 +15,20 @@ jobs:
         name: Ubuntu 24.04
 
         steps:
-            -   name: Install Swift
+            -   name: 🤍 Install Swift 🤍
                 uses: tayloraswift/swift-install-action@master
                 with:
-                    swift-prefix: "swift-6.2.3-release/ubuntu2404/swift-6.2.3-RELEASE"
-                    swift-id: "swift-6.2.3-RELEASE-ubuntu24.04"
+                    swift-prefix: "swift-6.2.4-release/ubuntu2404/swift-6.2.4-RELEASE"
+                    swift-id: "swift-6.2.4-RELEASE-ubuntu24.04"
 
-            -   name: Install Unidoc
+            -   name: 🤍 Install Unidoc 🤍
                 uses: tayloraswift/swift-unidoc-action@master
 
             #   This clobbers everything in the current directory!
-            -   name: Checkout repository
-                uses: actions/checkout@v3
+            -   name: 🤍 Checkout repository 🤍
+                uses: actions/checkout@v6
 
-            -   name: Validate documentation
+            -   name: 🤍 Validate documentation 🤍
                 run: |
                     unidoc compile \
                     --swift-toolchain $SWIFT_INSTALLATION \
@@ -36,19 +36,19 @@ jobs:
                     --project-path .
 
     macos:
-        runs-on: macos-15
+        runs-on: macos-26
         name: macOS
         steps:
-            -   name: Install Unidoc
+            -   name: 🤍 Install Unidoc 🤍
                 uses: tayloraswift/swift-unidoc-action@master
 
-            -   name: Checkout repository
-                uses: actions/checkout@v3
+            -   name: 🤍 Checkout repository 🤍
+                uses: actions/checkout@v6
 
-            -   name: Select Xcode 26.2
-                run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
+            -   name: 🤍 Select Xcode 26.3 🤍
+                run: sudo xcode-select -s /Applications/Xcode_26.3.app/Contents/Developer
 
-            -   name: Validate documentation
+            -   name: 🤍 Validate documentation 🤍
                 run: |
                     unidoc build \
                     --ci fail-on-errors \

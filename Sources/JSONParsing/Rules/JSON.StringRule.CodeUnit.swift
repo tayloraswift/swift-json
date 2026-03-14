@@ -1,4 +1,4 @@
-import Grammar
+internal import Grammar
 
 extension JSON.StringRule {
     /// Matches a UTF-8 code unit that is allowed to appear inline in a string literal.

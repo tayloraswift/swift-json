@@ -1,4 +1,4 @@
-import Grammar
+internal import Grammar
 
 extension JSON {
     /// Matches any value, including fragment values.

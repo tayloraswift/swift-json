@@ -1,4 +1,4 @@
-import Grammar
+internal import Grammar
 
 extension JSON.NodeRule {
     /// Matches an array literal.

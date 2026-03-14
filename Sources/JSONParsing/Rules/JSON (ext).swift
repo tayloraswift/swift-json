@@ -1,4 +1,4 @@
-import Grammar
+internal import Grammar
 
 extension JSON {
     typealias CommaRule<Location> =

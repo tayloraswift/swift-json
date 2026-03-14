@@ -1,4 +1,4 @@
-import Grammar
+internal import Grammar
 
 extension JSON.NodeRule {
     enum Inf: LiteralRule {

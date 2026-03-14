@@ -1,4 +1,4 @@
-import Grammar
+internal import Grammar
 
 extension JSON {
     /// Matches a numeric literal.

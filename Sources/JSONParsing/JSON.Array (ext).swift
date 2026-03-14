@@ -1,10 +1,18 @@
-import Grammar
+internal import Grammar
 import JSONAST
 
 extension JSON.Array {
     /// Attempts to parse a JSON array from raw UTF-8 JSON data.
     public init(parsing json: JSON) throws {
         self.init(try JSON.NodeRule<Int>.Array.parse(json.utf8))
+    }
+    /// Attempts to parse a JSON array from a raw span
+    public init(parsing span: RawSpan) throws {
+        self.init(
+            try span.withUnsafeBytes { buffer in
+                try JSON.NodeRule<Int>.Array.parse(buffer)
+            }
+        )
     }
     /// Attempts to parse a JSON array from a string.
     public init(parsing string: String) throws {
