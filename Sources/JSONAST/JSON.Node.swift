@@ -224,10 +224,12 @@ extension JSON.Node {
     /// -   Returns:
     ///     The closest value of ``Float16`` to the payload of this variant if it matches
     ///     ``number(_:) [case]``, `nil` otherwise.
+    #if arch(arm64)
     @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public func `as`(_: Float16.Type) -> Float16? {
         self.as(JSON.Number.self)?.as(Float16.self)
     }
+    #endif
 
     /// Attempts to load an instance of ``Number`` from this variant.
     ///
