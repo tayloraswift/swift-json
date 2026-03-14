@@ -16,13 +16,13 @@ jobs:
 
         steps:
             -   name: 🤍 Install Swift 🤍
-                uses: tayloraswift/swift-install-action@master
+                uses: rarestype/swift-install-action@master
                 with:
                     swift-prefix: "swift-6.2.4-release/ubuntu2404/swift-6.2.4-RELEASE"
                     swift-id: "swift-6.2.4-RELEASE-ubuntu24.04"
 
             -   name: 🤍 Install Unidoc 🤍
-                uses: tayloraswift/swift-unidoc-action@master
+                uses: rarestype/unidoc-action@master
 
             #   This clobbers everything in the current directory!
             -   name: 🤍 Checkout repository 🤍
@@ -40,7 +40,7 @@ jobs:
         name: macOS
         steps:
             -   name: 🤍 Install Unidoc 🤍
-                uses: tayloraswift/swift-unidoc-action@master
+                uses: rarestype/unidoc-action@master
 
             -   name: 🤍 Checkout repository 🤍
                 uses: actions/checkout@v6

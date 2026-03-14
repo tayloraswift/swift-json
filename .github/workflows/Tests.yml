@@ -35,7 +35,7 @@ jobs:
         if: ${{ needs.changes.outputs.code_changed == 'true' }}
         steps:
             -   name: 💖 Install Swift 💖
-                uses: tayloraswift/swift-install-action@master
+                uses: rarestype/swift-install-action@master
                 with:
                     swift-prefix: "swift-6.2.4-release/ubuntu2404/swift-6.2.4-RELEASE"
                     swift-id: "swift-6.2.4-RELEASE-ubuntu24.04"
